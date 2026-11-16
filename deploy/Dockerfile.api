@@ -11,6 +11,8 @@ COPY . .
 RUN pnpm install --frozen-lockfile --include-workspace-root --filter "@bandha/api..." --filter "@bandha/db..."
 
 ENV NODE_ENV=production
+# Dependencies were installed (only the ones this image needs) at build time; at runtime pnpm must not re-check them.
+ENV npm_config_verify_deps_before_run=false
 USER node
 WORKDIR /app/apps/api
 EXPOSE 4000
