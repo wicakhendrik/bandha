@@ -25,6 +25,8 @@ export interface MarketDataProvider {
 export interface FxProvider {
   readonly name: string;
   fetchIdrRates(codes: string[]): Promise<Record<string, string>>;
+  /** Which source produced the rate just returned for `code` (providers that mix sources); defaults to `name`. */
+  sourceFor?(code: string): string;
 }
 
 /** Normalises a provider number to a plain decimal string; rejects anything non-positive or non-finite. */

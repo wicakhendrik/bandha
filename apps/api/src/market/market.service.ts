@@ -63,7 +63,7 @@ export class MarketDataService {
       if (!idrId || fxAssets.length === 0) return [];
       const codes = fxAssets.map((a) => a.symbol);
       const rates = await this.fx.fetchIdrRates(codes);
-      return fxAssets.flatMap((a) => (rates[a.symbol] ? [{ assetId: a.id, quoteAssetId: idrId, price: rates[a.symbol]!, source: this.fx.name, asOf }] : []));
+      return fxAssets.flatMap((a) => (rates[a.symbol] ? [{ assetId: a.id, quoteAssetId: idrId, price: rates[a.symbol]!, source: this.fx.sourceFor?.(a.symbol) ?? this.fx.name, asOf }] : []));
     };
 
     const [c, f] = await Promise.allSettled([cgAssets.length ? crypto() : Promise.resolve([]), fiat()]);

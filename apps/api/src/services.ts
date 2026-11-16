@@ -4,7 +4,9 @@ import { AssetsService } from "./assets.service";
 import { DashboardService } from "./dashboard.service";
 import { CoinGeckoProvider } from "./market/coingecko";
 import { FakeFxProvider, FakeProvider } from "./market/fake";
+import { CoinGeckoFxProvider } from "./market/coingecko-fx";
 import { FrankfurterProvider } from "./market/frankfurter";
+import { LiveFxProvider } from "./market/live-fx";
 import { MarketDataService } from "./market/market.service";
 import { HoldingsService } from "./holdings.service";
 import { PortfolioService } from "./portfolio.service";
@@ -15,7 +17,7 @@ export function createProvider(config: Config): MarketDataProvider {
 }
 
 export function createFxProvider(config: Config): FxProvider {
-  return config.MARKET_PROVIDER === "fake" ? new FakeFxProvider() : new FrankfurterProvider();
+  return config.MARKET_PROVIDER === "fake" ? new FakeFxProvider() : new LiveFxProvider(new CoinGeckoFxProvider(config.COINGECKO_API_KEY), new FrankfurterProvider());
 }
 
 export function createServices(db: Db, provider: MarketDataProvider, fx: FxProvider) {

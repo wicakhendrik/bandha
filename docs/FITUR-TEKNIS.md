@@ -12,7 +12,7 @@ Selesai: monorepo, paket ledger (15 test), skema + 2 migrasi, seed aset (`pnpm d
 
 Market data + dashboard: harga CoinGecko (IDR dan USD disimpan terpisah per `(aset, mata uang)`), sync tiap 15 menit lewat scheduler API, net worth, alokasi, arus kas bulanan, riwayat net worth harian. Aset tanpa harga ditandai `unpriced` dan `complete: false`, tidak pernah dihitung nol.
 
-Sumber harga: crypto dan emas dari CoinGecko, mata uang asing dari Frankfurter. Satu sumber gagal tidak membuang harga dari yang lain.
+Sumber harga: crypto dan emas dari CoinGecko; mata uang asing dari CoinGecko `/exchange_rates` (hampir live, diperbarui tiap beberapa menit) yang selalu dibandingkan dengan kurs referensi ECB lewat Frankfurter (sekali sehari). Bila keduanya selisih lebih dari 5%, dipakai kurs ECB (kurs lama lebih baik daripada kurs yang salah); bila hanya satu yang menjawab atau memuat mata uang itu, dipakai yang ada. Kolom `source` mencatat sumber tiap kurs. Satu sumber gagal tidak membuang harga dari yang lain.
 
 ## Web
 
