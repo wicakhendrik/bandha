@@ -1,93 +1,199 @@
+<div align="center">
+
 # Bandha
 
-Pencatat keuangan pribadi dan pelacak portofolio multi-aset (web + Android + iOS).
-Rewrite dari FinMap. Target: `bandha.grezly.app`. Bahasa utama Indonesia, mata uang default IDR.
+**Catat keuangan pribadi dan pantau seluruh kekayaan Anda dalam satu buku besar yang rapi: rekening, uang tunai, kripto, emas, sampai utang.**
 
-> *Bandha* (Jawa): harta benda. Bukan platform trading.
+Web · Android · iOS &nbsp;|&nbsp; Indonesia & English &nbsp;|&nbsp; Terang & gelap
 
-## Stack
+[English](README.en.md) · [Fitur](#fitur) · [Tampilan](#tampilan) · [Mulai](#mulai-cepat) · [Deploy](docs/DEPLOY.md)
+
+<br>
+
+<img src="docs/screenshots/web-dashboard.jpg" alt="Beranda Bandha: kekayaan bersih, alokasi aset, dan arus kas" width="900">
+
+</div>
+
+> *Bandha* (Jawa): harta benda. Bandha adalah pencatat dan pelacak, **bukan platform trading**: tidak ada jual-beli sungguhan, hanya pencatatan milik Anda.
+
+## Fitur
+
+- **Kekayaan bersih sejati.** Semua rekening (bank, e-wallet, tunai, bursa kripto, dompet, emas) dan utang dihitung jadi satu angka, lengkap dengan alokasi aset dan riwayatnya.
+- **Portofolio multi-aset.** Kripto, emas, dan valas dengan harga pasar langsung. Beli dan jual dicatat dengan **modal rata-rata tertimbang**, sehingga untung/rugi belum terealisasi dan **terealisasi** terlihat jelas.
+- **Arus kas.** Pemasukan dan pengeluaran per kategori, per bulan, terpisah dari untung/rugi investasi.
+- **Utang & piutang.** Cicilan, kartu kredit, dan pinjaman antarteman; bayar sebagian, pantau jatuh tempo, dan sisa otomatis menghitung dirinya sendiri.
+- **Transaksi lengkap.** Pemasukan, pengeluaran, transfer antarrekening (termasuk biaya), beli, jual, edit, dan batalkan, semuanya dengan jejak audit.
+- **Impor CSV mutasi bank.** Tempel atau unggah CSV, tinjau baris demi baris sebelum disimpan (semua-atau-tidak-sama-sekali), dan batalkan seluruh impor bila salah.
+- **Mulai cepat.** Panduan awal yang menyesuaikan dengan data Anda: tambah rekening, saldo awal, transaksi pertama.
+- **Dwibahasa dan dua tema.** Indonesia dan English di web dan mobile; tema terang dan gelap bergaya *Batik Sogan*.
+- **Akun yang aman.** Lupa kata sandi lewat email, token disimpan di cookie `httpOnly` (web) dan SecureStore (mobile).
+- **Pindah dari FinMap.** Skrip migrasi satu-orang-per-jalan dengan dry-run dan rekonsiliasi saldo ([panduan](docs/MIGRASI-FINMAP.md)).
+
+## Tampilan
+
+### Web
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/web-accounts.jpg" alt="Daftar rekening dengan logo bank dan e-wallet"><br><sub><b>Rekening</b>: bank, e-wallet, tunai, bursa, dompet, emas</sub></td>
+    <td width="50%"><img src="docs/screenshots/web-portfolio.jpg" alt="Portofolio dengan alokasi, modal rata-rata, dan untung/rugi"><br><sub><b>Portofolio</b>: modal rata-rata dan untung/rugi per aset</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/web-transactions.jpg" alt="Daftar transaksi dengan filter"><br><sub><b>Transaksi</b>: cari, saring, edit, dan batalkan</sub></td>
+    <td><img src="docs/screenshots/web-cashflow.jpg" alt="Arus kas pengeluaran per kategori"><br><sub><b>Arus kas</b>: ke mana uang Anda pergi</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/web-debts.jpg" alt="Utang dan piutang dengan sisa dan jatuh tempo"><br><sub><b>Utang & piutang</b>: sisa dan jatuh tempo</sub></td>
+    <td><img src="docs/screenshots/web-import.jpg" alt="Impor CSV mutasi bank dengan pratinjau baris"><br><sub><b>Impor CSV</b>: tinjau dulu, baru simpan</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/web-add-transaction.jpg" alt="Form catat transaksi"><br><sub><b>Catat transaksi</b> yang ringkas</sub></td>
+    <td><img src="docs/screenshots/web-login.jpg" alt="Halaman masuk"><br><sub><b>Masuk</b></sub></td>
+  </tr>
+</table>
+
+### Tema gelap dan bahasa Inggris
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/web-dashboard-dark.jpg" alt="Beranda tema gelap"><br><sub>Beranda, tema gelap</sub></td>
+    <td width="50%"><img src="docs/screenshots/web-portfolio-dark.jpg" alt="Portofolio tema gelap"><br><sub>Portofolio, tema gelap</sub></td>
+  </tr>
+  <tr>
+    <td colspan="2" align="center"><img src="docs/screenshots/web-dashboard-en.jpg" alt="Dashboard in English" width="60%"><br><sub>Antarmuka berbahasa Inggris</sub></td>
+  </tr>
+</table>
+
+### Mobile (Android dan iOS)
+
+<table>
+  <tr>
+    <td align="center"><img src="docs/screenshots/mobile-home.jpg" alt="Beranda mobile" width="170"><br><sub>Beranda</sub></td>
+    <td align="center"><img src="docs/screenshots/mobile-portfolio.jpg" alt="Portofolio mobile" width="170"><br><sub>Portofolio</sub></td>
+    <td align="center"><img src="docs/screenshots/mobile-accounts.jpg" alt="Rekening mobile" width="170"><br><sub>Rekening</sub></td>
+    <td align="center"><img src="docs/screenshots/mobile-debts.jpg" alt="Utang dan piutang mobile" width="170"><br><sub>Utang & piutang</sub></td>
+    <td align="center"><img src="docs/screenshots/mobile-home-dark-en.jpg" alt="Mobile home, dark theme, English" width="170"><br><sub>Gelap + English</sub></td>
+  </tr>
+</table>
+
+> Semua tangkapan layar memakai **data fiktif** (pengguna "Sari Wulandari"); tidak ada data nyata di dalamnya. Tangkapan layar mobile diambil dari pratinjau Expo web.
+
+## Prinsip akuntansi
+
+Bandha memakai pembukuan berpasangan (*double-entry*), sehingga angka yang tampil selalu bisa ditelusuri dan tidak bisa "diam-diam" berubah.
+
+- **Buku besar adalah sumber kebenaran.** Entri tidak pernah diubah; saldo diturunkan dari entri.
+- **Jurnal selalu seimbang** dalam mata uang fungsional (IDR). Tidak ada entri bernilai nol.
+- **"Hapus" = batalkan lewat jurnal pembalik.** Edit = pembalik + pengganti. Jejak audit selalu utuh.
+- **Uang bukan float.** Semua nominal berupa desimal (string/`numeric`).
+- **Transfer bukan pemasukan atau pengeluaran**, dan memindahkan modal secara proporsional.
+- **Modal tidak diketahui tetap `null`**, tidak pernah diam-diam jadi 0.
+- **Harga dikunci per (aset, mata uang kuotasi)**, jadi kuotasi USD tidak bisa menimpa IDR.
+- **Cakupan data selalu dari token terverifikasi**, bukan dari ID yang dikirim klien.
+
+Rincian per fitur ada di [docs/FITUR-TEKNIS.md](docs/FITUR-TEKNIS.md).
+
+## Teknologi
 
 | Lapisan | Teknologi |
 | --- | --- |
-| Monorepo | pnpm workspaces |
-| API | Hono + TypeScript, JWT (jose), refresh-token rotation |
+| Monorepo | pnpm workspaces, TypeScript penuh |
+| API | Hono, JWT (jose) dengan rotasi refresh-token, argon2 |
 | Database | PostgreSQL 16 + Drizzle ORM |
-| Web | Next.js 16 App Router + React 19 + SWR (BFF: token di cookie httpOnly) |
-| Mobile | Expo SDK 58 + React Native 0.88 + Expo Router (Android + iOS), token di SecureStore |
-| Validasi | Zod (dipakai bersama klien dan API) |
+| Web | Next.js 16 (App Router), React 19, SWR; BFF dengan token di cookie `httpOnly` |
+| Mobile | Expo SDK 58, React Native 0.88, Expo Router; token di SecureStore |
+| Validasi | Zod, dipakai bersama oleh klien dan API |
+| Pengujian | Vitest (unit dan integrasi dengan Postgres sungguhan) |
+| Deploy | Docker Compose, nginx, GitHub Actions |
 
-## Struktur
+```mermaid
+flowchart LR
+  Web["Web<br/>Next.js"] -->|BFF, cookie httpOnly| API
+  Mobile["Mobile<br/>Expo"] -->|HTTPS, Bearer| API
+  API["API<br/>Hono"] --> Ledger["packages/ledger<br/>akuntansi murni"]
+  API --> DB[("PostgreSQL")]
+  API -->|harga| Market["CoinGecko / ECB"]
+```
+
+## Struktur repo
 
 ```
 apps/api              REST API (Hono)
-apps/web              Web Next.js (login, dashboard, rekening, transaksi)
-apps/mobile           App Android + iOS (Expo)
-packages/ledger       Inti akuntansi murni TS: jurnal, void, weighted-average
-packages/db           Skema Drizzle + migrasi
+apps/web              Web (Next.js)
+apps/mobile           Android + iOS (Expo)
+packages/ledger       Inti akuntansi murni: jurnal, pembatalan, modal rata-rata
+packages/db           Skema Drizzle dan migrasi
 packages/validation   Skema Zod bersama
-packages/api-client   Klien HTTP + refresh token + tipe + format angka + katalog logo (dipakai web dan mobile)
+packages/api-client   Klien HTTP, tipe, format angka, katalog logo (web dan mobile)
+deploy/               Dockerfile, Compose, skrip deploy/backup/restore, nginx
+docs/                 Panduan deploy, catatan teknis, migrasi FinMap
 design/dashboard      Mockup desain "Batik Sogan"
 ```
 
-## Mulai
+## Mulai cepat
+
+Butuh **Node 22+**, **pnpm 12**, dan **Docker** (hanya untuk menjalankan PostgreSQL lokal; boleh diganti Postgres Anda sendiri).
 
 ```bash
 pnpm install
 cp .env.example .env
-pnpm db:up          # Postgres via Docker (port 5434)
+pnpm db:up          # PostgreSQL via Docker (port 5434)
 pnpm db:migrate
+pnpm db:seed        # katalog aset (kripto, emas, valas)
 pnpm dev:api        # http://localhost:4000/api/health
 pnpm dev:web        # http://localhost:3000
-pnpm dev:mobile     # Expo (scan QR dengan Expo Go, atau tekan a / i)
+pnpm dev:mobile     # Expo: pindai QR dengan Expo Go, atau tekan a / i
 ```
 
-Cek kualitas: `pnpm typecheck` dan `pnpm test`.
+Buka http://localhost:3000, daftar, lalu ikuti panduan **Mulai cepat** di Beranda.
 
-## Aturan inti (diwarisi dari FinMap)
+> Untuk pengembangan, `MARKET_PROVIDER=fake` memakai harga tiruan tanpa internet. Untuk data nyata biarkan `coingecko`.
 
-- Ledger adalah sumber kebenaran; entri tidak pernah diubah. Saldo diturunkan dari entri.
-- Jurnal harus seimbang dalam mata uang fungsional. Tidak ada entri bernilai nol.
-- "Hapus" transaksi = void lewat jurnal pembalik. Jejak audit tetap.
-- Uang memakai decimal (string/numeric), tidak pernah float.
-- Transfer bukan pemasukan/pengeluaran dan memindahkan biaya perolehan secara proporsional.
-- Biaya perolehan tidak diketahui tetap `null`, tidak pernah diam-diam jadi 0.
-- Kuotasi harga dikunci per `(aset, mata uang kuotasi)`, jadi kuotasi USD tidak bisa menimpa IDR (akar bug FinMap).
-- Scope data selalu dari token terverifikasi, tidak pernah dari `workspaceId` kiriman klien.
+### Perintah
 
-## Status
+| Perintah | Fungsi |
+| --- | --- |
+| `pnpm typecheck` | Periksa tipe seluruh paket |
+| `pnpm test` | Tes unit (154 tes) |
+| `pnpm test:integration` | Tes integrasi (91 tes, butuh PostgreSQL) |
+| `pnpm db:generate` | Buat migrasi baru dari perubahan skema |
+| `pnpm db:up` / `pnpm db:down` | Nyalakan / matikan PostgreSQL lokal |
 
-Selesai: monorepo, paket ledger (15 test), skema + 2 migrasi, seed aset (`pnpm db:seed`), auth (register, login, refresh rotation, logout, `/me`), rekening (saldo awal, saldo turunan ledger, arsip), transaksi (income, expense, transfer, void, idempotensi, edit metadata), tes integrasi (`pnpm test:integration`, butuh Postgres; 91 tes integrasi termasuk 8 untuk utang/piutang, 7 untuk edit transaksi, 7 untuk impor CSV, 8 untuk lupa kata sandi, 9 untuk migrasi FinMap, dan 5 untuk onboarding (plus 36 tes unit parser, 6 tes konfigurasi/email, dan 13 tes pemetaan migrasi)).
-Market data + dashboard: harga CoinGecko (IDR dan USD disimpan terpisah per `(aset, mata uang)`), sync tiap 15 menit lewat scheduler API, net worth, alokasi, arus kas bulanan, riwayat net worth harian. Aset tanpa harga ditandai `unpriced` dan `complete: false`, tidak pernah dihitung nol.
-Web: login/daftar, dashboard (net worth, arus kas, alokasi, rekening, transaksi terbaru, aset kripto), rekening (tambah, arsip), transaksi (catat, void), tema terang/gelap, responsif dengan tab bar mobile. Token disimpan di cookie httpOnly lewat BFF `/api/*`; refresh paralel dijaga single-flight.
-Mobile: login/daftar, dashboard (net worth, grafik, arus kas, alokasi, rekening, transaksi, aset non-rupiah), rekening (tambah, arsip), transaksi (catat, void), tab bar + tombol tambah, tema terang/gelap mengikuti sistem, tarik untuk menyegarkan. Token di keychain/keystore OS; refresh token berotasi dan dijaga single-flight (20 test di `api-client`). Bundle Android dan iOS terbukti berhasil.
-Portofolio: beli dan jual aset dengan IDR, modal rata-rata tertimbang per rekening dan aset, untung/rugi belum terealisasi (harga pasar) dan terealisasi (dari penjualan), biaya transaksi sebagai pengeluaran terpisah (tidak masuk modal), transfer aset memindahkan modal secara proporsional tanpa P/L, void ditolak kalau aset hasilnya sudah dijual/dipindahkan, penjualan paralel diserialisasi lewat row lock. Posisi diturunkan dari ledger (jumlah = Σ kuantitas, modal = Σ nilai fungsional), tidak disimpan terpisah. Ada di web (/portfolio) dan mobile (tab Portofolio).
-Alur aset: tidak ada menu Aset terpisah, semuanya lewat Portofolio. Portofolio menampilkan semua aset termasuk kas IDR (tanpa untung/rugi, dan tidak ikut modal aset). Ketuk aset untuk melihat rekening yang menyimpannya; ketuk rekening untuk melihat transaksi rekening itu khusus aset tersebut, dengan saldo berjalan (web: `/portfolio`, `/portfolio/[id]`, `/accounts/[id]?asset=`; mobile: tab Portofolio, `asset/[id]`, `account/[id]`). API: `GET /portfolio`, `GET /holdings`, `GET /accounts/:id/ledger?assetId=`.
-Logo: ikon koin vektor asli (CC0, `cryptocurrency-icons`) dan glyph bursa (CC0, `simple-icons`) dibuat oleh `pnpm --filter @bandha/api-client gen:icons`. Bank, e-wallet, dan CEX Indonesia tidak ada di set terbuka, jadi tampil sebagai badge berwarna brand (bukan artwork resmi). Rekening bisa memilih lembaga (`brandKey`) atau dicocokkan dari nama (BCA, GoPay, Indodax, dll). Logo resmi bisa ditambahkan nanti tanpa mengubah pemanggil.
-Putaran penyesuaian: ikon chevron/panah menggantikan teks `‹ ›`; web dua bahasa (Indonesia/Inggris, pilihan tersimpan di cookie dan dibaca server, kamus di `apps/web/src/lib/dict.ts` dengan tes paritas kunci dan placeholder; angka dan tanggal ikut bahasa); semua dropdown memakai pemilih yang bisa dicari (`Select` di web, `SearchPicker` di mobile); Beranda: kartu pemasukan/pengeluaran bulan ini membuka detail per bulan (pie per kategori + daftar transaksi, `/cashflow/income|expense`); Rekening: edit rekening, filter tipe, dan pencarian; form rekening hanya satu field **Jenis** (lembaga) yang menentukan tipe rekening dan aset saldo awal: Bank/E-wallet/Tunai memakai mata uang (IDR + 29 mata uang asing, kurs ECB lewat Frankfurter), Bursa/Dompet Kripto memakai kripto (16 koin utama berurutan, plus pencarian seluruh CoinGecko; koin baru ditambahkan ke katalog saat dipilih), Emas memakai gram (harga dari PAX Gold dibagi 31,1034768 g/oz); Portofolio: pie alokasi aset.
-Sumber harga: crypto dan emas dari CoinGecko, mata uang asing dari Frankfurter. Satu sumber gagal tidak membuang harga dari yang lain.
-Utang & piutang: kontrak utang (saya berutang) dan piutang (saya meminjamkan) dengan jenis (pribadi, kartu kredit, KPR, cicilan, lainnya), jatuh tempo, dan catatan. Semuanya lewat ledger: meminjam = kas masuk + kewajiban (akun sistem tersembunyi `liability`), meminjamkan = kas keluar + tagihan (`receivable`); membayar/menerima menurunkan sisa, dan **bunga dicatat terpisah** sebagai pengeluaran/pemasukan (kategori "Bunga utang/piutang"), tidak pernah mengurangi pokok. Sisa utang **tidak disimpan**: dihitung dari jumlah entri ledger milik transaksi kontrak itu, sehingga void pembayaran otomatis mengembalikan sisa. Kontrak yang sudah ada sebelum memakai Bandha boleh dicatat tanpa rekening (lawannya akun ekuitas, seperti saldo awal). Net worth = aset + piutang − utang, jadi meminjam/meminjamkan lewat rekening tidak mengubahnya; hanya bunga yang mengubah. Pembayaran melebihi sisa ditolak (kontrak dikunci `FOR UPDATE`, jadi pembayaran paralel aman); membatalkan kontrak yang sudah ada pembayarannya ditolak (batalkan pembayaran dulu). Tipe transaksi baru: `borrow`, `lend`, `repay`, `collect`. API: `GET/POST /debts`, `GET/PATCH /debts/:id`, `POST /debts/:id/payments`, `POST /debts/:id/void`; `GET /dashboard` kini memuat `debts: { payable, receivable }`. Web (`/debts`, `/debts/[id]`, dua bahasa) dan mobile (`debts`, `debt/[id]`, `add-debt`, `settle-debt`). Beda dengan FinMap: tanpa jadwal cicilan otomatis (FinMap membuat 12 jadwal palsu bertanggal +30 hari dan tidak mencatat ke ledger); bunga diisi saat membayar.
-Edit transaksi: pemasukan, pengeluaran, transfer, beli, jual, dan saldo awal bisa diedit penuh (jumlah, rekening, aset, biaya, kategori, catatan, tanggal). Caranya cara akuntansi: jurnal yang berlaku **dibalik** lalu **jurnal pengganti** dipasang, dalam satu transaksi database, jadi riwayat tetap utuh (jurnal asli, pembaliknya, dan penggantinya) dan ledger tetap seimbang. Karena itu "jurnal yang berlaku" kini = bukan pembalik dan belum dibalik (`LIVE_J` / `liveJournal` di `ledger-store.ts`); semua laporan (arus kas, detail pemasukan/pengeluaran, mutasi rekening, daftar transaksi, riwayat utang) memakainya supaya jurnal asli yang sudah diganti tidak terhitung dua kali, dan void sesudah edit membalik jurnal pengganti. Aturan: jenis transaksi tidak bisa diganti (void lalu catat ulang); saldo awal hanya mengubah jumlah (rekening dan aset tetap); transaksi utang/piutang diedit dari halaman utangnya; modal rata-rata bergantung urutan, jadi transaksi yang menyentuh aset non-IDR hanya bisa diedit selama **belum ada transaksi lain sesudahnya** di rekening dan aset yang sama (selain itu ditolak dengan penjelasan), dan hasil edit tidak boleh membuat jumlah aset negatif. API: `GET /transactions/:id` (bentuk form, dibangun dari jurnal berlaku, jadi transaksi lama pun bisa diedit) dan `PUT /transactions/:id`; daftar transaksi memuat `editable`. Web (tombol Edit di /transactions) dan mobile (tombol Edit di tab Transaksi, layar yang sama dengan Catat transaksi).
-Impor CSV (mutasi bank/e-wallet): dua langkah, tanpa menyimpan file. **Pratinjau** (`POST /imports/preview`, hanya membaca) mengurai CSV (kutip, koma/titik-koma/tab, BOM, baris informasi rekening di atas judul), mengenali kolom dari judulnya (Indonesia dan Inggris: Tanggal/Keterangan/Jumlah atau Debet/Kredit/Kategori), membaca angka gaya Indonesia dan Inggris (`1.234.567,89`, `Rp 50.000`, `(25.000)`, `50.000 DB`) dan tanggal (`2026-11-15`, `15/11/2026`, `15 Nov 2026`, `3 Mei 2026 08:30`; urutan hari/bulan bisa diganti), lalu menandai baris yang sudah ada di rekening (tanggal + jumlah + keterangan sama, dicocokkan **per jumlah**, jadi dua kopi kembar di satu file tidak dianggap duplikat satu sama lain, dan mengimpor file yang sama dua kali menandai semuanya "Sudah ada"). Baris yang tak terbaca dilaporkan dengan nomor dan alasan; baris kosong/total dilewati. Kolom bisa diatur manual. **Impor** (`POST /imports`) mencatat baris terpilih sebagai pemasukan/pengeluaran IDR secara **semua-atau-tidak-sama-sekali**, dengan insert massal (1500 baris = beberapa query), tag `import`, dan kunci idempotensi per batch (`<batchKey>:<n>`) sehingga permintaan ulang tidak menggandakan. `POST /imports/:batchKey/undo` mem-void seluruh batch (jurnal pembalik, riwayat tetap). Batas: 1 MB dan 2000 baris per impor, endpoint dibatasi laju, isi file tidak pernah dicatat di log. Web (`/import`, tombol di halaman Transaksi; pilih file atau tempel teks) dan mobile (`import-csv`, memakai `expo-document-picker`). Hanya IDR dan hanya pemasukan/pengeluaran (belum transfer, beli/jual, atau aset lain dari CSV). Tanggal tanpa jam dicatat pukul 12:00 WIB.
-Lupa kata sandi: `POST /auth/forgot` mengirim tautan `…/reset-password?token=…` ke email; `POST /auth/reset` memasang kata sandi baru. Keamanan: token acak 256-bit, **hanya hash SHA-256 yang disimpan** (tabel `password_resets`), sekali pakai, berlaku 30 menit, permintaan baru mematikan tautan lama, maksimal 3 email per akun per jam (sisanya diabaikan diam-diam) dan 5 permintaan per 15 menit per alamat IP. Jawaban `/auth/forgot` **selalu sama** baik email terdaftar maupun tidak, dan email dikirim di latar belakang agar waktu respons tidak membocorkannya. Setelah reset, **semua sesi akun dicabut** (semua perangkat keluar; access token yang sudah beredar habis dalam maksimal 15 menit). Kata sandi lemah tidak menghanguskan tautan. Token, tautan, dan alamat email tidak pernah masuk log. Halaman `/reset-password` memakai `Referrer-Policy: no-referrer`, `no-store`, dan noindex karena token ada di alamat. Email dua bahasa (Indonesia dan Inggris). Web: `/forgot-password`, `/reset-password`, tautan "Lupa kata sandi?" di halaman masuk. Mobile: layar `forgot-password` dan `reset-password` (tempel tautan atau kodenya; tautan email membuka web). **Konfigurasi email**: `MAIL_TRANSPORT=console` (dev, mencetak email di terminal API) atau `smtp` dengan `SMTP_URL`, `MAIL_FROM`, dan `APP_URL`; API menolak start di `NODE_ENV=production` dengan transport `console`. Web BFF kini meneruskan IP klien (`X-Forwarded-For`) ke API supaya pembatas laju tidak menganggap semua pengguna web satu alamat.
-Migrasi dari FinMap: `pnpm --filter @bandha/api migrate:finmap` memindahkan **satu orang per jalan** dari database Postgres FinMap ke Bandha. Database FinMap hanya dibaca (transaksi `READ ONLY`). Prosedur: (1) isi `FINMAP_DATABASE_URL` (lebih aman daripada `--source`, karena pnpm mencetak seluruh baris perintah); (2) `--list` untuk melihat pemilik workspace; (3) jalankan **dry-run** `--email orang@contoh.com`: skrip benar-benar melakukan seluruh migrasi di dalam satu transaksi database lalu membatalkannya, jadi laporannya persis hasil jalan sungguhan; (4) bila laporan benar, ulangi dengan `--apply`. `--apply` hanya menulis bila **tidak ada transaksi yang gagal** dan **semua saldo per rekening dan aset sama dengan saldo yang ditampilkan FinMap** (proyeksi saldonya); pengecualian harus disetujui eksplisit dengan `--skip-failed` / `--allow-mismatch`. Skrip tidak pernah menimpa atau menggabungkan akun yang sudah ada di Bandha (email sama = ditolak), jadi aman dijalankan ulang.
-- **Pendekatan:** bukan menyalin jurnal FinMap. Buku besar dan proyeksi saldo FinMap tidak selalu sejalan (mis. biaya konversi tercatat di ledger tanpa mengurangi rekening), padahal yang dilihat dan dipercaya pengguna adalah saldo rekening. Maka **perintah transaksi** (snapshot revisi terkini) diputar ulang lewat service Bandha sendiri (modal rata-rata, jurnal seimbang, tidak ada aset negatif), berurutan menurut tanggal, lalu hasilnya direkonsiliasi dengan saldo FinMap. Edit di FinMap yang tersimpan sebagai jurnal mentah dibaca dari jurnal yang berlaku. Hanya keadaan akhir yang dibawa, bukan riwayat jurnal pembalik.
-- **Yang dimigrasi:** pengguna (email, **kata sandi tetap sama**: hash argon2 FinMap dipertahankan, diterima saat login, dan diganti hash Bandha pada login pertama; akun tanpa kata sandi memakai "Lupa kata sandi"), rekening (nama sumber + rekening, jenis, logo, ikut kekayaan bersih, diarsipkan bila sumber/rekening diarsipkan), saldo awal (selalu lebih dulu), pemasukan, pengeluaran, transfer (+ biaya sebagai pengeluaran terpisah), konversi (rupiah ke aset = **beli**, aset ke rupiah = **jual**, aset ke aset = jual lalu beli pada nilai rupiah yang sama sehingga tidak ada sisa rupiah, aset sama = transfer), serta utang/piutang aktif sebagai kontrak yang sudah ada sebesar **sisa**. Aset yang belum ada di katalog Bandha ditambahkan (berharga bila FinMap punya id CoinGecko). Transaksi diberi tag `dari-finmap`.
-- **Tidak dimigrasi (dilaporkan satu per satu):** transaksi draft/terjadwal/void, jenis yang belum didukung (dividen, split, refund, penyesuaian), utang lunas/dihapus, anggota lain di workspace bersama (Bandha satu orang per buku besar), riwayat kekayaan bersih (Bandha membangun miliknya sendiri), rekonsiliasi, dan impor CSV lama.
-- **Keputusan yang harus dibuat pengguna:** bila ada **emas (XAU)**, tentukan `--gold-unit=gram|ounce` karena FinMap tidak mencatat satuannya (ounce dikonversi ke gram, 31,1034768). Hanya workspace **IDR**.
-- **Perbedaan yang perlu dipahami:** modal saldo awal valas dan aset tanpa modal diperkirakan dari harga hari ini (FinMap mencatat valas bernilai nominal dalam rupiah, 100 USD = Rp 100, sehingga bukan modal sebenarnya); daftar perkiraan tampil di laporan dan bisa diubah lewat Edit. Rekening bertipe kartu kredit/pinjaman menjadi rekening biasa ("Lainnya"). Biaya konversi tanpa aset pembayar tidak dimigrasi karena di FinMap tidak mengubah saldo. Utang kini masuk kekayaan bersih.
-- **Diuji** terhadap struktur tabel FinMap yang asli (migrasi Prisma-nya dijalankan di skema sementara) dan terhadap data tiruan gaya FinMap lengkap dengan keanehannya. Belum dicoba pada data FinMap sungguhan karena tidak ada di mesin ini: jalankan dry-run dulu dan baca laporannya.
-Onboarding ("Mulai cepat"): dua langkah, **tambah rekening pertama** lalu **catat transaksi pertama** (atau impor CSV). Kemajuannya **diturunkan dari data nyata** lewat `GET /onboarding` (jumlah rekening aktif dan transaksi sungguhan; saldo awal tidak dihitung; transaksi yang di-void dan rekening yang diarsipkan juga tidak), jadi tercentang sendiri, tidak pernah berbeda dari isi buku, dan orang yang datang dari migrasi FinMap atau impor otomatis dianggap selesai. Hanya pilihan "Nanti saja" yang disimpan (`users.onboarding_dismissed_at`, `POST /onboarding/dismiss`, berlaku di semua perangkat; akun hasil migrasi FinMap langsung dianggap sudah menutupnya). Kartu di Beranda (web dan mobile) hilang sendiri begitu kedua langkah selesai atau ditutup. Di web, pendaftaran mengarah ke halaman `/welcome` (kartu yang sama dalam versi penuh, ajakan ke fitur lain, "Lewati" juga menutup kartu di Beranda). Dua bahasa di web.
-Bahasa Inggris di mobile: seluruh aplikasi mobile kini dua bahasa. Setiap teks ditulis sebagai **pasangan** di tempat ia dipakai, `t("Simpan", "Save")`, lewat hook `useT()` (`apps/mobile/src/i18n.tsx`), jadi terjemahan yang hilang tidak mungkin ada. Angka dan tanggal ikut bahasa lewat pemformat bersama, dan label dari `@bandha/api-client` sudah dua bahasa. Pilihan bahasa **diingat** (SecureStore, localStorage di web) dan pertama kali **mengikuti bahasa ponsel** (ponsel berbahasa Inggris mendapat Inggris, selain itu Indonesia). Ganti bahasa di **Pengaturan** (ketuk avatar di Beranda; juga ada tombol Keluar) atau lewat tombol ID | EN di layar masuk, daftar, dan lupa kata sandi; semua layar langsung berganti tanpa memuat ulang. Ada tes penjaga (`apps/mobile/src/i18n.test.ts`) yang memindai seluruh kode mobile dan gagal bila ada teks Indonesia di luar pasangan `t(id, en)`, jadi layar baru tidak bisa lolos setengah diterjemahkan. Yang tetap Indonesia: pesan kesalahan dari server, nama aset dari katalog, dan moto Jawa "Gemi, nastiti, ngati-ati." (identitas merek).
-Deploy: dua lingkungan (branch `development` -> bandha-dev.grezly.app, `main` -> bandha.grezly.app) dengan Docker Compose per lingkungan (database Postgres, migrasi otomatis, API, web), `deploy/deploy.sh` (tarik, bangun, jalankan, tunggu sehat, **rollback otomatis** bila versi baru gagal), backup/restore, nginx, dan CI/CD GitHub Actions (CI lalu deploy lewat SSH). Panduan lengkap untuk Anda dan agent VPS, termasuk cara mengatur database, ada di [docs/DEPLOY.md](docs/DEPLOY.md). Berkas ada di `deploy/` dan `.github/workflows/ci.yml`. Image Docker, backup/restore, dan rollback sudah diuji dengan Docker sungguhan; SSH ke VPS, nginx/certbot, dan SMTP belum bisa diuji dari mesin pengembangan.
-Belum: mata uang asing selain 30 mata uang ECB (mis. SAR, AED, VND), sumber/lembaga sebagai entitas sendiri, harga emas, kurs USD fiat, halaman aset, i18n Inggris, test web/mobile UI, ikon + splash, build rilis (EAS), deploy.
+### Konfigurasi
 
-Catatan:
-- Aset non-IDR tetap wajib menyertakan `functionalAmount` saat mencatat transaksi (nilai/biaya perolehan dalam IDR).
-- `MARKET_PROVIDER=fake` hanya untuk dev/test. Produksi harus `coingecko`.
-- Mobile: set `EXPO_PUBLIC_API_URL` ke IP LAN (perangkat fisik) atau domain HTTPS. Emulator Android memakai `http://10.0.2.2:4000` otomatis. Rilis wajib HTTPS.
-- API: `WEB_ORIGIN` boleh berisi beberapa origin dipisah koma (mis. web dan pratinjau Expo web).
-- Pratinjau web Expo (`expo start --web`) menampilkan peringatan dev `transform-origin` dari react-native-svg. Tidak berlaku di Android/iOS.
-- Beli/jual hanya terhadap IDR (belum aset lawan aset). Pengeluaran dengan aset non-IDR masih memakai `functionalAmount` dari user dan belum menghitung P/L.
-- Laba/rugi terealisasi memakai akun sistem `pnl` terpisah, jadi tidak masuk ke Pemasukan di arus kas.
-- Utang/piutang hanya dalam IDR (mata uang fungsional) dan belum punya jadwal cicilan atau bunga otomatis.
-- Endpoint: `GET /api/portfolio`, `GET /api/dashboard`, `/dashboard/cashflow?months=6`, `/dashboard/history?days=180`, `/prices`, `POST /market-data/refresh`.
+Salin `.env.example` ke `.env`. Yang paling penting:
+
+| Variabel | Keterangan |
+| --- | --- |
+| `DATABASE_URL` | Koneksi PostgreSQL |
+| `JWT_SECRET` | Rahasia penandatangan token, minimal 32 karakter |
+| `WEB_ORIGIN` | Alamat web (boleh beberapa, dipisah koma) untuk CORS |
+| `MARKET_PROVIDER` | `coingecko` untuk harga nyata, `fake` hanya untuk dev/tes |
+| `MAIL_TRANSPORT` / `SMTP_URL` | Email "lupa kata sandi": `console` untuk dev, **`smtp` wajib di produksi** |
+| `EXPO_PUBLIC_API_URL` | Alamat API untuk mobile (IP LAN di perangkat fisik; rilis wajib HTTPS) |
+
+## Deploy
+
+Bandha disiapkan untuk dua lingkungan dari dua branch: `development` dan `main`, masing-masing dengan Docker Compose sendiri (database, migrasi otomatis, API, web). Skrip `deploy/deploy.sh` menarik kode, membangun, menunggu semua layanan sehat, dan **otomatis memulihkan versi sebelumnya** bila versi baru gagal. CI/CD berjalan lewat GitHub Actions.
+
+Panduan lengkap, termasuk pengaturan database, backup/restore, nginx, dan daftar keamanan: **[docs/DEPLOY.md](docs/DEPLOY.md)**.
+
+## Keamanan
+
+- Kata sandi di-hash dengan argon2; token reset berumur pendek, sekali pakai, dan disimpan sebagai hash.
+- Web memakai cookie `httpOnly`/`Secure`; mobile memakai SecureStore. Token tidak pernah dapat dibaca JavaScript halaman.
+- Rahasia, kunci, dan dump database tidak pernah masuk git (`.gitignore` diaudit); `deploy/.env` hanya ada di server.
+- Port layanan terikat ke `127.0.0.1`; hanya nginx yang terbuka ke publik.
+
+Menemukan celah? Mohon laporkan secara pribadi kepada pemilik repositori, jangan lewat *issue* publik.
+
+## Batasan dan rencana
+
+- Mata uang asing terbatas pada 30 mata uang ECB (belum SAR, AED, VND, dll.).
+- Beli/jual baru terhadap IDR (belum aset lawan aset); utang/piutang hanya IDR dan belum punya jadwal cicilan/bunga otomatis.
+- Belum ada: harga emas dari sumber khusus, halaman detail aset, ikon dan splash final, build rilis mobile (EAS), serta tes UI web/mobile.
+- Aplikasi mobile belum dibangun menjadi APK/IPA; saat ini dijalankan lewat Expo.
+
+## Lisensi
+
+Belum ditentukan. Sampai lisensi ditambahkan, semua hak dipegang pemilik repositori.

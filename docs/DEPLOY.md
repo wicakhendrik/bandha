@@ -188,7 +188,7 @@ $C pnpm exec tsx src/migrate/finmap-cli.ts --email orang@contoh.com --apply    #
 ```
 Bila database FinMap ada di container lain di VPS yang sama, sambungkan dulu jaringannya:
 `docker network connect <jaringan-finmap> bandha-dev-api-1` dan pakai nama container FinMap sebagai host.
-Detail pilihan (`--gold-unit`, `--skip-failed`, `--allow-mismatch`) ada di README bagian "Migrasi dari FinMap".
+Detail pilihan (`--gold-unit`, `--skip-failed`, `--allow-mismatch`) ada di [MIGRASI-FINMAP.md](MIGRASI-FINMAP.md).
 
 ### Bila nanti ingin memakai server PostgreSQL yang sudah ada di VPS
 Bisa, tapi itu perubahan di `deploy/compose.yml` (hapus layanan `db`, isi `DATABASE_URL` langsung). Setiap lingkungan harus
