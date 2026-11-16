@@ -4,3 +4,6 @@ packages:
 
 allowBuilds:
   esbuild: false
+
+# Images install only the workspaces they need, so pnpm must not try to complete the install before running a script.
+verifyDepsBeforeRun: false

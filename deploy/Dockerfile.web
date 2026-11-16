@@ -9,8 +9,6 @@ RUN pnpm install --frozen-lockfile --include-workspace-root --filter "@bandha/we
 RUN pnpm --filter @bandha/web build
 
 ENV NODE_ENV=production
-# Dependencies were installed (only the ones this image needs) at build time; at runtime pnpm must not re-check them.
-ENV npm_config_verify_deps_before_run=false
 USER node
 WORKDIR /app/apps/web
 EXPOSE 3000
