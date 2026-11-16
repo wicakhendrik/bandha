@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "accounts_system_unique" ON "accounts" USING btree ("workspace_id","kind") WHERE "accounts"."is_system";

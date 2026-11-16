@@ -1,0 +1,14 @@
+node_modules
+dist
+*.log
+.turbo
+.next
+.expo
+
+# secrets: ignore every .env*, but keep the example file
+.env
+.env.*
+!.env.example
+*.tsbuildinfo
+deploy/.env
+deploy/backups/

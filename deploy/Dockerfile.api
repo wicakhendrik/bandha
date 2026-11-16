@@ -1,0 +1,17 @@
+# API + database tooling (migrate / seed / the FinMap migration script). One image, different commands.
+#
+# The workspace packages ship TypeScript source, so the API runs through tsx instead of a compiled bundle. Only the
+# api and db workspaces (and what they depend on) are installed, never the mobile app.
+FROM node:24-slim AS base
+RUN npm install -g pnpm@12.15.0 && apt-get update && apt-get install -y --no-install-recommends ca-certificates && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+ENV CI=1
+
+COPY . .
+RUN pnpm install --frozen-lockfile --include-workspace-root --filter "@bandha/api..." --filter "@bandha/db..."
+
+ENV NODE_ENV=production
+USER node
+WORKDIR /app/apps/api
+EXPOSE 4000
+CMD ["pnpm", "exec", "tsx", "src/main.ts"]

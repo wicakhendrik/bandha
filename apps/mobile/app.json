@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "name": "Bandha",
+    "slug": "bandha",
+    "scheme": "bandha",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": { "bundleIdentifier": "app.grezly.bandha", "supportsTablet": false },
+    "android": { "package": "app.grezly.bandha" },
+    "web": { "bundler": "metro", "output": "single" },
+    "plugins": ["expo-router", "expo-secure-store", "expo-font"]
+  }
+}

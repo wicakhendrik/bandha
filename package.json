@@ -1,0 +1,28 @@
+{
+  "name": "bandha",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@12.15.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev:api": "pnpm --filter @bandha/api dev",
+    "dev:web": "pnpm --filter @bandha/web dev",
+    "dev:mobile": "pnpm --filter @bandha/mobile start",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "test:integration": "pnpm --filter @bandha/api test:integration",
+    "db:generate": "pnpm --filter @bandha/db generate",
+    "db:migrate": "pnpm --filter @bandha/db migrate",
+    "db:seed": "pnpm --filter @bandha/db seed",
+    "db:up": "docker compose up -d db",
+    "db:down": "docker compose down"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.0"
+  }
+}

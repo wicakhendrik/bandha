@@ -1,0 +1,17 @@
+{
+  "name": "@bandha/api-client",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run --passWithNoTests",
+    "gen:icons": "node scripts/gen-icons.mjs"
+  },
+  "devDependencies": {
+    "cryptocurrency-icons": "^0.18.1",
+    "simple-icons": "^16.37.0"
+  }
+}

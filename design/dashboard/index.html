@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="id" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bandha — Beranda</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --sogan:#5C3A21; --walnut:#2A1A10; --walnut-2:#38241A;
+  --mori:#F5EDE0; --paper:#FBF6EC; --card:#FFFDF8;
+  --line:#E6D8C3; --ink:#2A1A10; --muted:#7D6650;
+  --gold:#C58A2B; --gold-soft:#F1DDB4; --bata:#A8472D; --daun:#5B7A45;
+  --pos:#4F7338; --neg:#A8472D;
+  --shadow:0 1px 0 rgba(42,26,16,.04),0 8px 24px -12px rgba(42,26,16,.18);
+  --kawung:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44'%3E%3Cg fill='none' stroke='%23C58A2B' stroke-width='1'%3E%3Cellipse cx='22' cy='11' rx='6.5' ry='11'/%3E%3Cellipse cx='22' cy='33' rx='6.5' ry='11'/%3E%3Cellipse cx='11' cy='22' rx='11' ry='6.5'/%3E%3Cellipse cx='33' cy='22' rx='11' ry='6.5'/%3E%3C/g%3E%3C/svg%3E");
+}
+[data-theme=dark]{
+  --paper:#1E130C; --card:#2A1B12; --mori:#33221A; --line:#4A3426;
+  --ink:#F3E8D6; --muted:#B79C80; --gold-soft:#4A3517; --pos:#8DB36F; --neg:#E0805F;
+  --shadow:0 8px 24px -12px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box;margin:0}
+body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased}
+.num{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.serif{font-family:Fraunces,Georgia,serif}
+.app{display:grid;grid-template-columns:248px 1fr;min-height:100vh}
+
+/* Sidebar */
+.side{background:var(--walnut);color:#EBDDC6;padding:24px 16px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:28px;background-image:var(--kawung);background-size:44px;background-blend-mode:soft-light}
+.side::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(42,26,16,.82),rgba(42,26,16,.97));pointer-events:none}
+.side>*{position:relative}
+.brand{display:flex;align-items:center;gap:12px;padding:0 8px}
+.brand svg{width:34px;height:34px}
+.brand b{font-family:Fraunces,serif;font-size:24px;letter-spacing:.2px;color:#F6E9CF}
+.side nav{display:flex;flex-direction:column;gap:2px}
+.side nav a{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:12px;color:#CDB99B;text-decoration:none;font-size:14.5px;font-weight:500}
+.side nav a svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.side nav a:hover{background:rgba(255,255,255,.06);color:#fff}
+.side nav a.on{background:linear-gradient(90deg,rgba(197,138,43,.28),rgba(197,138,43,.08));color:#FFE7B5;box-shadow:inset 3px 0 0 var(--gold)}
+.side .foot{margin-top:auto;padding:14px;border:1px solid rgba(255,255,255,.1);border-radius:14px;font-size:12.5px;line-height:1.5;color:#CDB99B}
+.side .foot b{color:#F6E9CF;display:block;font-family:Fraunces,serif;font-size:15px;margin-bottom:2px}
+
+/* Main */
+main{padding:28px 36px 48px;max-width:1280px;width:100%}
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:26px}
+.hello small{color:var(--muted);font-size:13px;letter-spacing:.04em}
+.hello h1{font-family:Fraunces,serif;font-weight:600;font-size:30px;line-height:1.15;margin-top:2px}
+.actions{display:flex;gap:10px;align-items:center}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:10px 14px;font:600 13.5px "Plus Jakarta Sans";cursor:pointer;display:inline-flex;gap:8px;align-items:center}
+.btn.pri{background:var(--sogan);border-color:var(--sogan);color:#FFF4DC}
+.btn.pri:hover{background:#6B4428}
+.avatar{width:40px;height:40px;border-radius:50%;background:var(--gold-soft);color:var(--sogan);display:grid;place-items:center;font-weight:700}
+
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px;box-shadow:var(--shadow)}
+.card h3{font-family:Fraunces,serif;font-weight:600;font-size:18px}
+.card .sub{color:var(--muted);font-size:12.5px;margin-top:2px}
+.head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+.link{color:var(--sogan);font-weight:600;font-size:13px;text-decoration:none}
+[data-theme=dark] .link{color:var(--gold)}
+
+/* Hero */
+.hero{grid-column:span 8;position:relative;overflow:hidden;color:#FBEFD6;border:0;
+  background:linear-gradient(135deg,#4A2E1B 0%,#6B4428 55%,#8A5A32 100%)}
+.hero::before{content:"";position:absolute;inset:0;background-image:var(--kawung);background-size:44px;opacity:.14}
+.hero::after{content:"";position:absolute;right:-90px;top:-90px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(240,190,90,.35),transparent 65%)}
+.hero>*{position:relative;z-index:1}
+.hero .lbl{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#E7CFA3}
+.hero .big{font-family:Fraunces,serif;font-weight:600;font-size:clamp(34px,5vw,54px);line-height:1.05;margin:10px 0 6px;letter-spacing:-.5px}
+.hero .big span{font-size:.5em;color:#E7CFA3;margin-right:8px;font-weight:500}
+.chip{display:inline-flex;gap:6px;align-items:center;background:rgba(255,255,255,.14);padding:5px 11px;border-radius:99px;font-size:12.5px;font-weight:600}
+.hero svg.spark{width:100%;height:120px;margin-top:18px;display:block}
+.hero .range{display:flex;gap:6px;margin-top:6px}
+.hero .range button{background:transparent;border:0;color:#E7CFA3;padding:5px 10px;border-radius:8px;font:600 12px "Plus Jakarta Sans";cursor:pointer}
+.hero .range button.on{background:rgba(255,255,255,.16);color:#fff}
+
+.side-stats{grid-column:span 4;display:grid;gap:18px}
+.stat{display:flex;justify-content:space-between;align-items:center}
+.stat .k{color:var(--muted);font-size:13px}
+.stat .v{font-size:22px;font-weight:500;margin-top:4px}
+.ico{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:var(--gold-soft);color:var(--sogan)}
+.ico svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.pos{color:var(--pos)} .neg{color:var(--neg)}
+
+/* cashflow */
+.cash{grid-column:span 5}
+.bars{display:flex;align-items:flex-end;gap:14px;height:170px;padding-top:10px}
+.bars .m{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;height:100%;justify-content:flex-end}
+.bars .pair{display:flex;gap:4px;align-items:flex-end;height:100%;width:100%;justify-content:center}
+.bars i{display:block;width:42%;max-width:18px;border-radius:6px 6px 3px 3px}
+.bars i.in{background:var(--daun)} .bars i.out{background:var(--gold)}
+.bars span{font-size:11.5px;color:var(--muted)}
+.legend{display:flex;gap:16px;font-size:12.5px;color:var(--muted)}
+.legend b{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:6px}
+
+/* allocation */
+.alloc{grid-column:span 3}
+.donut{width:150px;height:150px;border-radius:50%;margin:6px auto 18px;position:relative;
+  background:conic-gradient(var(--sogan) 0 46%,var(--gold) 46% 71%,var(--daun) 71% 88%,var(--bata) 88% 100%)}
+.donut::after{content:"";position:absolute;inset:26px;background:var(--card);border-radius:50%}
+.donut div{position:absolute;inset:0;display:grid;place-items:center;z-index:1;text-align:center;font-family:Fraunces,serif;font-weight:600;font-size:18px;line-height:1.1}
+.donut small{display:block;font:500 11px "Plus Jakarta Sans";color:var(--muted)}
+.al{display:grid;gap:9px;font-size:13px}
+.al div{display:flex;justify-content:space-between;align-items:center}
+.al b{width:9px;height:9px;border-radius:3px;display:inline-block;margin-right:8px}
+
+/* accounts */
+.acc{grid-column:span 4}
+.row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px dashed var(--line)}
+.row:last-child{border-bottom:0;padding-bottom:0}
+.row .t{flex:1;min-width:0}
+.row .t b{display:block;font-size:14px;font-weight:600}
+.row .t small{color:var(--muted);font-size:12px}
+.row .a{text-align:right;font-size:14px}
+.logo{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-weight:700;font-size:13px;color:#fff}
+
+.tx{grid-column:span 8}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;color:var(--muted);font-weight:600;font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;padding:0 0 10px}
+td{padding:13px 0;border-top:1px dashed var(--line)}
+td.r,th.r{text-align:right}
+.tag{font-size:11.5px;font-weight:600;background:var(--mori);color:var(--sogan);padding:4px 10px;border-radius:99px}
+[data-theme=dark] .tag{color:var(--gold)}
+
+.hold{grid-column:span 4}
+.coin{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:12px;color:#fff}
+
+/* mobile */
+.tabbar,.fab{display:none}
+@media (max-width:1080px){
+  .hero,.side-stats,.cash,.alloc,.acc,.tx,.hold{grid-column:span 12}
+  .side-stats{grid-template-columns:1fr 1fr}
+}
+@media (max-width:820px){
+  .app{grid-template-columns:1fr}
+  .side{display:none}
+  main{padding:18px 16px 110px}
+  .hello h1{font-size:23px}
+  .actions .btn span.lbl{display:none}
+  .side-stats{grid-template-columns:1fr}
+  .card{padding:18px;border-radius:18px}
+  .tabbar{display:flex;position:fixed;left:12px;right:12px;bottom:12px;background:var(--walnut);border-radius:22px;padding:8px;justify-content:space-around;z-index:10;box-shadow:0 12px 30px -8px rgba(0,0,0,.5)}
+  .tabbar a{flex:1;display:grid;justify-items:center;gap:3px;padding:8px 0;color:#BFA98A;font-size:10.5px;font-weight:600;text-decoration:none;border-radius:14px}
+  .tabbar a.on{color:#FFE7B5;background:rgba(197,138,43,.22)}
+  .tabbar svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  .fab{display:grid;place-items:center;position:fixed;right:22px;bottom:92px;width:56px;height:56px;border-radius:18px;background:var(--gold);color:var(--walnut);border:0;z-index:11;box-shadow:0 10px 24px -6px rgba(197,138,43,.7);cursor:pointer}
+  .fab svg{width:26px;height:26px;stroke:currentColor;stroke-width:2.4;fill:none;stroke-linecap:round}
+  table .hide-m{display:none}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="i-wallet" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h13v4"/><path d="M3 7v11a2 2 0 0 0 2 2h14a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1H5a2 2 0 0 1-2-2z"/><circle cx="16.5" cy="14" r="1.2"/></symbol>
+  <symbol id="i-swap" viewBox="0 0 24 24"><path d="M7 4L3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/></symbol>
+  <symbol id="i-coin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.5c0-1 1-1.7 2.5-1.7s2.5.7 2.5 1.7-1 1.5-2.5 1.8-2.5.8-2.5 1.8 1 1.7 2.5 1.7 2.5-.7 2.5-1.7"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></symbol>
+  <symbol id="i-debt" viewBox="0 0 24 24"><path d="M4 7h16M4 12h10M4 17h7"/><circle cx="18" cy="16" r="3.5"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M7 7l10 10M17 9v8H9"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 13A9 9 0 1 1 11 3a7 7 0 0 0 10 10z"/></symbol>
+</svg>
+
+<div class="app">
+  <aside class="side">
+    <div class="brand">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="#E2A93F" stroke-width="2"><ellipse cx="20" cy="10" rx="6" ry="9.5"/><ellipse cx="20" cy="30" rx="6" ry="9.5"/><ellipse cx="10" cy="20" rx="9.5" ry="6"/><ellipse cx="30" cy="20" rx="9.5" ry="6"/></g><circle cx="20" cy="20" r="3" fill="#E2A93F"/></svg>
+      <b>Bandha</b>
+    </div>
+    <nav>
+      <a class="on" href="#"><svg><use href="#i-home"/></svg>Beranda</a>
+      <a href="#"><svg><use href="#i-wallet"/></svg>Rekening</a>
+      <a href="#"><svg><use href="#i-swap"/></svg>Transaksi</a>
+      <a href="#"><svg><use href="#i-coin"/></svg>Aset</a>
+      <a href="#"><svg><use href="#i-chart"/></svg>Portofolio</a>
+      <a href="#"><svg><use href="#i-debt"/></svg>Utang &amp; Piutang</a>
+    </nav>
+    <div class="foot"><b>Gemi, nastiti, ngati-ati.</b>Hemat, teliti, dan hati-hati dalam mengelola harta.</div>
+  </aside>
+
+  <main>
+    <header class="top">
+      <div class="hello">
+        <small>Sabtu, 15 November 2026</small>
+        <h1>Sugeng enjang, Wicak</h1>
+      </div>
+      <div class="actions">
+        <button class="btn" id="theme" aria-label="Ganti tema"><svg width="18" height="18" stroke="currentColor" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-moon"/></svg></button>
+        <button class="btn pri"><svg width="16" height="16" stroke="currentColor" fill="none" stroke-width="2.2" stroke-linecap="round"><use href="#i-plus"/></svg><span class="lbl">Catat transaksi</span></button>
+        <div class="avatar">W</div>
+      </div>
+    </header>
+
+    <section class="grid">
+      <article class="card hero">
+        <div class="lbl">Total kekayaan bersih</div>
+        <div class="big num"><span>Rp</span>1.284.560.000</div>
+        <span class="chip"><svg width="14" height="14" stroke="currentColor" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-up"/></svg>+Rp 38,2 jt · 3,07% bulan ini</span>
+        <svg class="spark" viewBox="0 0 600 120" preserveAspectRatio="none" aria-label="Grafik kekayaan bersih">
+          <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F0BE5A" stop-opacity=".45"/><stop offset="1" stop-color="#F0BE5A" stop-opacity="0"/></linearGradient></defs>
+          <path d="M0 96 C40 92 70 84 110 86 S170 70 210 62 S270 74 310 56 S380 40 420 46 S490 24 540 20 S580 12 600 10 L600 120 L0 120Z" fill="url(#g)"/>
+          <path d="M0 96 C40 92 70 84 110 86 S170 70 210 62 S270 74 310 56 S380 40 420 46 S490 24 540 20 S580 12 600 10" fill="none" stroke="#F4C970" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="600" cy="10" r="5" fill="#FFE7B5"/>
+        </svg>
+        <div class="range"><button>1B</button><button>3B</button><button class="on">6B</button><button>1T</button><button>Semua</button></div>
+      </article>
+
+      <div class="side-stats">
+        <article class="card stat"><div><div class="k">Total aset</div><div class="v num">Rp 1.412.300.000</div></div><div class="ico"><svg><use href="#i-wallet"/></svg></div></article>
+        <article class="card stat"><div><div class="k">Total kewajiban</div><div class="v num neg">Rp 127.740.000</div></div><div class="ico"><svg><use href="#i-debt"/></svg></div></article>
+      </div>
+
+      <article class="card cash">
+        <div class="head"><div><h3>Arus kas</h3><div class="sub">6 bulan terakhir</div></div>
+          <div class="legend"><span><b style="background:var(--daun)"></b>Masuk</span><span><b style="background:var(--gold)"></b>Keluar</span></div></div>
+        <div class="bars">
+          <div class="m"><div class="pair"><i class="in" style="height:62%"></i><i class="out" style="height:48%"></i></div><span>Jun</span></div>
+          <div class="m"><div class="pair"><i class="in" style="height:70%"></i><i class="out" style="height:55%"></i></div><span>Jul</span></div>
+          <div class="m"><div class="pair"><i class="in" style="height:58%"></i><i class="out" style="height:64%"></i></div><span>Agu</span></div>
+          <div class="m"><div class="pair"><i class="in" style="height:76%"></i><i class="out" style="height:50%"></i></div><span>Sep</span></div>
+          <div class="m"><div class="pair"><i class="in" style="height:68%"></i><i class="out" style="height:52%"></i></div><span>Okt</span></div>
+          <div class="m"><div class="pair"><i class="in" style="height:88%"></i><i class="out" style="height:46%"></i></div><span>Nov</span></div>
+        </div>
+      </article>
+
+      <article class="card alloc">
+        <div class="head"><div><h3>Alokasi aset</h3><div class="sub">Berdasarkan nilai</div></div></div>
+        <div class="donut"><div><span>4 kelas<small>aset</small></span></div></div>
+        <div class="al">
+          <div><span><b style="background:var(--sogan)"></b>Kas &amp; bank</span><span class="num">46%</span></div>
+          <div><span><b style="background:var(--gold)"></b>Emas</span><span class="num">25%</span></div>
+          <div><span><b style="background:var(--daun)"></b>Saham &amp; reksa</span><span class="num">17%</span></div>
+          <div><span><b style="background:var(--bata)"></b>Kripto</span><span class="num">12%</span></div>
+        </div>
+      </article>
+
+      <article class="card acc">
+        <div class="head"><div><h3>Rekening</h3><div class="sub">5 aktif</div></div><a class="link" href="#">Lihat semua</a></div>
+        <div class="row"><div class="logo" style="background:#2F5D8C">BCA</div><div class="t"><b>Tabungan utama</b><small>Bank BCA</small></div><div class="a num">Rp 214.800.000</div></div>
+        <div class="row"><div class="logo" style="background:#B8532F">MDR</div><div class="t"><b>Dana darurat</b><small>Bank Mandiri</small></div><div class="a num">Rp 150.000.000</div></div>
+        <div class="row"><div class="logo" style="background:#4C7A3A">GJK</div><div class="t"><b>Dompet digital</b><small>GoPay</small></div><div class="a num">Rp 2.340.000</div></div>
+        <div class="row"><div class="logo" style="background:#8A5A32">LM</div><div class="t"><b>Emas batangan</b><small>Antam · 212 gr</small></div><div class="a num">Rp 353.000.000</div></div>
+      </article>
+
+      <article class="card tx">
+        <div class="head"><div><h3>Transaksi terbaru</h3><div class="sub">Minggu ini</div></div><a class="link" href="#">Lihat semua</a></div>
+        <table>
+          <thead><tr><th>Keterangan</th><th class="hide-m">Kategori</th><th class="hide-m">Rekening</th><th class="r">Jumlah</th></tr></thead>
+          <tbody>
+            <tr><td><b>Gaji November</b><br><small style="color:var(--muted)">14 Nov</small></td><td class="hide-m"><span class="tag">Pemasukan</span></td><td class="hide-m">BCA</td><td class="r num pos">+Rp 28.500.000</td></tr>
+            <tr><td><b>Warung Bu Sri</b><br><small style="color:var(--muted)">14 Nov</small></td><td class="hide-m"><span class="tag">Makan</span></td><td class="hide-m">GoPay</td><td class="r num neg">−Rp 86.000</td></tr>
+            <tr><td><b>Beli emas 5 gr</b><br><small style="color:var(--muted)">12 Nov</small></td><td class="hide-m"><span class="tag">Investasi</span></td><td class="hide-m">Antam</td><td class="r num">Rp 7.950.000</td></tr>
+            <tr><td><b>Listrik &amp; air</b><br><small style="color:var(--muted)">10 Nov</small></td><td class="hide-m"><span class="tag">Tagihan</span></td><td class="hide-m">Mandiri</td><td class="r num neg">−Rp 1.240.000</td></tr>
+          </tbody>
+        </table>
+      </article>
+
+      <article class="card hold">
+        <div class="head"><div><h3>Aset kripto</h3><div class="sub">Harga dalam IDR</div></div></div>
+        <div class="row"><div class="coin" style="background:#E08A2E">BTC</div><div class="t"><b>Bitcoin</b><small class="num">0,0412</small></div><div class="a"><div class="num">Rp 71.200.000</div><small class="pos num">+2,4%</small></div></div>
+        <div class="row"><div class="coin" style="background:#5C6BC0">ETH</div><div class="t"><b>Ethereum</b><small class="num">1,2800</small></div><div class="a"><div class="num">Rp 58.900.000</div><small class="neg num">−0,8%</small></div></div>
+        <div class="row"><div class="coin" style="background:#2E8B6A">USDT</div><div class="t"><b>Tether</b><small class="num">1.200,00</small></div><div class="a"><div class="num">Rp 19.380.000</div><small class="num" style="color:var(--muted)">0,0%</small></div></div>
+      </article>
+    </section>
+  </main>
+</div>
+
+<nav class="tabbar" aria-label="Navigasi utama">
+  <a class="on" href="#"><svg><use href="#i-home"/></svg>Beranda</a>
+  <a href="#"><svg><use href="#i-wallet"/></svg>Rekening</a>
+  <a href="#"><svg><use href="#i-swap"/></svg>Transaksi</a>
+  <a href="#"><svg><use href="#i-chart"/></svg>Portofolio</a>
+</nav>
+<button class="fab" aria-label="Catat transaksi"><svg viewBox="0 0 24 24"><use href="#i-plus"/></svg></button>
+
+<script>
+document.getElementById('theme').addEventListener('click',function(){
+  var r=document.documentElement;
+  r.setAttribute('data-theme', r.getAttribute('data-theme')==='dark'?'light':'dark');
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: bandha
+      POSTGRES_PASSWORD: bandha
+      POSTGRES_DB: bandha
+    ports:
+      - "5434:5432"
+    volumes:
+      - bandha-pg:/var/lib/postgresql/data
+volumes:
+  bandha-pg:

@@ -1,0 +1,18 @@
+**/node_modules
+**/.next
+**/dist
+**/.expo
+**/.turbo
+**/*.log
+**/*.tsbuildinfo
+.git
+.github
+.env
+.env.*
+!.env.example
+deploy/.env
+deploy/backups
+# the mobile app is not built here, but pnpm needs its manifest to match the lockfile
+apps/mobile/*
+!apps/mobile/package.json
+design

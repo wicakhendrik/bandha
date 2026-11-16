@@ -1,0 +1,16 @@
+# Web app (Next.js). It talks to the API only from the server (the browser never sees the API address or any token).
+FROM node:24-slim AS base
+RUN npm install -g pnpm@12.15.0
+WORKDIR /app
+ENV CI=1 NEXT_TELEMETRY_DISABLED=1
+
+COPY . .
+RUN pnpm install --frozen-lockfile --include-workspace-root --filter "@bandha/web..."
+RUN pnpm --filter @bandha/web build
+
+ENV NODE_ENV=production
+USER node
+WORKDIR /app/apps/web
+EXPOSE 3000
+# API_URL is read at runtime (see compose.yml), so one image works for every environment.
+CMD ["pnpm", "exec", "next", "start", "-p", "3000"]
