@@ -66,7 +66,7 @@ fi
 # 4. the new version did not come up: show why, and put the previous one back
 log "NEW VERSION DID NOT BECOME HEALTHY. Recent logs:"
 TAG="$NEW_TAG" "${COMPOSE[@]}" logs --tail 60 migrate api web || true
-if [ -n "${PREV_TAG:-}" ] && [ "$PREV_TAG" != "$NEW_TAG" ] && [ "$PREV_TAG" != "local" ]; then
+if [ -n "${PREV_TAG:-}" ] && [ "$PREV_TAG" != "$NEW_TAG" ] && docker image inspect "bandha-api:$PREV_TAG" "bandha-web:$PREV_TAG" >/dev/null 2>&1; then
   log "rolling back to $PREV_TAG (images are still on this machine)"
   TAG="$PREV_TAG" "${COMPOSE[@]}" up -d --no-build --wait --wait-timeout 120 || log "rollback also failed, check the logs above"
   log "NOTE: database migrations are forward only. If the failed version added a migration, the old code now runs against the newer schema (additive changes are fine)."

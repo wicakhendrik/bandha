@@ -23,5 +23,7 @@ read -r -p "Type the project name to continue: " ANSWER
 DB=(  "${COMPOSE[@]}" exec -T db psql -U "${POSTGRES_USER:-bandha}" -v ON_ERROR_STOP=1 )
 "${DB[@]}" -d postgres -c "DROP DATABASE IF EXISTS \"${POSTGRES_DB:-bandha}\" WITH (FORCE)" -c "CREATE DATABASE \"${POSTGRES_DB:-bandha}\""
 gunzip -c "$FILE" | "${DB[@]}" -d "${POSTGRES_DB:-bandha}" >/dev/null
-"${COMPOSE[@]}" up -d --wait --wait-timeout 180
+# Start the SAME containers again (no rebuild, no recreate), so the running version, and the tag a later rollback
+# needs, do not change.
+"${COMPOSE[@]}" up -d --no-build --no-recreate --wait --wait-timeout 180
 echo "restored."
