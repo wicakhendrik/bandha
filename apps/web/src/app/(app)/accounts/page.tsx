@@ -80,7 +80,7 @@ export default function AccountsPage() {
       ) : (
         <div className="card">
           {shown.map((a) => (
-            <div className="row" key={a.id}>
+            <div className="row acc-row" key={a.id}>
               <AccountLogo account={a} size={40} />
               <div className="t">
                 <Link href={`/accounts/${a.id}`} className="rowlink"><b className="nm">{a.name}<Icon name="chevronRight" size={15} style={{ color: "var(--muted)" }} /></b></Link>
@@ -89,7 +89,7 @@ export default function AccountsPage() {
               <div className="a num">{balanceText(a)}</div>
               <button className="iconbtn" onClick={() => setModal(a)} aria-label={t("acc.editAria", { name: a.name })} title={t("common.edit")}><Icon name="edit" size={16} /></button>
               {confirm === a.id ? (
-                <span style={{ display: "flex", gap: 6 }}>
+                <span className="acc-confirm" style={{ display: "flex", gap: 6 }}>
                   <button className="btn sm danger" onClick={() => archive(a.id)}>{t("acc.archiveConfirm")}</button>
                   <button className="btn sm" onClick={() => setConfirm(null)}>{t("common.cancel")}</button>
                 </span>

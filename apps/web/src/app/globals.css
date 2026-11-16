@@ -465,3 +465,30 @@ html:has(.lp){scroll-behavior:smooth}
   .lp-ph:nth-child(2){margin-top:20px}
   .lp-navact .btn.pri{padding:9px 11px;font-size:13px}
 }
+
+/* Mobile: Rekening dan Transaksi tidak boleh saling tumpuk */
+.only-m{display:none}
+@media (max-width:820px){
+  .only-m{display:inline}
+  /* daftar rekening: nama dan tombol di baris atas, saldo di bawah nama */
+  .row.acc-row{display:grid;grid-template-columns:40px minmax(0,1fr) auto auto;grid-template-areas:"logo name edit arch" "logo amt amt amt" "logo conf conf conf";column-gap:12px;row-gap:4px;align-items:center}
+  .row.acc-row > :first-child{grid-area:logo;align-self:start}
+  .row.acc-row .t{grid-area:name}
+  .row.acc-row .a{grid-area:amt;text-align:left;max-width:none;flex:none;font-size:13.5px}
+  .row.acc-row > .iconbtn{grid-area:edit}
+  .row.acc-row > button.btn{grid-area:arch}
+  .row.acc-row > .acc-confirm{grid-area:conf;justify-self:end;margin-top:4px}
+  /* tabel transaksi: tiap baris jadi kartu kecil (judul + jumlah, lalu tombol) */
+  table.txtable{display:block}
+  table.txtable thead{display:none}
+  table.txtable tbody{display:block}
+  table.txtable tr{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:12px;row-gap:8px;padding:13px 0;border-top:1px dashed var(--line)}
+  table.txtable tr:first-child{border-top:0;padding-top:2px}
+  table.txtable td{display:block;padding:0;border:0;min-width:0}
+  table.txtable td.c-desc{grid-column:1;grid-row:1;overflow-wrap:anywhere}
+  table.txtable td.c-amt{grid-column:2;grid-row:1;text-align:right;white-space:nowrap}
+  table.txtable td.c-act{grid-column:1 / -1;grid-row:2;text-align:right}
+  table.txtable td.c-act:empty,table.txtable td.hide-m{display:none}
+  /* detail rekening: blok saldo ikut rata kiri saat turun ke baris baru */
+  .accd-side{text-align:left !important;justify-items:start !important}
+}

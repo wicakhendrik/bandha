@@ -52,18 +52,18 @@ export default function TransactionsPage() {
           <div className="empty"><b>{t("tx.empty")}</b>{t("tx.emptyHint")}</div>
         ) : (
           <>
-            <table>
+            <table className="txtable">
               <thead><tr><th>{t("tx.colDesc")}</th><th className="hide-m">{t("tx.colType")}</th><th className="hide-m">{t("tx.colAccount")}</th><th className="r">{t("tx.colAmount")}</th><th className="r"><span style={{ position: "absolute", left: -9999 }}>{t("tx.colAction")}</span></th></tr></thead>
               <tbody>
                 {data.transactions.map((tx) => {
                   const v = txView(tx, accountMap, assetMap);
                   return (
                     <tr key={tx.id}>
-                      <td><b>{v.title}</b><br /><small className="muted">{dateShort(tx.occurredAt)}</small>{rowErr?.id === tx.id && <div className="err" role="alert" style={{ marginTop: 8, marginBottom: 0 }}>{rowErr.text}</div>}</td>
+                      <td className="c-desc"><b>{v.title}</b><br /><small className="muted">{dateShort(tx.occurredAt)}{v.accountLabel && <span className="only-m"> · {v.accountLabel}</span>}</small>{rowErr?.id === tx.id && <div className="err" role="alert" style={{ marginTop: 8, marginBottom: 0 }}>{rowErr.text}</div>}</td>
                       <td className="hide-m"><span className="tag">{txTypeLabel(tx.type)}</span></td>
                       <td className="hide-m">{v.accountLabel}</td>
-                      <td className="r"><span className={`num ${v.tone}`}>{v.amount}</span>{v.secondary && <><br /><small className="muted num">{v.secondary}</small></>}</td>
-                      <td className="r" style={{ whiteSpace: "nowrap" }}>
+                      <td className="r c-amt"><span className={`num ${v.tone}`}>{v.amount}</span>{v.secondary && <><br /><small className="muted num">{v.secondary}</small></>}</td>
+                      <td className="r c-act" style={{ whiteSpace: "nowrap" }}>
                         {confirm === tx.id ? (
                           <span style={{ display: "inline-flex", gap: 6 }}>
                             <button className="btn sm danger" onClick={() => voidTx(tx.id)}>{t("tx.voidConfirm")}</button>

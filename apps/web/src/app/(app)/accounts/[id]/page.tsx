@@ -46,7 +46,7 @@ export default function AccountDetailPage() {
                   <h2 className="serif" style={{ fontSize: 26, lineHeight: 1.15 }}>{data.account.name}</h2>
                 </div>
               </div>
-              <div style={{ textAlign: "right", display: "grid", gap: 8, justifyItems: "end" }}>
+              <div className="accd-side" style={{ textAlign: "right", display: "grid", gap: 8, justifyItems: "end" }}>
                 <div>
                   <small className="muted">{t("accd.balance")}</small>
                   <div className="num" style={{ fontSize: 22 }}>{rp(data.totalValue)}</div>
@@ -84,15 +84,15 @@ export default function AccountDetailPage() {
             ) : (
               <>
                 <div style={{ overflowX: "auto" }}>
-                  <table>
+                  <table className="txtable">
                     <thead><tr><th>{t("accd.colDesc")}</th><th className="r">{t("accd.colAmount")}</th><th className="r hide-m">{t("accd.colBalance")}</th></tr></thead>
                     <tbody>
                       {data.rows.map((r) => {
                         const v = ledgerRowView(r);
                         return (
                           <tr key={`${r.transactionId}-${r.assetId}`}>
-                            <td><b>{v.title}</b><br /><small className="muted">{dateShort(r.occurredAt)} · {v.typeLabel}{!data.asset && r.symbol !== "IDR" ? ` · ${r.symbol}` : ""}</small></td>
-                            <td className="r num"><span className={v.tone}>{v.amount}</span>{v.secondary && <><br /><small className="muted">{v.secondary}</small></>}</td>
+                            <td className="c-desc"><b>{v.title}</b><br /><small className="muted">{dateShort(r.occurredAt)} · {v.typeLabel}{!data.asset && r.symbol !== "IDR" ? ` · ${r.symbol}` : ""}</small></td>
+                            <td className="r num c-amt"><span className={v.tone}>{v.amount}</span>{v.secondary && <><br /><small className="muted">{v.secondary}</small></>}</td>
                             <td className="r num hide-m">{v.balance}</td>
                           </tr>
                         );
