@@ -12,3 +12,19 @@ dist
 *.tsbuildinfo
 deploy/.env
 deploy/backups/
+
+# keys, certificates and signing material (Android / iOS release, servers): never commit these
+*.pem
+*.key
+*.p8
+*.p12
+*.jks
+*.keystore
+*.mobileprovision
+google-services.json
+GoogleService-Info.plist
+credentials.json
+# database dumps and backups
+*.sql.gz
+*.dump
+backups/
