@@ -76,7 +76,7 @@ Web · Android · iOS &nbsp;|&nbsp; Indonesia & English &nbsp;|&nbsp; Terang & g
   </tr>
 </table>
 
-> Semua tangkapan layar memakai **data fiktif** (pengguna "Sari Wulandari"); tidak ada data nyata di dalamnya. Tangkapan layar mobile diambil dari pratinjau Expo web.
+> Semua tangkapan layar memakai **data fiktif** (pengguna demo "Hendrik"); tidak ada data nyata di dalamnya. Tangkapan layar mobile diambil dari pratinjau Expo web.
 
 ## Prinsip akuntansi
 
