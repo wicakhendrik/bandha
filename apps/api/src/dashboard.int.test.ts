@@ -134,5 +134,6 @@ describe("dashboard", () => {
     expect(pts[0]!.netWorth).toBe("1500");
     expect(pts[0]!.complete).toBe(true);
     expect(await services.dashboard.snapshotAll()).toBeGreaterThan(0);
-  });
+    // snapshotAll walks every workspace in the database; a development database that has collected thousands of test users needs far longer than 30 s.
+  }, 180_000);
 });

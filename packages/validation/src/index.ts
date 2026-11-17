@@ -25,6 +25,9 @@ export const resetPasswordSchema = z.object({
 });
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 
+export const verifyEmailSchema = z.object({ email: emailSchema, code: z.string().trim().regex(/^\d{6}$/, "Kode terdiri dari 6 angka") });
+export type VerifyEmailInput = z.infer<typeof verifyEmailSchema>;
+
 export const updateProfileSchema = z.object({ name: z.string().trim().min(1, "Isi nama").max(80) });
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 

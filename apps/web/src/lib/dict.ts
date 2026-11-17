@@ -289,6 +289,16 @@ const id = {
   "profile.pwDoneSub": "Perangkat lain sudah dikeluarkan dari akun ini.",
   "dash.hideAmounts": "Sembunyikan jumlah uang",
   "dash.showAmounts": "Tampilkan jumlah uang",
+  "auth.verifyTitle": "Masukkan kode verifikasi",
+  "auth.verifySub": "Kami mengirim kode 6 angka ke {email}. Masukkan di bawah ini untuk menyelesaikan pendaftaran.",
+  "auth.codeLabel": "Kode verifikasi",
+  "auth.codeHint": "Berlaku 10 menit. Cek juga folder spam.",
+  "auth.verifyBtn": "Verifikasi",
+  "auth.resend": "Kirim ulang kode",
+  "auth.resendIn": "Kirim ulang kode ({s} dtk)",
+  "auth.codeResent": "Jika alamat ini menunggu verifikasi, kode baru sudah dikirim.",
+  "auth.errCode": "Masukkan 6 angka kode",
+  "auth.wrongEmail": "Salah email?",
 };
 
 export type DictKey = keyof typeof id;
@@ -568,6 +578,16 @@ const en: Record<DictKey, string> = {
   "profile.pwDoneSub": "Other devices have been signed out of this account.",
   "dash.hideAmounts": "Hide amounts",
   "dash.showAmounts": "Show amounts",
+  "auth.verifyTitle": "Enter the verification code",
+  "auth.verifySub": "We sent a 6-digit code to {email}. Enter it below to finish signing up.",
+  "auth.codeLabel": "Verification code",
+  "auth.codeHint": "Valid for 10 minutes. Check your spam folder too.",
+  "auth.verifyBtn": "Verify",
+  "auth.resend": "Resend code",
+  "auth.resendIn": "Resend code ({s}s)",
+  "auth.codeResent": "If this address is waiting for verification, a new code has been sent.",
+  "auth.errCode": "Enter the 6-digit code",
+  "auth.wrongEmail": "Wrong email?",
 };
 
 export const DICT = { id, en };

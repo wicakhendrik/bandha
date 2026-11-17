@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { mutate } from "swr";
-import { api, errorText } from "@/lib/api";
+import { ApiError, api, errorText } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
 import { AuthShell } from "./auth-shell";
 
@@ -25,10 +25,14 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
     if (reg && password.length < 10) return setError(t("auth.errPassword"));
     setBusy(true);
     try {
-      await api(reg ? "/auth/register" : "/auth/login", { method: "POST", body: reg ? { name: name.trim(), email, password } : { email, password } });
+      const res = await api<{ verificationRequired?: boolean } | undefined>(reg ? "/auth/register" : "/auth/login", { method: "POST", body: reg ? { name: name.trim(), email, password } : { email, password } });
+      // With email verification on, registering sends a code and no session exists yet: continue on the code page.
+      if (reg && res?.verificationRequired) return router.replace(`/verify?email=${encodeURIComponent(email.trim().toLowerCase())}`);
       await mutate(() => true, undefined, { revalidate: false });
       router.replace(reg ? "/welcome" : "/dashboard");
     } catch (err) {
+      // Right password, but the address was never confirmed: the API has just sent a fresh code.
+      if (err instanceof ApiError && err.code === "email_unverified") return router.replace(`/verify?email=${encodeURIComponent(email.trim().toLowerCase())}`);
       setError(errorText(err));
       setBusy(false);
     }

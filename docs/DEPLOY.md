@@ -98,8 +98,8 @@ openssl rand -hex 24   # POSTGRES_PASSWORD
 openssl rand -hex 32   # JWT_SECRET
 ```
 - **development**: `COMPOSE_PROJECT_NAME=bandha-dev`, `WEB_PORT=3100`, `API_PORT=4100`, `APP_ENV=development`,
-  `WEB_ORIGIN`/`APP_URL=https://bandha-dev.grezly.app`, `MAIL_TRANSPORT=console` (tautan "lupa kata sandi" muncul di
-  `docker compose logs api`; atau isi SMTP).
+  `WEB_ORIGIN`/`APP_URL=https://bandha-dev.grezly.app`, `MAIL_TRANSPORT=console` (kode verifikasi pendaftaran dan tautan "lupa kata sandi" muncul di
+  `docker compose logs api`; atau isi SMTP, panduan Microsoft 365 di [EMAIL.md](EMAIL.md)).
 - **production**: `COMPOSE_PROJECT_NAME=bandha-prod`, `WEB_PORT=3000`, `API_PORT=4000`, `APP_ENV=production`,
   `WEB_ORIGIN`/`APP_URL=https://bandha.grezly.app`, **`MAIL_TRANSPORT=smtp` + `SMTP_URL`** (wajib; API menolak jalan di
   produksi dengan `console`), `BACKUP_BEFORE_DEPLOY=1`.

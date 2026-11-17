@@ -5,7 +5,7 @@ import type { ZodType } from "zod";
 import type { Db } from "@bandha/db";
 import {
   addCryptoSchema, createAccountSchema, createDebtSchema, createTransactionSchema, loginSchema, refreshSchema, registerSchema, replaceTransactionSchema, forgotPasswordSchema, resetPasswordSchema,
-  importCommitSchema, importPreviewSchema, settleDebtSchema, updateAccountSchema, updateDebtSchema, updateTransactionSchema, updateProfileSchema, changePasswordSchema,
+  importCommitSchema, importPreviewSchema, settleDebtSchema, updateAccountSchema, updateDebtSchema, updateTransactionSchema, updateProfileSchema, changePasswordSchema, verifyEmailSchema,
 } from "@bandha/validation";
 import { AccountsService } from "./accounts.service";
 import { isAssetKind } from "./assets.service";
@@ -56,8 +56,8 @@ const intParam = (v: string | undefined, def: number, max: number) => {
 export function createApp(deps: { db: Db; config: Config; services: Services; mailer?: Mailer }) {
   const { db, config } = deps;
   const { market, dashboard, portfolio, holdings, assetCatalog } = deps.services;
-  const auth = new AuthService(db, config.JWT_SECRET);
   const mailer = deps.mailer ?? createMailer(config);
+  const auth = new AuthService(db, config.JWT_SECRET, { requireEmailOtp: config.REQUIRE_EMAIL_OTP, mailer });
   const accountsSvc = new AccountsService(db);
   const txSvc = new TransactionsService(db);
   const debtsSvc = new DebtsService(db);
@@ -77,7 +77,20 @@ export function createApp(deps: { db: Db; config: Config; services: Services; ma
   app.post("/auth/register", limiter, async (c) => {
     const p = await parse(c, registerSchema);
     if (!p.ok) return p.res;
-    return c.json(await auth.register(p.data, ua(c)), 201);
+    const r = await auth.register(p.data, ua(c));
+    // 202: the account is waiting for the emailed code, there are no tokens yet.
+    return c.json(r, r.verificationRequired ? 202 : 201);
+  });
+  // Registration code (OTP): confirm it, or ask for a new one. Both are rate limited per address.
+  app.post("/auth/verify", rateLimit(10, 15 * 60_000), async (c) => {
+    const p = await parse(c, verifyEmailSchema);
+    if (!p.ok) return p.res;
+    return c.json(await auth.verifyEmail(p.data.email, p.data.code, ua(c)));
+  });
+  app.post("/auth/verify/resend", rateLimit(6, 10 * 60_000), async (c) => {
+    const p = await parse(c, forgotPasswordSchema);
+    if (!p.ok) return p.res;
+    return c.json(await auth.resendVerification(p.data.email));
   });
   app.post("/auth/login", limiter, async (c) => {
     const p = await parse(c, loginSchema);
@@ -315,7 +328,8 @@ export function createApp(deps: { db: Db; config: Config; services: Services; ma
   app.route("/", api);
 
   app.onError((err, c) => {
-    if (err instanceof AuthError || err instanceof HttpError) return c.json({ error: err.message }, err.status);
+    if (err instanceof HttpError) return c.json({ error: err.message, ...(err.extra ?? {}) }, err.status);
+    if (err instanceof AuthError) return c.json({ error: err.message }, err.status);
     // Never log err.message: driver errors embed query params (password hashes, emails).
     console.error("Unhandled error:", err instanceof Error ? err.name : "unknown");
     return c.json({ error: "Terjadi kesalahan pada server" }, 500);

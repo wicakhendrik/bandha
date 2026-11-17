@@ -33,7 +33,8 @@ async function handle(req: NextRequest, ctx: Ctx): Promise<Response> {
   const jar = await cookies();
 
   try {
-    if (sub === "auth/login" || sub === "auth/register") {
+    // Verifying the emailed code signs the person in, exactly like login does. (Registration answers 202 without tokens until then.)
+    if (sub === "auth/login" || sub === "auth/register" || sub === "auth/verify") {
       const res = await upstream(sub, "", method, body, null, who);
       const data = (await res.json().catch(() => ({}))) as { user?: unknown; tokens?: Tokens; error?: string };
       if (!res.ok || !data.tokens) return json(data, res.status);
@@ -49,7 +50,7 @@ async function handle(req: NextRequest, ctx: Ctx): Promise<Response> {
     }
 
     // Password reset needs no session and sets no cookies: pass the answer straight through.
-    if (sub === "auth/forgot" || sub === "auth/reset") {
+    if (sub === "auth/forgot" || sub === "auth/reset" || sub === "auth/verify/resend") {
       const res = await upstream(sub, "", method, body, null, who);
       return new Response(res.body, { status: res.status, headers: { "Content-Type": res.headers.get("content-type") ?? "application/json" } });
     }

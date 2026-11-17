@@ -30,6 +30,39 @@ export function createMailer(config: Config): Mailer {
 
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
 
+/** The 6-digit code that confirms an email address at registration. Indonesian first, English below. */
+export function verificationEmail(to: string, code: string, minutes: number): MailMessage {
+  const subject = `Kode verifikasi Bandha: ${code} / Your Bandha verification code: ${code}`;
+  const text = [
+    "Halo,",
+    "",
+    `Kode verifikasi Bandha Anda: ${code}`,
+    `Masukkan kode ini di aplikasi dalam ${minutes} menit. Jangan bagikan kode ini kepada siapa pun.`,
+    "",
+    "Jika Anda tidak mendaftar di Bandha, abaikan email ini.",
+    "",
+    "—",
+    "",
+    "Hello,",
+    "",
+    `Your Bandha verification code: ${code}`,
+    `Enter it in the app within ${minutes} minutes. Do not share this code with anyone.`,
+    "",
+    "If you did not sign up for Bandha, ignore this email.",
+  ].join("\n");
+  const html = `<div style="font-family:system-ui,sans-serif;max-width:520px;line-height:1.5;color:#2A1A10">
+<p>Halo,</p>
+<p>Kode verifikasi Bandha Anda:</p>
+<p style="font-size:34px;font-weight:700;letter-spacing:8px;background:#F5EDE0;border-radius:12px;padding:14px 20px;display:inline-block;margin:4px 0">${esc(code)}</p>
+<p>Masukkan kode ini di aplikasi dalam ${minutes} menit. Jangan bagikan kode ini kepada siapa pun.</p>
+<p style="font-size:13px;color:#7D6650">Jika Anda tidak mendaftar di Bandha, abaikan email ini.</p>
+<hr style="border:0;border-top:1px solid #E6D8C3;margin:24px 0">
+<p>Hello,</p>
+<p>Your Bandha verification code is shown above. Enter it in the app within ${minutes} minutes and do not share it with anyone.</p>
+<p style="font-size:13px;color:#7D6650">If you did not sign up for Bandha, ignore this email.</p></div>`;
+  return { to, subject, text, html };
+}
+
 /** Indonesian first, English below: the API does not know which language the person uses. */
 export function resetPasswordEmail(to: string, link: string, minutes: number): MailMessage {
   const subject = "Atur ulang kata sandi Bandha / Reset your Bandha password";
