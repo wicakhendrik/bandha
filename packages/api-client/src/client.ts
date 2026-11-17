@@ -209,6 +209,10 @@ export function createClient(opts: ClientOptions) {
     updateDebt: (id: string, body: { counterparty?: string; kind?: string; note?: string | null; dueDate?: string | null }) =>
       request<void>(`/debts/${id}`, { method: "PATCH", body }),
     voidDebt: (id: string) => request<void>(`/debts/${id}/void`, { method: "POST", body: {} }),
+    /** Admin panel (role "admin" only; the API answers 403 to anyone else). Reads go through the SWR keys `/admin/users`, `/admin/stats` and `/admin/audit`. */
+    adminDisable: (id: string, reason?: string) => request<void>(`/admin/users/${id}/disable`, { method: "POST", body: reason ? { reason } : {} }),
+    adminEnable: (id: string) => request<void>(`/admin/users/${id}/enable`, { method: "POST", body: {} }),
+    adminRevokeSessions: (id: string) => request<{ revoked: number }>(`/admin/users/${id}/revoke-sessions`, { method: "POST", body: {} }),
   };
 }
 
