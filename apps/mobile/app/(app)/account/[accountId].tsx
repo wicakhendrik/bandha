@@ -41,7 +41,10 @@ export default function AccountDetail() {
 
   return (
     <Screen onRefresh={refresh} refreshing={refreshing}>
-      <View style={{ flexDirection: "row" }}><Btn label={backLabel} icon="arrowLeft" kind="ghost" small onPress={goBack} /></View>
+      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+        <Btn label={backLabel} icon="arrowLeft" kind="ghost" small onPress={goBack} />
+        {data ? <Btn label={t("Catat transaksi", "Add transaction")} icon="plus" small onPress={() => router.push({ pathname: "/add-transaction", params: { account: data.account.id } })} /> : null}
+      </View>
 
       {error ? (
         <Card><Empty title={t("Rekening tidak ditemukan", "Account not found")} text={t("Rekening mungkin sudah tidak tersedia.", "The account may no longer be available.")} action={<Btn label={t("Kembali", "Back")} small onPress={goBack} />} /></Card>
