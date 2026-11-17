@@ -26,7 +26,7 @@ Web · Android · iOS &nbsp;|&nbsp; Indonesian & English &nbsp;|&nbsp; Light & d
 - **CSV bank-statement import.** Paste or upload, review row by row before saving (all-or-nothing), and undo a whole import if it was wrong.
 - **Guided start.** A first-run checklist that adapts to your data.
 - **Bilingual, two themes.** Indonesian and English on web and mobile; light and dark in the *Batik Sogan* palette.
-- **Secure accounts.** Password reset by email; tokens live in `httpOnly` cookies (web) and SecureStore (mobile).
+- **Secure accounts.** Sign-up confirmed with a 6-digit emailed code, password reset by email ([SMTP guide](docs/EMAIL.md), Indonesian); tokens live in `httpOnly` cookies (web) and SecureStore (mobile).
 - **Move from FinMap.** A one-person-per-run migration script with dry-run and balance reconciliation ([guide](docs/MIGRASI-FINMAP.md), Indonesian).
 
 ## Screenshots
@@ -134,8 +134,8 @@ Open http://localhost:3000, sign up, and follow the **Quick start** checklist on
 | Command | What it does |
 | --- | --- |
 | `pnpm typecheck` | Type-check every package |
-| `pnpm test` | Unit tests (172) |
-| `pnpm test:integration` | Integration tests (107, need PostgreSQL) |
+| `pnpm test` | Unit tests (175) |
+| `pnpm test:integration` | Integration tests (120, need PostgreSQL) |
 | `pnpm db:generate` | Generate a migration from schema changes |
 
 ## Deploy

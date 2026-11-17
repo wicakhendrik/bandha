@@ -74,6 +74,24 @@ export const passwordResets = pgTable(
 );
 
 /**
+ * Email verification codes (6 digits) sent when someone registers. Only a hash of the code is stored, a wrong guess counts
+ * against `attempts`, and a new code replaces the previous one (`usedAt` is set on the old row).
+ */
+export const emailVerifications = pgTable(
+  "email_verifications",
+  {
+    id: id(),
+    userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    codeHash: text("code_hash").notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    attempts: integer("attempts").notNull().default(0),
+    usedAt: timestamp("used_at", { withTimezone: true }),
+    createdAt: createdAt(),
+  },
+  (t) => [index("email_verifications_user_idx").on(t.userId, t.createdAt)],
+);
+
+/**
  * Workspace = internal data-isolation boundary. Every user gets exactly one automatically
  * and the UI never exposes it. All financial rows carry workspace_id.
  */

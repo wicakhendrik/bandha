@@ -55,6 +55,7 @@ services:
       MAIL_TRANSPORT: ${MAIL_TRANSPORT:-console}
       SMTP_URL: ${SMTP_URL:-}
       MAIL_FROM: ${MAIL_FROM:-Bandha <no-reply@bandha.grezly.app>}
+      REQUIRE_EMAIL_OTP: ${REQUIRE_EMAIL_OTP:-true}
     ports:
       # Only needed when the mobile app must reach the API (put an nginx api.* host in front of this port).
       - "127.0.0.1:${API_PORT:-4000}:4000"

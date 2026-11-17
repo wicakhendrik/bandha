@@ -8,7 +8,7 @@ import { FakeFxProvider, FakeProvider, FakeStockProvider } from "./market/fake";
 import { createServices } from "./services";
 
 const url = process.env.DATABASE_URL ?? "postgres://bandha:bandha@localhost:5434/bandha";
-export const config = loadConfig({ DATABASE_URL: url, JWT_SECRET: "t".repeat(40), MARKET_PROVIDER: "fake" });
+export const config = loadConfig({ DATABASE_URL: url, JWT_SECRET: "t".repeat(40), MARKET_PROVIDER: "fake", REQUIRE_EMAIL_OTP: "false" });
 export const { db, pool } = createDb(url);
 export const services = createServices(db, new FakeProvider(), new FakeFxProvider(), new FakeStockProvider());
 /** Every email the API tried to send during the tests (the real mailer is never used). */

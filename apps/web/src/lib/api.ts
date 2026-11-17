@@ -1,5 +1,5 @@
 export class ApiError extends Error {
-  constructor(public readonly status: number, message: string, public readonly issues?: Array<{ path: string; message: string }>) {
+  constructor(public readonly status: number, message: string, public readonly issues?: Array<{ path: string; message: string }>, public readonly code?: string) {
     super(message);
   }
 }
@@ -13,12 +13,12 @@ export async function api<T>(path: string, init?: { method?: string; body?: unkn
     credentials: "same-origin",
   });
   if (res.status === 204) return undefined as T;
-  const data = (await res.json().catch(() => ({}))) as { error?: string; issues?: Array<{ path: string; message: string }> };
+  const data = (await res.json().catch(() => ({}))) as { error?: string; issues?: Array<{ path: string; message: string }>; code?: string };
   if (!res.ok) {
     if (res.status === 401 && typeof window !== "undefined" && !window.location.pathname.startsWith("/login") && !window.location.pathname.startsWith("/register")) {
       window.location.href = "/login";
     }
-    throw new ApiError(res.status, data.error ?? "Terjadi kesalahan", data.issues);
+    throw new ApiError(res.status, data.error ?? "Terjadi kesalahan", data.issues, data.code);
   }
   return data as T;
 }

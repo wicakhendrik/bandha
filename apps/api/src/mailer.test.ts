@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { appUrl, loadConfig } from "./config";
-import { resetPasswordEmail } from "./mailer";
+import nodemailer from "nodemailer";
+import { resetPasswordEmail, verificationEmail } from "./mailer";
 
 const base = { DATABASE_URL: "postgres://x", JWT_SECRET: "j".repeat(40) };
 
@@ -35,5 +36,36 @@ describe("reset email", () => {
     const m = resetPasswordEmail("a@b.co", 'https://x.test/?a=1&b="2"<script>', 30);
     expect(m.html).not.toContain("<script>");
     expect(m.html).toContain("&amp;b=&quot;2&quot;&lt;script&gt;");
+  });
+});
+
+describe("registration code", () => {
+  it("is on by default and can only be turned off explicitly", () => {
+    expect(loadConfig(base).REQUIRE_EMAIL_OTP).toBe(true);
+    for (const off of ["false", "0", "off", "NO"]) expect(loadConfig({ ...base, REQUIRE_EMAIL_OTP: off }).REQUIRE_EMAIL_OTP).toBe(false);
+    expect(loadConfig({ ...base, REQUIRE_EMAIL_OTP: "true" }).REQUIRE_EMAIL_OTP).toBe(true);
+  });
+});
+
+describe("verification email", () => {
+  it("shows the code in the subject, text and html, in both languages, with the expiry", () => {
+    const m = verificationEmail("budi@example.com", "042917", 10);
+    expect(m.to).toBe("budi@example.com");
+    expect(m.subject).toContain("042917");
+    expect(m.text).toContain("Kode verifikasi Bandha Anda: 042917");
+    expect(m.text).toContain("Your Bandha verification code: 042917");
+    expect(m.text).toContain("10 menit");
+    expect(m.text).toContain("10 minutes");
+    expect(m.html).toContain("042917");
+    expect(m.text + m.html).not.toMatch(/https?:\/\//); // a code, not a link
+  });
+});
+
+describe("Microsoft 365 SMTP", () => {
+  it("the documented URL becomes host smtp.office365.com, port 587, with STARTTLS required and the @ in the user name decoded", () => {
+    const t = nodemailer.createTransport("smtp://no-reply%40contoh.com:rahasia%21@smtp.office365.com:587/?requireTLS=true");
+    const o = (t as unknown as { options: Record<string, unknown> }).options;
+    expect(o).toMatchObject({ host: "smtp.office365.com", port: 587, requireTLS: true, auth: { user: "no-reply@contoh.com", pass: "rahasia!" } });
+    expect(o.secure).toBeFalsy();
   });
 });

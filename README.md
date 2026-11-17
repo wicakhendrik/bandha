@@ -26,7 +26,7 @@ Web · Android · iOS &nbsp;|&nbsp; Indonesia & English &nbsp;|&nbsp; Terang & g
 - **Impor CSV mutasi bank.** Tempel atau unggah CSV, tinjau baris demi baris sebelum disimpan (semua-atau-tidak-sama-sekali), dan batalkan seluruh impor bila salah.
 - **Mulai cepat.** Panduan awal yang menyesuaikan dengan data Anda: tambah rekening, saldo awal, transaksi pertama.
 - **Dwibahasa dan dua tema.** Indonesia dan English di web dan mobile; tema terang dan gelap bergaya *Batik Sogan*.
-- **Akun yang aman.** Lupa kata sandi lewat email, token disimpan di cookie `httpOnly` (web) dan SecureStore (mobile).
+- **Akun yang aman.** Pendaftaran dikonfirmasi dengan kode 6 angka lewat email, lupa kata sandi lewat email ([panduan SMTP](docs/EMAIL.md)), token disimpan di cookie `httpOnly` (web) dan SecureStore (mobile).
 - **Pindah dari FinMap.** Skrip migrasi satu-orang-per-jalan dengan dry-run dan rekonsiliasi saldo ([panduan](docs/MIGRASI-FINMAP.md)).
 
 ## Tampilan
@@ -154,8 +154,8 @@ Buka http://localhost:3000, daftar, lalu ikuti panduan **Mulai cepat** di Berand
 | Perintah | Fungsi |
 | --- | --- |
 | `pnpm typecheck` | Periksa tipe seluruh paket |
-| `pnpm test` | Tes unit (172 tes) |
-| `pnpm test:integration` | Tes integrasi (107 tes, butuh PostgreSQL) |
+| `pnpm test` | Tes unit (175 tes) |
+| `pnpm test:integration` | Tes integrasi (120 tes, butuh PostgreSQL) |
 | `pnpm db:generate` | Buat migrasi baru dari perubahan skema |
 | `pnpm db:up` / `pnpm db:down` | Nyalakan / matikan PostgreSQL lokal |
 

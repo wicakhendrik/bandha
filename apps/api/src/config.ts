@@ -16,6 +16,8 @@ const schema = z.object({
   /** e.g. smtps://user:password@smtp.example.com:465 */
   SMTP_URL: z.string().optional(),
   MAIL_FROM: z.string().default("Bandha <no-reply@bandha.grezly.app>"),
+  /** Registration needs a 6-digit code sent by email. Turn it off ("false") only as an emergency switch when email cannot be sent. */
+  REQUIRE_EMAIL_OTP: z.string().default("true").transform((v) => !["false", "0", "off", "no"].includes(v.trim().toLowerCase())),
   NODE_ENV: z.string().optional(),
 }).superRefine((v, ctx) => {
   if (v.MAIL_TRANSPORT === "smtp" && !v.SMTP_URL) ctx.addIssue({ code: "custom", path: ["SMTP_URL"], message: "SMTP_URL is required when MAIL_TRANSPORT=smtp" });
