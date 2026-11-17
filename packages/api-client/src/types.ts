@@ -149,6 +149,8 @@ export interface LedgerRow {
   quantity: string;
   functionalAmount: string;
   balance: string;
+  /** False for debt transactions (changed from the debt itself). */
+  editable?: boolean;
 }
 export interface AccountLedger {
   account: { id: string; name: string; kind: string; brandKey: string | null; includeInNetWorth: boolean };

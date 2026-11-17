@@ -23,6 +23,8 @@ function priceFor(
   };
 }
 
+const EDITABLE_TYPES = new Set(["income", "expense", "transfer", "buy", "sell", "opening"]);
+
 export class HoldingsService {
   constructor(private readonly db: Db, private readonly market: MarketDataService) {}
 
@@ -135,7 +137,7 @@ export class HoldingsService {
       select * from (
         select g.*, (sum(g.q) over (partition by g.asset_id order by g.occurred_at, g.c, g.transaction_id))::text as bal
         from (
-          select t.id as transaction_id, t.type::text as type, t.occurred_at, t.description, t.category,
+          select t.id as transaction_id, t.type::text as type, t.occurred_at, t.description, t.category, (t.debt_id is not null) as is_debt,
                  e.asset_id, a.symbol, sum(e.quantity)::text as quantity_text, sum(e.quantity) as q,
                  sum(e.functional_amount)::text as functional_text, min(e.created_at) as c
           from ledger_entries e
@@ -144,7 +146,7 @@ export class HoldingsService {
           join assets a on a.id = e.asset_id
           where e.workspace_id = ${workspaceId} and e.account_id = ${accountId}
             and ${LIVE_J} and t.status = 'posted' ${assetFilter}
-          group by t.id, t.type, t.occurred_at, t.description, t.category, e.asset_id, a.symbol
+          group by t.id, t.type, t.occurred_at, t.description, t.category, t.debt_id, e.asset_id, a.symbol
         ) g
       ) x
       order by occurred_at desc, c desc, transaction_id desc
@@ -152,7 +154,7 @@ export class HoldingsService {
 
     type Raw = {
       transaction_id: string; type: string; occurred_at: Date | string; description: string | null; category: string | null;
-      asset_id: string; symbol: string; quantity_text: string; functional_text: string; bal: string;
+      asset_id: string; symbol: string; quantity_text: string; functional_text: string; bal: string; is_debt: boolean;
     };
     const raw = res.rows as Raw[];
     const rows = raw.slice(0, opts.limit).map((r) => ({
@@ -166,6 +168,8 @@ export class HoldingsService {
       quantity: dec(r.quantity_text).toFixed(),
       functionalAmount: dec(r.functional_text).toFixed(),
       balance: dec(r.bal).toFixed(),
+      /** Debt transactions are changed from the debt itself; the other kinds can be edited in place. */
+      editable: !r.is_debt && EDITABLE_TYPES.has(r.type),
     }));
 
     return {

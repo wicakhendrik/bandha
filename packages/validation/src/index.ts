@@ -25,6 +25,15 @@ export const resetPasswordSchema = z.object({
 });
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 
+export const updateProfileSchema = z.object({ name: z.string().trim().min(1, "Isi nama").max(80) });
+export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
+
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, "Isi kata sandi saat ini").max(128),
+  newPassword: passwordSchema,
+});
+export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
+
 export const refreshSchema = z.object({
   refreshToken: z.string().min(20).max(200),
 });

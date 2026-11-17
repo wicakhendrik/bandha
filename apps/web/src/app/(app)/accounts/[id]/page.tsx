@@ -2,13 +2,14 @@
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import { ledgerRowView, type AccountLedger } from "@bandha/api-client";
 import { AccountModal } from "@/components/account-modal";
 import { Icon } from "@/components/icons";
 import { AccountLogo, CoinLogo } from "@/components/logos";
 import { Shell } from "@/components/shell";
-import { fetcher } from "@/lib/api";
+import { EditTransactionModal } from "@/components/transaction-modal";
+import { api, errorText, fetcher } from "@/lib/api";
 import { accountKindLabel, dateShort, qty, rp } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
 
@@ -21,8 +22,21 @@ export default function AccountDetailPage() {
   const assetId = useSearchParams().get("asset") ?? undefined;
   const [limit, setLimit] = useState(PAGE);
   const [editing, setEditing] = useState(false);
+  // Edit and void work on the whole transaction, exactly like on the Transactions page.
+  const [confirm, setConfirm] = useState<string | null>(null);
+  const [editId, setEditId] = useState<string | null>(null);
+  const [rowErr, setRowErr] = useState<{ id: string; text: string } | null>(null);
   const key = `/accounts/${id}/ledger?limit=${limit}${assetId ? `&assetId=${assetId}` : ""}`;
   const { data, error, mutate: reload } = useSWR<AccountLedger>(key, fetcher);
+
+  async function voidTx(txId: string) {
+    setRowErr(null);
+    try {
+      await api(`/transactions/${txId}/void`, { method: "POST", body: {} });
+      setConfirm(null);
+      await mutate(() => true);
+    } catch (e) { setRowErr({ id: txId, text: errorText(e) }); }
+  }
 
   const setAsset = (next?: string) => router.replace(next ? `/accounts/${id}?asset=${next}` : `/accounts/${id}`);
   const back = data?.asset ? { href: `/portfolio/${data.asset.id}`, label: data.asset.symbol } : { href: "/accounts", label: t("accd.back") };
@@ -85,15 +99,28 @@ export default function AccountDetailPage() {
               <>
                 <div style={{ overflowX: "auto" }}>
                   <table className="txtable">
-                    <thead><tr><th>{t("accd.colDesc")}</th><th className="r">{t("accd.colAmount")}</th><th className="r hide-m">{t("accd.colBalance")}</th></tr></thead>
+                    <thead><tr><th>{t("accd.colDesc")}</th><th className="r">{t("accd.colAmount")}</th><th className="r hide-m">{t("accd.colBalance")}</th><th className="r"><span style={{ position: "absolute", left: -9999 }}>{t("tx.colAction")}</span></th></tr></thead>
                     <tbody>
                       {data.rows.map((r) => {
                         const v = ledgerRowView(r);
                         return (
                           <tr key={`${r.transactionId}-${r.assetId}`}>
-                            <td className="c-desc"><b>{v.title}</b><br /><small className="muted">{dateShort(r.occurredAt)} · {v.typeLabel}{!data.asset && r.symbol !== "IDR" ? ` · ${r.symbol}` : ""}</small></td>
+                            <td className="c-desc"><b>{v.title}</b><br /><small className="muted">{dateShort(r.occurredAt)} · {v.typeLabel}{!data.asset && r.symbol !== "IDR" ? ` · ${r.symbol}` : ""}</small>{rowErr?.id === r.transactionId && <div className="err" role="alert" style={{ marginTop: 8, marginBottom: 0 }}>{rowErr.text}</div>}</td>
                             <td className="r num c-amt"><span className={v.tone}>{v.amount}</span>{v.secondary && <><br /><small className="muted">{v.secondary}</small></>}</td>
                             <td className="r num hide-m">{v.balance}</td>
+                            <td className="r c-act" style={{ whiteSpace: "nowrap" }}>
+                              {confirm === r.transactionId ? (
+                                <span style={{ display: "inline-flex", gap: 6 }}>
+                                  <button className="btn sm danger" onClick={() => voidTx(r.transactionId)}>{t("tx.voidConfirm")}</button>
+                                  <button className="btn sm" onClick={() => setConfirm(null)}>{t("common.no")}</button>
+                                </span>
+                              ) : (
+                                <span style={{ display: "inline-flex", gap: 6 }}>
+                                  {r.editable !== false && <button className="btn sm" onClick={() => setEditId(r.transactionId)} aria-label={t("tx.editAria", { title: v.title })}><Icon name="edit" size={13} />{t("tx.edit")}</button>}
+                                  <button className="btn sm" onClick={() => setConfirm(r.transactionId)} aria-label={t("tx.voidAria", { title: v.title })}>{t("tx.void")}</button>
+                                </span>
+                              )}
+                            </td>
                           </tr>
                         );
                       })}
@@ -106,6 +133,7 @@ export default function AccountDetailPage() {
           </article>
           <p className="hint" style={{ marginTop: 12 }}><button className="link" style={{ background: "none", border: 0, cursor: "pointer", padding: 0 }} onClick={() => reload()}>{t("common.refresh")}</button></p>
 
+          {editId && <EditTransactionModal id={editId} onClose={() => setEditId(null)} />}
           {editing && <AccountModal account={{ ...data.account, balances: [] }} onClose={() => { setEditing(false); void reload(); }} />}
         </>
       )}

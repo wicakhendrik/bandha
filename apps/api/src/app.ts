@@ -5,7 +5,7 @@ import type { ZodType } from "zod";
 import type { Db } from "@bandha/db";
 import {
   addCryptoSchema, createAccountSchema, createDebtSchema, createTransactionSchema, loginSchema, refreshSchema, registerSchema, replaceTransactionSchema, forgotPasswordSchema, resetPasswordSchema,
-  importCommitSchema, importPreviewSchema, settleDebtSchema, updateAccountSchema, updateDebtSchema, updateTransactionSchema,
+  importCommitSchema, importPreviewSchema, settleDebtSchema, updateAccountSchema, updateDebtSchema, updateTransactionSchema, updateProfileSchema, changePasswordSchema,
 } from "@bandha/validation";
 import { AccountsService } from "./accounts.service";
 import { isAssetKind } from "./assets.service";
@@ -128,6 +128,18 @@ export function createApp(deps: { db: Db; config: Config; services: Services; ma
     const user = await auth.me(c.get("userId"));
     if (!user) return c.json({ error: "Tidak terautentikasi" }, 401);
     return c.json({ user, workspaceId: c.get("workspaceId") });
+  });
+  api.patch("/me", async (c) => {
+    const p = await parse(c, updateProfileSchema);
+    if (!p.ok) return p.res;
+    return c.json({ user: await auth.updateName(c.get("userId"), p.data.name) });
+  });
+  // Checks the current password, so it is rate limited like sign-in (a stolen access token must not be a way to guess it).
+  api.post("/me/password", rateLimit(10, 15 * 60_000), async (c) => {
+    const p = await parse(c, changePasswordSchema);
+    if (!p.ok) return p.res;
+    await auth.changePassword(c.get("userId"), p.data.currentPassword, p.data.newPassword);
+    return c.body(null, 204);
   });
 
   // Getting-started guide: progress is derived from the person's data, only "dismiss" is stored.

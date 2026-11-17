@@ -6,11 +6,11 @@ import useSWR, { mutate } from "swr";
 import { dateLong, greeting } from "@bandha/api-client";
 import { api, fetcher } from "@/lib/api";
 import type { DictKey } from "@/lib/dict";
-import { initials } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
 import type { Me } from "@/lib/types";
 import { Icon, Logo } from "./icons";
 import { LangSwitch } from "./lang-switch";
+import { ProfileMenu } from "./profile-menu";
 import { TransactionModal } from "./transaction-modal";
 
 const NAV = [
@@ -70,7 +70,7 @@ export function Shell({ title, children }: { title?: string; children: React.Rea
             <button className="btn" onClick={toggleTheme} aria-label={t("shell.theme")}><Icon name="moon" size={18} /></button>
             <button className="btn pri" onClick={() => setTxOpen(true)} aria-label={t("shell.addTx")}><Icon name="plus" size={16} /><span className="lbl">{t("shell.addTx")}</span></button>
             <button className="btn" onClick={logout} aria-label={t("shell.logout")}><Icon name="out" size={18} /></button>
-            <div className="avatar" aria-hidden="true" style={{ cursor: "default" }}>{me ? initials(me.user.name) : ""}</div>
+            <ProfileMenu onLogout={logout} />
           </div>
         </header>
         {children}

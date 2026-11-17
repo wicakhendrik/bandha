@@ -155,7 +155,7 @@ Buka http://localhost:3000, daftar, lalu ikuti panduan **Mulai cepat** di Berand
 | --- | --- |
 | `pnpm typecheck` | Periksa tipe seluruh paket |
 | `pnpm test` | Tes unit (172 tes) |
-| `pnpm test:integration` | Tes integrasi (100 tes, butuh PostgreSQL) |
+| `pnpm test:integration` | Tes integrasi (107 tes, butuh PostgreSQL) |
 | `pnpm db:generate` | Buat migrasi baru dari perubahan skema |
 | `pnpm db:up` / `pnpm db:down` | Nyalakan / matikan PostgreSQL lokal |
 

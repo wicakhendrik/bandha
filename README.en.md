@@ -135,7 +135,7 @@ Open http://localhost:3000, sign up, and follow the **Quick start** checklist on
 | --- | --- |
 | `pnpm typecheck` | Type-check every package |
 | `pnpm test` | Unit tests (172) |
-| `pnpm test:integration` | Integration tests (100, need PostgreSQL) |
+| `pnpm test:integration` | Integration tests (107, need PostgreSQL) |
 | `pnpm db:generate` | Generate a migration from schema changes |
 
 ## Deploy

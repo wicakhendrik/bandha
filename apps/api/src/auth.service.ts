@@ -108,6 +108,31 @@ export class AuthService {
     await this.db.update(sessions).set({ revokedAt: new Date() }).where(and(eq(sessions.familyId, s.familyId), isNull(sessions.revokedAt)));
   }
 
+  /** Renames the signed-in person. */
+  async updateName(userId: string, name: string): Promise<PublicUser> {
+    const [u] = await this.db.update(users).set({ name, updatedAt: new Date() }).where(eq(users.id, userId)).returning();
+    if (!u) throw new AuthError(401, "Sesi tidak valid");
+    return { id: u.id, name: u.name, email: u.email };
+  }
+
+  /**
+   * Changes the password of someone who is signed in and knows the current one. Every session is revoked afterwards
+   * (other devices are signed out), so the caller signs in again with the new password.
+   */
+  async changePassword(userId: string, currentPassword: string, newPassword: string): Promise<void> {
+    const [u] = await this.db.select().from(users).where(eq(users.id, userId));
+    if (!u) throw new AuthError(401, "Sesi tidak valid");
+    // 400, not 401: a wrong current password must not look like an expired session to the web client.
+    if (!(await verifyPassword(currentPassword, u.passwordHash))) throw new HttpError(400, "Kata sandi saat ini salah");
+    if (currentPassword === newPassword) throw new HttpError(400, "Kata sandi baru harus berbeda dari yang lama");
+    const passwordHash = await hashPassword(newPassword);
+    await this.db.transaction(async (tx) => {
+      const now = new Date();
+      await tx.update(users).set({ passwordHash, updatedAt: now }).where(eq(users.id, userId));
+      await tx.update(sessions).set({ revokedAt: now }).where(and(eq(sessions.userId, userId), isNull(sessions.revokedAt)));
+    });
+  }
+
   async me(userId: string): Promise<PublicUser | null> {
     const [u] = await this.db.select().from(users).where(eq(users.id, userId));
     return u ? { id: u.id, name: u.name, email: u.email } : null;
