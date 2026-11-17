@@ -8,6 +8,7 @@ import { Shell } from "@/components/shell";
 import { fetcher } from "@/lib/api";
 import { assetKindLabel, dateShort, monthLabel, qty, rp } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
+import { usePrivacy } from "@/lib/privacy";
 import { balanceText, txView } from "@/lib/txview";
 import type { Account, Asset, CashflowMonth, Dashboard, HistoryPoint, Tx } from "@/lib/types";
 
@@ -39,6 +40,7 @@ function Skeleton({ h = 18, w = "100%" }: { h?: number; w?: string }) {
 
 export default function DashboardPage() {
   const { t } = useI18n();
+  const { hidden, toggle } = usePrivacy();
   const dash = useSWR<Dashboard>("/dashboard", fetcher);
   const flow = useSWR<{ months: CashflowMonth[] }>("/dashboard/cashflow?months=6", fetcher);
   const hist = useSWR<{ points: HistoryPoint[] }>("/dashboard/history?days=180", fetcher);
@@ -77,10 +79,15 @@ export default function DashboardPage() {
       {d && !d.complete && <div className="warn" role="status">{t("dash.unpriced", { list: d.unpriced.join(", ") })}</div>}
       <section className="grid">
         <article className="card hero c8">
-          <div className="lbl">{t("dash.netWorth")}</div>
-          {d ? <div className="big num"><span>Rp</span>{rp(d.netWorth).replace("Rp ", "").replace("−", "-")}</div> : <div style={{ margin: "14px 0" }}><Skeleton h={48} w="70%" /></div>}
+          <div className="herotop">
+            <div className="lbl">{t("dash.netWorth")}</div>
+            <button type="button" className="eyebtn" onClick={toggle} aria-pressed={hidden} aria-label={hidden ? t("dash.showAmounts") : t("dash.hideAmounts")} title={hidden ? t("dash.showAmounts") : t("dash.hideAmounts")}>
+              <Icon name={hidden ? "eyeOff" : "eye"} size={20} />
+            </button>
+          </div>
+          {d ? <div className="big num sens"><span>Rp</span>{rp(d.netWorth).replace("Rp ", "").replace("−", "-")}</div> : <div style={{ margin: "14px 0" }}><Skeleton h={48} w="70%" /></div>}
           {change !== null && (
-            <span className="chip"><Icon name={change >= 0 ? "arrowUp" : "arrowDown"} size={14} /> {rp(String(Math.abs(change)))} {t("dash.since", { date: dateShort(points[0]!.day) })}</span>
+            <span className="chip sens"><Icon name={change >= 0 ? "arrowUp" : "arrowDown"} size={14} /> {rp(String(Math.abs(change)))} {t("dash.since", { date: dateShort(points[0]!.day) })}</span>
           )}
           <Sparkline points={points} />
         </article>
@@ -89,12 +96,12 @@ export default function DashboardPage() {
           <Link href="/cashflow/income" className="card stat link" aria-label={`${t("dash.incomeMonth")}: ${t("dash.seeDetail")}`}>
             <span className="more"><Icon name="chevronRight" size={18} /></span>
             <div className="k">{t("dash.incomeMonth")}</div>
-            {cur ? <div className="v num pos">{rp(cur.income)}</div> : <Skeleton h={28} />}
+            {cur ? <div className="v num pos sens">{rp(cur.income)}</div> : <Skeleton h={28} />}
           </Link>
           <Link href="/cashflow/expense" className="card stat link" aria-label={`${t("dash.expenseMonth")}: ${t("dash.seeDetail")}`}>
             <span className="more"><Icon name="chevronRight" size={18} /></span>
             <div className="k">{t("dash.expenseMonth")}</div>
-            {cur ? <div className="v num neg">{rp(cur.expense)}</div> : <Skeleton h={28} />}
+            {cur ? <div className="v num neg sens">{rp(cur.expense)}</div> : <Skeleton h={28} />}
           </Link>
         </div>
 
@@ -106,8 +113,8 @@ export default function DashboardPage() {
               {months.map((m) => (
                 <div className="m" key={m.month}>
                   <div className="pair">
-                    <i className="in" style={{ height: `${(Number(m.income) / maxFlow) * 100}%` }} title={`${t("dash.in")} ${rp(m.income)}`} />
-                    <i className="out" style={{ height: `${(Number(m.expense) / maxFlow) * 100}%` }} title={`${t("dash.out")} ${rp(m.expense)}`} />
+                    <i className="in" style={{ height: `${(Number(m.income) / maxFlow) * 100}%` }} title={hidden ? undefined : `${t("dash.in")} ${rp(m.income)}`} />
+                    <i className="out" style={{ height: `${(Number(m.expense) / maxFlow) * 100}%` }} title={hidden ? undefined : `${t("dash.out")} ${rp(m.expense)}`} />
                   </div>
                   <span>{monthLabel(m.month)}</span>
                 </div>
@@ -140,7 +147,7 @@ export default function DashboardPage() {
             <div className="row" key={a.id}>
               <AccountLogo account={a} size={40} />
               <div className="t"><Link href={`/accounts/${a.id}`} style={{ color: "inherit", textDecoration: "none" }}><b>{a.name}</b></Link></div>
-              <div className="a num">{balanceText(a)}</div>
+              <div className="a num sens">{balanceText(a)}</div>
             </div>
           ))}
         </article>
@@ -154,7 +161,7 @@ export default function DashboardPage() {
             return (
               <div className="row" key={tx.id}>
                 <div className="t"><b>{v.title}</b><small>{dateShort(tx.occurredAt)} · {v.accountLabel}</small></div>
-                <div className="a"><div className={`num ${v.tone}`}>{v.amount}</div>{v.secondary && <small className="muted num">{v.secondary}</small>}</div>
+                <div className="a sens"><div className={`num ${v.tone}`}>{v.amount}</div>{v.secondary && <small className="muted num">{v.secondary}</small>}</div>
               </div>
             );
           })}
@@ -167,8 +174,8 @@ export default function DashboardPage() {
           ) : nonIdr.map((h) => (
             <div className="row" key={h.assetId}>
               <CoinLogo symbol={h.symbol} size={40} />
-              <div className="t"><Link href={`/portfolio/${h.assetId}`} style={{ color: "inherit", textDecoration: "none" }}><b>{h.name}</b></Link><small className="num">{qty(h.quantity)} {h.symbol}</small></div>
-              <div className="a">
+              <div className="t"><Link href={`/portfolio/${h.assetId}`} style={{ color: "inherit", textDecoration: "none" }}><b>{h.name}</b></Link><small className="num sens">{qty(h.quantity)} {h.symbol}</small></div>
+              <div className="a sens">
                 <div className="num">{h.value === null ? t("dash.noPrice") : rp(h.value)}</div>
                 {h.stale && <small className="muted">{t("dash.stale")}</small>}
               </div>
@@ -181,8 +188,8 @@ export default function DashboardPage() {
             <div className="empty">{t("dash.debtsEmpty")}<br /><Link className="btn" style={{ marginTop: 12 }} href="/debts">{t("dash.debtsAdd")}</Link></div>
           ) : (
             <div className="debtsum">
-              <Link href="/debts" className="stat" style={{ color: "inherit", textDecoration: "none" }}><div className="k">{t("dash.owe")}</div><div className="v num neg">{rp(d.debts.payable)}</div></Link>
-              <Link href="/debts" className="stat" style={{ color: "inherit", textDecoration: "none" }}><div className="k">{t("dash.owed")}</div><div className="v num pos">{rp(d.debts.receivable)}</div></Link>
+              <Link href="/debts" className="stat" style={{ color: "inherit", textDecoration: "none" }}><div className="k">{t("dash.owe")}</div><div className="v num neg sens">{rp(d.debts.payable)}</div></Link>
+              <Link href="/debts" className="stat" style={{ color: "inherit", textDecoration: "none" }}><div className="k">{t("dash.owed")}</div><div className="v num pos sens">{rp(d.debts.receivable)}</div></Link>
             </div>
           )}
         </article>

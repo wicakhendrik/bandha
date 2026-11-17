@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = { themeColor: "#2A1A10" };
 
 // Applies the saved theme before first paint to avoid a light/dark flash.
-const themeScript = `try{var t=localStorage.getItem('bandha-theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t)}catch(e){}`;
+const themeScript = `try{var t=localStorage.getItem('bandha-theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t)}catch(e){}try{if(localStorage.getItem('bandha-hide-amounts')==='1')document.documentElement.setAttribute('data-hide-money','')}catch(e){}`;
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   // The language is kept in a cookie so the server renders the right language on first paint.

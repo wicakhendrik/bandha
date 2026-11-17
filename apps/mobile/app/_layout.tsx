@@ -16,6 +16,7 @@ import { SWRConfig } from "swr";
 import { client } from "../src/api";
 import { AuthProvider, useAuth } from "../src/auth";
 import { LangProvider } from "../src/i18n";
+import { PrivacyProvider } from "../src/privacy";
 
 void SplashScreen.preventAutoHideAsync();
 
@@ -52,10 +53,12 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <SWRConfig value={{ fetcher: (key: string) => client.request(key), shouldRetryOnError: false, dedupingInterval: 2000 }}>
         <LangProvider>
-          <AuthProvider>
-            <StatusBar style="auto" />
-            <Gate />
-          </AuthProvider>
+          <PrivacyProvider>
+            <AuthProvider>
+              <StatusBar style="auto" />
+              <Gate />
+            </AuthProvider>
+          </PrivacyProvider>
         </LangProvider>
       </SWRConfig>
     </SafeAreaProvider>

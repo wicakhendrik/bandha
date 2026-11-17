@@ -287,6 +287,8 @@ const id = {
   "profile.errMismatch": "Kata sandi baru dan ulangannya tidak sama",
   "profile.pwDone": "Kata sandi sudah diubah.",
   "profile.pwDoneSub": "Perangkat lain sudah dikeluarkan dari akun ini.",
+  "dash.hideAmounts": "Sembunyikan jumlah uang",
+  "dash.showAmounts": "Tampilkan jumlah uang",
 };
 
 export type DictKey = keyof typeof id;
@@ -564,6 +566,8 @@ const en: Record<DictKey, string> = {
   "profile.errMismatch": "The new password and its repeat do not match",
   "profile.pwDone": "Your password has been changed.",
   "profile.pwDoneSub": "Other devices have been signed out of this account.",
+  "dash.hideAmounts": "Hide amounts",
+  "dash.showAmounts": "Show amounts",
 };
 
 export const DICT = { id, en };

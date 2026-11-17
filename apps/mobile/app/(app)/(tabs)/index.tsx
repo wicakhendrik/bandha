@@ -10,6 +10,7 @@ import { CashflowBars, Donut, Sparkline } from "../../../src/charts";
 import { useRefresh } from "../../../src/data";
 import { useT } from "../../../src/i18n";
 import { OnboardingCard } from "../../../src/onboarding";
+import { usePrivacy } from "../../../src/privacy";
 import { AccountLogo, CoinLogo } from "../../../src/logos";
 import { SLICE, useTheme } from "../../../src/theme";
 import { Avatar, BatikBackground, Banner, Btn, Card, Empty, Icon, Row, Screen, Skeleton, T } from "../../../src/ui";
@@ -18,6 +19,7 @@ export default function Home() {
   const c = useTheme();
   const t = useT();
   const { user } = useAuth();
+  const { hidden, toggle, mask: m } = usePrivacy();
   const { refreshing, refresh } = useRefresh();
   const dash = useSWR<Dashboard>("/dashboard");
   const flow = useSWR<{ months: CashflowMonth[] }>("/dashboard/cashflow?months=6");
@@ -57,11 +59,20 @@ export default function Home() {
 
       <View style={{ borderRadius: 22, overflow: "hidden", padding: 20 }}>
         <BatikBackground />
-        <T v="label" color="#E7CFA3" style={{ letterSpacing: 1, textTransform: "uppercase" }}>{t("Total kekayaan bersih", "Net worth")}</T>
+        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+          <T v="label" color="#E7CFA3" style={{ letterSpacing: 1, textTransform: "uppercase" }}>{t("Total kekayaan bersih", "Net worth")}</T>
+          <Pressable
+            onPress={toggle} hitSlop={10} accessibilityRole="button" accessibilityState={{ selected: hidden }}
+            accessibilityLabel={hidden ? t("Tampilkan jumlah uang", "Show amounts") : t("Sembunyikan jumlah uang", "Hide amounts")}
+            style={{ width: 36, height: 36, borderRadius: 18, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(255,255,255,0.12)" }}
+          >
+            <Icon name={hidden ? "eyeOff" : "eye"} size={20} color="#FBEFD6" />
+          </Pressable>
+        </View>
         {d ? (
-          <T style={{ fontFamily: "Fraunces_600SemiBold", fontSize: 38, lineHeight: 46, marginTop: 6 }} color="#FBEFD6" accessibilityRole="header">{rp(d.netWorth)}</T>
+          <T style={{ fontFamily: "Fraunces_600SemiBold", fontSize: 38, lineHeight: 46, marginTop: 6 }} color="#FBEFD6" accessibilityRole="header">{m(rp(d.netWorth))}</T>
         ) : <View style={{ marginVertical: 10 }}><Skeleton h={40} w="70%" /></View>}
-        {change !== null ? <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}><Icon name={change >= 0 ? "arrowUp" : "arrowDown"} size={14} color="#E7CFA3" /><T v="small" color="#E7CFA3">{rp(String(Math.abs(change)))} {t("sejak", "since")} {dateShort(`${points[0]!.day}T12:00:00+07:00`)}</T></View> : null}
+        {change !== null ? <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}><Icon name={change >= 0 ? "arrowUp" : "arrowDown"} size={14} color="#E7CFA3" /><T v="small" color="#E7CFA3">{m(rp(String(Math.abs(change))))} {t("sejak", "since")} {dateShort(`${points[0]!.day}T12:00:00+07:00`)}</T></View> : null}
         <View style={{ marginTop: 14 }}>
           {points.length >= 2 ? <Sparkline points={points} /> : (
             <View style={{ height: 90, borderWidth: 1, borderStyle: "dashed", borderColor: "rgba(231,207,163,0.4)", borderRadius: 14, alignItems: "center", justifyContent: "center", padding: 12 }}>
@@ -75,13 +86,13 @@ export default function Home() {
         <Pressable style={{ flex: 1 }} onPress={() => router.push("/cashflow/income")} accessibilityRole="button" accessibilityLabel={t("Pemasukan bulan ini, lihat detail", "Income this month, see details")}>
           <Card>
             <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}><T v="small" muted>{t("Pemasukan bulan ini", "Income this month")}</T><Icon name="chevronRight" size={16} color={c.muted} /></View>
-            {cur ? <T v="mono" color={c.pos} style={{ marginTop: 4 }}>{rp(cur.income)}</T> : <Skeleton h={20} />}
+            {cur ? <T v="mono" color={c.pos} style={{ marginTop: 4 }}>{m(rp(cur.income))}</T> : <Skeleton h={20} />}
           </Card>
         </Pressable>
         <Pressable style={{ flex: 1 }} onPress={() => router.push("/cashflow/expense")} accessibilityRole="button" accessibilityLabel={t("Pengeluaran bulan ini, lihat detail", "Expenses this month, see details")}>
           <Card>
             <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}><T v="small" muted>{t("Pengeluaran bulan ini", "Expenses this month")}</T><Icon name="chevronRight" size={16} color={c.muted} /></View>
-            {cur ? <T v="mono" color={c.neg} style={{ marginTop: 4 }}>{rp(cur.expense)}</T> : <Skeleton h={20} />}
+            {cur ? <T v="mono" color={c.neg} style={{ marginTop: 4 }}>{m(rp(cur.expense))}</T> : <Skeleton h={20} />}
           </Card>
         </Pressable>
       </View>
@@ -122,8 +133,8 @@ export default function Home() {
             <T v="small" muted style={{ marginTop: 10 }}>{t("Tidak ada utang atau piutang aktif. Ketuk untuk mencatat.", "No active debts or receivables. Tap to add one.")}</T>
           ) : (
             <View style={{ flexDirection: "row", gap: 12, marginTop: 10 }}>
-              <View style={{ flex: 1 }}><T v="small" muted>{t("Utang saya", "I owe")}</T><T v="mono" color={c.neg}>{rp(d.debts.payable)}</T></View>
-              <View style={{ flex: 1 }}><T v="small" muted>{t("Piutang saya", "Owed to me")}</T><T v="mono" color={c.pos}>{rp(d.debts.receivable)}</T></View>
+              <View style={{ flex: 1 }}><T v="small" muted>{t("Utang saya", "I owe")}</T><T v="mono" color={c.neg}>{m(rp(d.debts.payable))}</T></View>
+              <View style={{ flex: 1 }}><T v="small" muted>{t("Piutang saya", "Owed to me")}</T><T v="mono" color={c.pos}>{m(rp(d.debts.receivable))}</T></View>
             </View>
           )}
         </Card>
@@ -137,7 +148,7 @@ export default function Home() {
           <Row key={a.id}>
             <AccountLogo account={a} size={36} />
             <View style={{ flex: 1 }}><T numberOfLines={1}>{a.name}</T></View>
-            <T v="mono" style={{ fontSize: 13 }}>{balanceText(a)}</T>
+            <T v="mono" style={{ fontSize: 13 }}>{m(balanceText(a))}</T>
           </Row>
         ))}
       </Card>
@@ -155,8 +166,8 @@ export default function Home() {
                 <T v="small" muted numberOfLines={1}>{dateShort(tx.occurredAt)} · {v.accountLabel}</T>
               </View>
               <View style={{ alignItems: "flex-end" }}>
-                <T v="mono" style={{ fontSize: 13 }} color={v.tone === "pos" ? c.pos : v.tone === "neg" ? c.neg : c.ink}>{v.amount}</T>
-                {v.secondary ? <T v="small" muted>{v.secondary}</T> : null}
+                <T v="mono" style={{ fontSize: 13 }} color={v.tone === "pos" ? c.pos : v.tone === "neg" ? c.neg : c.ink}>{m(v.amount)}</T>
+                {v.secondary ? <T v="small" muted>{m(v.secondary)}</T> : null}
               </View>
             </Row>
           );
@@ -172,10 +183,10 @@ export default function Home() {
               <CoinLogo symbol={h.symbol} size={36} />
               <View style={{ flex: 1 }}>
                 <T>{h.name}</T>
-                <T v="small" muted>{qty(h.quantity)} {h.symbol}</T>
+                <T v="small" muted>{m(`${qty(h.quantity)} ${h.symbol}`)}</T>
               </View>
               <View style={{ alignItems: "flex-end" }}>
-                <T v="mono" style={{ fontSize: 13 }}>{h.value === null ? t("Belum ada harga", "No price yet") : rp(h.value)}</T>
+                <T v="mono" style={{ fontSize: 13 }}>{h.value === null ? t("Belum ada harga", "No price yet") : m(rp(h.value))}</T>
                 {h.stale ? <T v="small" muted>{t("harga lama", "stale price")}</T> : null}
               </View>
             </Row>
