@@ -1,12 +1,13 @@
 import { eq, sql } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { journals, ledgerEntries, seedAssets } from "@bandha/db";
-import { assetIds, call, db, newUser, pool, type Json } from "./test-utils";
+import { assetIds, call, db, newUser, pool, services, type Json } from "./test-utils";
 
 let IDR = "";
 let BTC = "";
 beforeAll(async () => {
   await seedAssets(db);
+  await services.market.sync();
   const ids = await assetIds((await newUser()).token);
   IDR = ids["IDR"]!;
   BTC = ids["BTC"]!;
