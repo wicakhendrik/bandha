@@ -58,8 +58,6 @@ log "starting"
 if wait_healthy "$NEW_TAG"; then
   log "healthy: $NEW_TAG is live"
   TAG="$NEW_TAG" "${COMPOSE[@]}" ps
-  # keep the disk tidy: drop images older than the last few builds
-  docker image prune -f --filter "until=168h" >/dev/null 2>&1 || true
   exit 0
 fi
 
