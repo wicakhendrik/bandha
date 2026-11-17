@@ -4,13 +4,13 @@ import { assets, createDb } from "@bandha/db";
 import { createApp } from "./app";
 import type { MailMessage } from "./mailer";
 import { loadConfig } from "./config";
-import { FakeFxProvider, FakeProvider } from "./market/fake";
+import { FakeFxProvider, FakeProvider, FakeStockProvider } from "./market/fake";
 import { createServices } from "./services";
 
 const url = process.env.DATABASE_URL ?? "postgres://bandha:bandha@localhost:5434/bandha";
 export const config = loadConfig({ DATABASE_URL: url, JWT_SECRET: "t".repeat(40), MARKET_PROVIDER: "fake" });
 export const { db, pool } = createDb(url);
-export const services = createServices(db, new FakeProvider(), new FakeFxProvider());
+export const services = createServices(db, new FakeProvider(), new FakeFxProvider(), new FakeStockProvider());
 /** Every email the API tried to send during the tests (the real mailer is never used). */
 export const sentMail: MailMessage[] = [];
 export const app = createApp({ db, config, services, mailer: { send: async (m) => { sentMail.push(m); } } });

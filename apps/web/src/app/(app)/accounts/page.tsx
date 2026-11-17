@@ -83,7 +83,7 @@ export default function AccountsPage() {
             <div className="row acc-row" key={a.id}>
               <AccountLogo account={a} size={40} />
               <div className="t">
-                <Link href={`/accounts/${a.id}`} className="rowlink"><b className="nm">{a.name}<Icon name="chevronRight" size={15} style={{ color: "var(--muted)" }} /></b></Link>
+                <Link href={`/accounts/${a.id}`} className="rowlink acclink"><b className="nm"><span className="nmt">{a.name}</span><Icon name="chevronRight" size={15} style={{ color: "var(--muted)" }} /></b></Link>
                 <small>{accountKindLabel(a.kind)}{a.includeInNetWorth ? "" : ` · ${t("acc.notCounted")}`}</small>
               </div>
               <div className="a num">{balanceText(a)}</div>

@@ -9,8 +9,8 @@ import { isUniqueViolation } from "./types";
 /** Coins shown first in pickers, in this order. */
 export const PRIORITY_COINS = ["BTC", "ETH", "USDT", "USDC", "SOL", "SUI", "TON", "TRX", "XLM", "XRP", "NEAR", "BNB", "DAI", "ADA", "DOGE", "BCH"];
 
-export type AssetKind = "fiat" | "crypto" | "gold";
-export const isAssetKind = (v: string | undefined): v is AssetKind => v === "fiat" || v === "crypto" || v === "gold";
+export type AssetKind = "fiat" | "crypto" | "gold" | "stock";
+export const isAssetKind = (v: string | undefined): v is AssetKind => v === "fiat" || v === "crypto" || v === "gold" || v === "stock";
 
 export interface AssetItem {
   id: string;
@@ -67,8 +67,9 @@ export class AssetsService {
       .where(where.length ? and(...where) : undefined)
       .orderBy(asc(assets.kind), asc(assets.symbol));
 
-    const rank = (a: { id: string; symbol: string; kind: string }) =>
-      a.id === idr ? -2 : a.kind === "crypto" && PRIORITY_COINS.includes(a.symbol) ? PRIORITY_COINS.indexOf(a.symbol) : 1000;
+    // Within stocks, Jakarta shares (".JK") come before US ones.
+    const rank = (a: { id: string; symbol: string; kind: string; providerRef: string | null }) =>
+      a.id === idr ? -2 : a.kind === "crypto" && PRIORITY_COINS.includes(a.symbol) ? PRIORITY_COINS.indexOf(a.symbol) : a.kind === "stock" && !a.providerRef?.endsWith(".JK") ? 1001 : 1000;
     const items = rows.map<AssetItem>((r) => ({ ...r, price: r.id === idr ? "1" : r.price ? dec(r.price).toFixed() : null }));
     items.sort((a, b) => a.kind.localeCompare(b.kind) || rank(a) - rank(b) || a.symbol.localeCompare(b.symbol));
     return items.slice(0, Math.min(opts.limit ?? 200, 300));

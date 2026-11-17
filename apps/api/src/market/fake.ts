@@ -1,4 +1,4 @@
-import type { CoinSearchHit, FxProvider, MarketDataProvider, PriceMap } from "./provider";
+import type { CoinSearchHit, FxProvider, MarketDataProvider, PriceMap, StockProvider, StockQuote } from "./provider";
 
 /** Deterministic prices for tests and offline development. Never use in production. */
 const FAKE: PriceMap = {
@@ -51,5 +51,17 @@ export class FakeFxProvider implements FxProvider {
   async fetchIdrRates(codes: string[]): Promise<Record<string, string>> {
     const rates: Record<string, string> = { USD: "16200", EUR: "18000", SGD: "12000", JPY: "108", MYR: "3600" };
     return Object.fromEntries(codes.filter((c) => rates[c]).map((c) => [c, rates[c]!]));
+  }
+}
+
+/** Fixed share prices for tests: Jakarta shares in rupiah, US shares in dollars. */
+export class FakeStockProvider implements StockProvider {
+  readonly name = "fake-stocks";
+  async fetchQuotes(symbols: string[]): Promise<Record<string, StockQuote>> {
+    const quotes: Record<string, StockQuote> = {
+      "BBCA.JK": { price: "9000", currency: "IDR" }, "BBRI.JK": { price: "4000", currency: "IDR" }, "TLKM.JK": { price: "3000", currency: "IDR" },
+      AAPL: { price: "200", currency: "USD" }, MSFT: { price: "400", currency: "USD" }, NVDA: { price: "130", currency: "USD" },
+    };
+    return Object.fromEntries(symbols.flatMap((s) => (quotes[s] ? [[s, quotes[s]!]] : [])));
   }
 }

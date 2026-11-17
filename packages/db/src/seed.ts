@@ -22,6 +22,44 @@ const FIAT: Array<[string, string]> = [
 
 const coin = (symbol: string, name: string, providerRef: string, decimals = 8): Seed => ({ symbol, name, kind: "crypto", decimals, providerRef });
 
+/**
+ * Stocks are priced from Yahoo Finance: provider_ref "yf:<Yahoo symbol>". Indonesian shares end in ".JK" and trade in whole
+ * shares (a lot is 100) in rupiah; US shares and ETFs may be fractional and are quoted in dollars (converted to rupiah when priced).
+ */
+const idx = (symbol: string, name: string): Seed => ({ symbol, name, kind: "stock", decimals: 0, providerRef: `yf:${symbol}.JK` });
+const us = (symbol: string, name: string): Seed => ({ symbol, name, kind: "stock", decimals: 6, providerRef: `yf:${symbol}` });
+
+/** Popular Indonesian shares (mostly the LQ45 names). */
+export const IDX_STOCKS: Seed[] = [
+  idx("BBCA", "Bank Central Asia"), idx("BBRI", "Bank Rakyat Indonesia"), idx("BMRI", "Bank Mandiri"), idx("BBNI", "Bank Negara Indonesia"),
+  idx("BRIS", "Bank Syariah Indonesia"), idx("ARTO", "Bank Jago"), idx("TLKM", "Telkom Indonesia"), idx("ISAT", "Indosat Ooredoo Hutchison"),
+  idx("EXCL", "XL Axiata"), idx("TOWR", "Sarana Menara Nusantara"), idx("ASII", "Astra International"), idx("UNTR", "United Tractors"),
+  idx("UNVR", "Unilever Indonesia"), idx("ICBP", "Indofood CBP Sukses Makmur"), idx("INDF", "Indofood Sukses Makmur"),
+  idx("CPIN", "Charoen Pokphand Indonesia"), idx("JPFA", "Japfa Comfeed Indonesia"), idx("KLBF", "Kalbe Farma"), idx("SIDO", "Sido Muncul"),
+  idx("MIKA", "Mitra Keluarga Karyasehat"), idx("HMSP", "HM Sampoerna"), idx("GGRM", "Gudang Garam"), idx("GOTO", "GoTo Gojek Tokopedia"),
+  idx("BUKA", "Bukalapak"), idx("EMTK", "Elang Mahkota Teknologi"), idx("SCMA", "Surya Citra Media"), idx("BREN", "Barito Renewables Energy"),
+  idx("AMMN", "Amman Mineral Internasional"), idx("ADRO", "Adaro Energy Indonesia"), idx("ADMR", "Adaro Minerals Indonesia"), idx("PTBA", "Bukit Asam"),
+  idx("ITMG", "Indo Tambangraya Megah"), idx("HRUM", "Harum Energy"), idx("ANTM", "Aneka Tambang"), idx("MDKA", "Merdeka Copper Gold"),
+  idx("INCO", "Vale Indonesia"), idx("TINS", "Timah"), idx("PGAS", "Perusahaan Gas Negara"), idx("MEDC", "Medco Energi Internasional"),
+  idx("AKRA", "AKR Corporindo"), idx("ESSA", "ESSA Industries Indonesia"), idx("TPIA", "Chandra Asri Pacific"), idx("SMGR", "Semen Indonesia"),
+  idx("INTP", "Indocement Tunggal Prakarsa"), idx("INKP", "Indah Kiat Pulp & Paper"), idx("TKIM", "Pabrik Kertas Tjiwi Kimia"),
+  idx("ACES", "Aspirasi Hidup Indonesia"), idx("MAPI", "Mitra Adiperkasa"), idx("ERAA", "Erajaya Swasembada"), idx("CTRA", "Ciputra Development"),
+  idx("BSDE", "Bumi Serpong Damai"), idx("PWON", "Pakuwon Jati"), idx("SMRA", "Summarecon Agung"), idx("JSMR", "Jasa Marga"),
+];
+
+/** Popular US shares and ETFs. */
+export const US_STOCKS: Seed[] = [
+  us("AAPL", "Apple"), us("MSFT", "Microsoft"), us("GOOGL", "Alphabet (Class A)"), us("AMZN", "Amazon"), us("NVDA", "NVIDIA"),
+  us("META", "Meta Platforms"), us("TSLA", "Tesla"), us("AVGO", "Broadcom"), us("BRK-B", "Berkshire Hathaway (Class B)"), us("JPM", "JPMorgan Chase"),
+  us("V", "Visa"), us("MA", "Mastercard"), us("UNH", "UnitedHealth Group"), us("JNJ", "Johnson & Johnson"), us("XOM", "Exxon Mobil"),
+  us("WMT", "Walmart"), us("PG", "Procter & Gamble"), us("HD", "Home Depot"), us("KO", "Coca-Cola"), us("PEP", "PepsiCo"), us("COST", "Costco"),
+  us("NFLX", "Netflix"), us("DIS", "Walt Disney"), us("ADBE", "Adobe"), us("CRM", "Salesforce"), us("AMD", "Advanced Micro Devices"),
+  us("INTC", "Intel"), us("ORCL", "Oracle"), us("CSCO", "Cisco"), us("PYPL", "PayPal"), us("UBER", "Uber"), us("BA", "Boeing"), us("NKE", "Nike"),
+  us("MCD", "McDonald's"), us("SBUX", "Starbucks"), us("PFE", "Pfizer"), us("MRK", "Merck"), us("ABBV", "AbbVie"), us("T", "AT&T"), us("VZ", "Verizon"),
+  us("BAC", "Bank of America"), us("WFC", "Wells Fargo"), us("GS", "Goldman Sachs"), us("COIN", "Coinbase"), us("PLTR", "Palantir"),
+  us("SPY", "SPDR S&P 500 ETF"), us("QQQ", "Invesco QQQ ETF"), us("VOO", "Vanguard S&P 500 ETF"), us("VTI", "Vanguard Total Stock Market ETF"),
+];
+
 // Quantity decimals per asset. Crypto kept to 8 places (satoshi-level) for display/input.
 export const SEED_ASSETS: Seed[] = [
   { symbol: "IDR", name: "Rupiah Indonesia", kind: "fiat", decimals: 2 },
@@ -34,6 +72,8 @@ export const SEED_ASSETS: Seed[] = [
   coin("DOT", "Polkadot", "polkadot"), coin("LTC", "Litecoin", "litecoin"), coin("AVAX", "Avalanche", "avalanche-2"), coin("LINK", "Chainlink", "chainlink"),
   coin("ATOM", "Cosmos", "cosmos", 6), coin("ETC", "Ethereum Classic", "ethereum-classic"), coin("UNI", "Uniswap", "uniswap"), coin("SHIB", "Shiba Inu", "shiba-inu", 2),
   { symbol: "XAU", name: "Emas (gram)", kind: "gold", decimals: 4, providerRef: "pax-gold", unitDivisor: GRAMS_PER_TROY_OUNCE },
+  ...IDX_STOCKS,
+  ...US_STOCKS,
 ];
 
 /**

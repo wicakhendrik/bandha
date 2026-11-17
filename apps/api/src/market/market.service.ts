@@ -2,10 +2,11 @@ import { and, eq, inArray, isNotNull, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { assets, marketQuotesHistory, marketQuotesLatest, type Db } from "@bandha/db";
 import { dec, type PriceQuote } from "@bandha/ledger";
-import type { FxProvider, MarketDataProvider } from "./provider";
+import type { FxProvider, MarketDataProvider, StockProvider } from "./provider";
 
 const QUOTE_CURRENCIES = ["IDR", "USD"];
 const FX_PREFIX = "fx:";
+const STOCK_PREFIX = "yf:";
 
 type QuoteRow = typeof marketQuotesLatest.$inferInsert;
 
@@ -18,7 +19,7 @@ export interface SyncResult {
 export class MarketDataService {
   private inflight: Promise<SyncResult> | null = null;
 
-  constructor(private readonly db: Db, private readonly provider: MarketDataProvider, private readonly fx: FxProvider) {}
+  constructor(private readonly db: Db, private readonly provider: MarketDataProvider, private readonly fx: FxProvider, private readonly stocks?: StockProvider) {}
 
   /**
    * Prices come from two sources: CoinGecko (crypto and gold) and an FX provider (foreign currencies).
@@ -41,8 +42,13 @@ export class MarketDataService {
     const idrId = quoteIdByCode.get("idr");
     const asOf = new Date();
 
-    const cgAssets = priced.filter((a) => a.providerRef && !a.providerRef.startsWith(FX_PREFIX));
+    const cgAssets = priced.filter((a) => a.providerRef && !a.providerRef.startsWith(FX_PREFIX) && !a.providerRef.startsWith(STOCK_PREFIX));
     const fxAssets = priced.filter((a) => a.providerRef?.startsWith(FX_PREFIX));
+    const stockAssets = this.stocks ? priced.filter((a) => a.providerRef?.startsWith(STOCK_PREFIX)) : [];
+
+    // Rupiah per unit of each foreign currency, fetched once and shared by the currency prices and the US share prices.
+    let ratesP: Promise<Record<string, string>> | null = null;
+    const rates = () => (ratesP ??= this.fx.fetchIdrRates([...new Set([...fxAssets.map((a) => a.symbol), "USD"])]));
 
     const crypto = async (): Promise<QuoteRow[]> => {
       const codes = [...quoteIdByCode.keys()];
@@ -61,16 +67,36 @@ export class MarketDataService {
 
     const fiat = async (): Promise<QuoteRow[]> => {
       if (!idrId || fxAssets.length === 0) return [];
-      const codes = fxAssets.map((a) => a.symbol);
-      const rates = await this.fx.fetchIdrRates(codes);
-      return fxAssets.flatMap((a) => (rates[a.symbol] ? [{ assetId: a.id, quoteAssetId: idrId, price: rates[a.symbol]!, source: this.fx.sourceFor?.(a.symbol) ?? this.fx.name, asOf }] : []));
+      const r = await rates();
+      return fxAssets.flatMap((a) => (r[a.symbol] ? [{ assetId: a.id, quoteAssetId: idrId, price: r[a.symbol]!, source: this.fx.sourceFor?.(a.symbol) ?? this.fx.name, asOf }] : []));
     };
 
-    const [c, f] = await Promise.allSettled([cgAssets.length ? crypto() : Promise.resolve([]), fiat()]);
-    const failed = [c.status === "rejected" ? this.provider.name : "", f.status === "rejected" ? this.fx.name : ""].filter(Boolean);
-    if (c.status === "rejected" && f.status === "rejected") throw c.reason;
+    // Shares: quoted in the exchange's currency. Rupiah quotes are stored as they are; dollar quotes are stored in USD
+    // and also converted to rupiah (the valuation reads the rupiah row), so a failing FX source only affects US shares.
+    const shares = async (): Promise<QuoteRow[]> => {
+      if (!this.stocks || !idrId || stockAssets.length === 0) return [];
+      const quotes = await this.stocks.fetchQuotes(stockAssets.flatMap((a) => (a.providerRef ? [a.providerRef.slice(STOCK_PREFIX.length)] : [])));
+      const usdId = quoteIdByCode.get("usd");
+      let usdIdr: string | undefined;
+      const rows: QuoteRow[] = [];
+      for (const a of stockAssets) {
+        const q = a.providerRef ? quotes[a.providerRef.slice(STOCK_PREFIX.length)] : undefined;
+        if (!q) continue;
+        if (q.currency === "IDR") rows.push({ assetId: a.id, quoteAssetId: idrId, price: q.price, source: this.stocks.name, asOf });
+        else if (q.currency === "USD" && usdId) {
+          usdIdr ??= await rates().then((r) => r["USD"]).catch(() => undefined);
+          rows.push({ assetId: a.id, quoteAssetId: usdId, price: q.price, source: this.stocks.name, asOf });
+          if (usdIdr) rows.push({ assetId: a.id, quoteAssetId: idrId, price: dec(q.price).times(dec(usdIdr)).toDecimalPlaces(10).toFixed(), source: this.stocks.name, asOf });
+        }
+      }
+      return rows;
+    };
 
-    const rows = [...(c.status === "fulfilled" ? c.value : []), ...(f.status === "fulfilled" ? f.value : [])];
+    const [c, f, s] = await Promise.allSettled([cgAssets.length ? crypto() : Promise.resolve([]), fiat(), shares()]);
+    const failed = [c.status === "rejected" ? this.provider.name : "", f.status === "rejected" ? this.fx.name : "", s.status === "rejected" ? (this.stocks?.name ?? "stocks") : ""].filter(Boolean);
+    if (c.status === "rejected" && f.status === "rejected" && s.status === "rejected") throw c.reason;
+
+    const rows = [...(c.status === "fulfilled" ? c.value : []), ...(f.status === "fulfilled" ? f.value : []), ...(s.status === "fulfilled" ? s.value : [])];
     if (rows.length === 0) return { updated: 0, failed };
 
     await this.db.transaction(async (tx) => {

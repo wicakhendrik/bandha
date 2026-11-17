@@ -163,7 +163,9 @@ export function TransactionModal({ onClose, initialType = "expense", edit }: { o
 
   const currencyNames = useMemo(() => { try { return new Intl.DisplayNames([lang], { type: "currency" }); } catch { return null; } }, [lang]);
   const accountOpt = (a: Account): Option => ({ value: a.id, label: a.name, icon: <AccountLogo account={a} size={26} />, keywords: a.kind });
-  const groupOf = (a: Asset) => (a.kind === "fiat" ? t("accm.currencies") : a.kind === "gold" ? t("accm.goldAsset") : PRIORITY_COINS.includes(a.symbol) ? t("accm.mainCoins") : t("accm.otherCoins"));
+  const groupOf = (a: Asset) => (a.kind === "fiat" ? t("accm.currencies") : a.kind === "gold" ? t("accm.goldAsset")
+    : a.kind === "stock" ? (a.providerRef?.endsWith(".JK") ? t("accm.stocksId") : t("accm.stocksUs"))
+    : PRIORITY_COINS.includes(a.symbol) ? t("accm.mainCoins") : t("accm.otherCoins"));
   const assetOpt = (a: Asset, holder?: string): Option => {
     const have = holder ? available(holder, a.id) : "0";
     return {
@@ -220,7 +222,10 @@ export function TransactionModal({ onClose, initialType = "expense", edit }: { o
 
   const unit = trade && amount && isAmount(amount) && isAmount(total) ? rp(String(Number(total) / Number(amount))) : null;
   const noHoldings = outflow && accounts.length > 0 && !!from && assetPool.length === 0;
-  const showEstimate = !otherIsIdr && !!estimate && !total;
+  // Rupiah-funded buy: offer quantity x today's price as the total (handy for shares and coins).
+  const buyEstimate = buy && otherIsIdr && asset && Number(asset.price ?? 0) > 0 && isAmount(amount) ? String(Math.round(Number(amount) * Number(asset.price))) : "";
+  const showEstimate = !!(!otherIsIdr ? estimate : buyEstimate) && !total;
+  const estimateValue = !otherIsIdr ? estimate : buyEstimate;
 
   return (
     <Modal title={edit ? t("txm.editTitle") : t("txm.title")} onClose={onClose}>
@@ -288,9 +293,9 @@ export function TransactionModal({ onClose, initialType = "expense", edit }: { o
             )}
 
             <div className="field"><label htmlFor="tot">{!otherIsIdr ? t("txm.valueIdr") : buy ? t("txm.totalCost") : t("txm.totalProceeds")}</label>
-              <input id="tot" className="input num" inputMode="decimal" value={total} onChange={(e) => setTotal(e.target.value.trim())} placeholder={showEstimate ? estimate : "0"} />
+              <input id="tot" className="input num" inputMode="decimal" value={total} onChange={(e) => setTotal(e.target.value.trim())} placeholder={showEstimate ? estimateValue : "0"} />
               <span className="hint">{isAmount(total) ? rp(total) : t("txm.noFee")}{unit ? ` · ${t("txm.avgPrice", { value: unit })}` : ""}</span>
-              {showEstimate && <button type="button" className="linkbtn" onClick={() => setTotal(estimate)}>{t("txm.useEstimate", { value: rp(estimate) })}</button>}</div>
+              {showEstimate && <button type="button" className="linkbtn" onClick={() => setTotal(estimateValue)}>{t("txm.useEstimate", { value: rp(estimateValue) })}</button>}</div>
 
             <div className="field"><label htmlFor="fee">{otherIsIdr ? t("txm.fee") : t("txm.feeIn", { symbol: other?.symbol ?? "" })}</label>
               <input id="fee" className="input num" inputMode="decimal" value={fee} onChange={(e) => setFee(e.target.value.trim())} placeholder="0" />

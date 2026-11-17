@@ -184,7 +184,7 @@ const id = {
   "land.heroNote": "Bandha adalah pencatat, bukan platform trading. Tidak ada uang yang berpindah lewat Bandha.",
   "land.heroAlt": "Beranda Bandha: total kekayaan bersih, arus kas, alokasi aset, dan daftar rekening",
   "land.facts1": "Rupiah dan 30 mata uang",
-  "land.facts2": "Kripto, emas, dan valas",
+  "land.facts2": "Kripto, emas, saham, dan valas",
   "land.facts3": "Indonesia & English",
   "land.facts4": "Tema terang & gelap",
   "land.featTitle": "Semua harta Anda, satu gambaran utuh",
@@ -268,6 +268,8 @@ const id = {
   "txm.useEstimate": "Pakai perkiraan {value} (harga pasar)",
   "txm.errOtherQty": "Isi jumlah {symbol} yang dipakai",
   "txm.categoryQuick": "Pilih kategori cepat",
+  "accm.stocksId": "Saham Indonesia",
+  "accm.stocksUs": "Saham AS",
 };
 
 export type DictKey = keyof typeof id;
@@ -442,7 +444,7 @@ const en: Record<DictKey, string> = {
   "land.heroNote": "Bandha is a bookkeeping tool, not a trading platform. No money moves through Bandha.",
   "land.heroAlt": "Bandha dashboard: total net worth, cash flow, asset allocation, and accounts",
   "land.facts1": "Rupiah and 30 currencies",
-  "land.facts2": "Crypto, gold, and forex",
+  "land.facts2": "Crypto, gold, stocks, and forex",
   "land.facts3": "Indonesian & English",
   "land.facts4": "Light & dark themes",
   "land.featTitle": "All your wealth, one clear picture",
@@ -526,6 +528,8 @@ const en: Record<DictKey, string> = {
   "txm.useEstimate": "Use the estimate {value} (market price)",
   "txm.errOtherQty": "Enter the amount of {symbol} used",
   "txm.categoryQuick": "Quick categories",
+  "accm.stocksId": "Indonesian stocks",
+  "accm.stocksUs": "US stocks",
 };
 
 export const DICT = { id, en };

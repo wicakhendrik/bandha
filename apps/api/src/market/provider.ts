@@ -21,6 +21,19 @@ export interface MarketDataProvider {
   lookup(id: string): Promise<CoinSearchHit | null>;
 }
 
+/** A stock quote in the currency the exchange trades it in. */
+export interface StockQuote {
+  price: string;
+  /** ISO currency code of `price`, e.g. "IDR" for Jakarta shares and "USD" for US ones. */
+  currency: string;
+}
+
+/** Share prices keyed by the provider symbol (without the "yf:" prefix), e.g. "BBCA.JK" or "AAPL". */
+export interface StockProvider {
+  readonly name: string;
+  fetchQuotes(symbols: string[]): Promise<Record<string, StockQuote>>;
+}
+
 /** Foreign-exchange rates, expressed as rupiah per one unit of each currency. */
 export interface FxProvider {
   readonly name: string;

@@ -19,7 +19,7 @@ Web · Android · iOS &nbsp;|&nbsp; Indonesian & English &nbsp;|&nbsp; Light & d
 ## Features
 
 - **True net worth.** Every account (bank, e-wallet, cash, crypto exchange, wallet, gold) and every debt rolled into one number, with allocation and history.
-- **Multi-asset portfolio.** Crypto, gold, and foreign currency with live market prices. Buys and sells use **weighted-average cost**, so unrealised and **realised** gains are both visible.
+- **Multi-asset portfolio.** Crypto, gold, foreign currency, and Indonesian and US stocks with market prices. Buys and sells use **weighted-average cost**, so unrealised and **realised** gains are both visible.
 - **Cash flow.** Income and spending by category and month, kept separate from investment gains.
 - **Debts & receivables.** Instalments, credit cards, and loans to friends; partial payments, due dates, and a remaining balance that computes itself.
 - **Complete transactions.** Income, expense, transfers (with fees), buy, sell, edit, and void, all with an audit trail.
@@ -134,8 +134,8 @@ Open http://localhost:3000, sign up, and follow the **Quick start** checklist on
 | Command | What it does |
 | --- | --- |
 | `pnpm typecheck` | Type-check every package |
-| `pnpm test` | Unit tests (169) |
-| `pnpm test:integration` | Integration tests (97, need PostgreSQL) |
+| `pnpm test` | Unit tests (172) |
+| `pnpm test:integration` | Integration tests (100, need PostgreSQL) |
 | `pnpm db:generate` | Generate a migration from schema changes |
 
 ## Deploy

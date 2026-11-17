@@ -19,7 +19,7 @@ Web · Android · iOS &nbsp;|&nbsp; Indonesia & English &nbsp;|&nbsp; Terang & g
 ## Fitur
 
 - **Kekayaan bersih sejati.** Semua rekening (bank, e-wallet, tunai, bursa kripto, dompet, emas) dan utang dihitung jadi satu angka, lengkap dengan alokasi aset dan riwayatnya.
-- **Portofolio multi-aset.** Kripto, emas, dan valas dengan harga pasar langsung. Beli dan jual dicatat dengan **modal rata-rata tertimbang**, sehingga untung/rugi belum terealisasi dan **terealisasi** terlihat jelas.
+- **Portofolio multi-aset.** Kripto, emas, valas, serta saham Indonesia dan AS dengan harga pasar. Beli dan jual dicatat dengan **modal rata-rata tertimbang**, sehingga untung/rugi belum terealisasi dan **terealisasi** terlihat jelas.
 - **Arus kas.** Pemasukan dan pengeluaran per kategori, per bulan, terpisah dari untung/rugi investasi.
 - **Utang & piutang.** Cicilan, kartu kredit, dan pinjaman antarteman; bayar sebagian, pantau jatuh tempo, dan sisa otomatis menghitung dirinya sendiri.
 - **Transaksi lengkap.** Pemasukan, pengeluaran, transfer antarrekening (termasuk biaya), beli, jual, edit, dan batalkan, semuanya dengan jejak audit.
@@ -154,8 +154,8 @@ Buka http://localhost:3000, daftar, lalu ikuti panduan **Mulai cepat** di Berand
 | Perintah | Fungsi |
 | --- | --- |
 | `pnpm typecheck` | Periksa tipe seluruh paket |
-| `pnpm test` | Tes unit (169 tes) |
-| `pnpm test:integration` | Tes integrasi (97 tes, butuh PostgreSQL) |
+| `pnpm test` | Tes unit (172 tes) |
+| `pnpm test:integration` | Tes integrasi (100 tes, butuh PostgreSQL) |
 | `pnpm db:generate` | Buat migrasi baru dari perubahan skema |
 | `pnpm db:up` / `pnpm db:down` | Nyalakan / matikan PostgreSQL lokal |
 

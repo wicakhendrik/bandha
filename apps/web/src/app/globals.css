@@ -544,3 +544,14 @@ html:has(.lp){scroll-behavior:smooth}
 .quickshare .fchip{padding:4px 11px;font-size:12.5px}
 .catchips{margin:2px 0 10px}
 .catchips .fchip{padding:5px 10px;font-size:12.5px}
+
+/* Daftar rekening: tanda > selalu di ujung kanan kolom nama, bukan menempel di belakang nama yang panjangnya beda-beda */
+.row .t .acclink{display:flex;width:100%}
+.row .t .acclink b.nm{display:flex;align-items:center;gap:8px;width:100%;min-width:0;overflow:visible}
+.acclink .nmt{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acclink .nm .ic{margin-left:auto;flex:none;position:relative;top:1px}
+@media (min-width:821px){
+  /* desktop: kolom nama selebar tetap (maks 270px) supaya tanda > berada di kolom yang sama di semua baris */
+  .row.acc-row{display:grid;grid-template-columns:40px minmax(0,270px) minmax(0,1fr) auto auto;column-gap:12px;align-items:center}
+  .row.acc-row .a{text-align:right;max-width:none}
+}
