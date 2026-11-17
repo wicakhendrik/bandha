@@ -46,6 +46,41 @@ describe("auth", () => {
     expect(await client.hasSession()).toBe(false);
   });
 
+  it("registration that needs the emailed code stores no tokens, and verifying it signs in", async () => {
+    const { client, storage, calls } = setup(null, (u) => {
+      if (u === "/auth/register") return res({ verificationRequired: true, email: "a@b.c", resendInSeconds: 60 }, 202);
+      if (u === "/auth/verify") return res({ user: { id: "u", name: "A", email: "a@b.c" }, tokens: tok(1) });
+      return res({ ok: true });
+    });
+    const r = await client.register({ name: "A", email: "a@b.c", password: "x" });
+    expect(r).toEqual({ kind: "verify", email: "a@b.c", resendInSeconds: 60 });
+    expect(storage.value).toBeNull();
+    expect(await client.hasSession()).toBe(false);
+
+    await client.resendVerification("a@b.c");
+    expect(calls.at(-1)).toMatchObject({ path: "/auth/verify/resend", body: { email: "a@b.c" } });
+
+    const user = await client.verifyEmail("a@b.c", "123456");
+    expect(calls.at(-1)).toMatchObject({ path: "/auth/verify", body: { email: "a@b.c", code: "123456" } });
+    expect(user.email).toBe("a@b.c");
+    expect(storage.value).toEqual(tok(1));
+  });
+
+  it("registration without verification (switched off on the server) signs in at once", async () => {
+    const { client, storage } = setup(null, () => res({ user: { id: "u", name: "A", email: "a@b.c" }, tokens: tok(1) }, 201));
+    const r = await client.register({ name: "A", email: "a@b.c", password: "x" });
+    expect(r.kind).toBe("signedIn");
+    expect(storage.value).toEqual(tok(1));
+  });
+
+  it("login of an unverified account fails with the machine-readable code", async () => {
+    const { client } = setup(null, () => res({ error: "Email belum diverifikasi", code: "email_unverified" }, 403));
+    const err = await client.login({ email: "a@b.c", password: "x" }).catch((e) => e);
+    expect(err).toBeInstanceOf(ApiError);
+    expect(err.status).toBe(403);
+    expect(err.code).toBe("email_unverified");
+  });
+
   it("surfaces validation issues from the API", async () => {
     const { client } = setup(null, () => res({ error: "Input tidak valid", issues: [{ path: "password", message: "Minimal 10 karakter" }] }, 400));
     const err = await client.register({ name: "A", email: "a@b.c", password: "x" }).catch((e) => e);

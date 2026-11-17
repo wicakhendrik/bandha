@@ -41,6 +41,7 @@ function Gate() {
       <Stack.Protected guard={status === "anon"}>
         <Stack.Screen name="login" options={{ animation: "fade" }} />
         <Stack.Screen name="register" options={{ animation: "fade" }} />
+        <Stack.Screen name="verify" options={{ animation: "fade" }} />
         <Stack.Screen name="forgot-password" />
         <Stack.Screen name="reset-password" />
       </Stack.Protected>

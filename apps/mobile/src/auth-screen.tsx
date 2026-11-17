@@ -1,4 +1,4 @@
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import { useState } from "react";
 import { KeyboardAvoidingView, Platform, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -35,9 +35,14 @@ export function AuthScreen({ mode }: { mode: "login" | "register" }) {
     if (reg && password.length < 10) return setError(t("Kata sandi minimal 10 karakter", "Password must be at least 10 characters"));
     setBusy(true);
     try {
-      if (reg) await signUp(name.trim(), email.trim(), password);
-      else await signIn(email.trim(), password);
+      if (reg) {
+        // With email verification on, a 6-digit code was just emailed and nobody is signed in yet.
+        const r = await signUp(name.trim(), email.trim(), password);
+        if (r.verifyEmail) router.replace({ pathname: "/verify", params: { email: r.verifyEmail } });
+      } else await signIn(email.trim(), password);
     } catch (e) {
+      // Right password, but the address was never confirmed: the server has just sent a fresh code.
+      if (e instanceof ApiError && e.code === "email_unverified") return router.replace({ pathname: "/verify", params: { email: email.trim().toLowerCase() } });
       setError(message(e, t("Terjadi kesalahan", "Something went wrong")));
       setBusy(false);
     }

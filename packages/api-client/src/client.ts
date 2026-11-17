@@ -11,7 +11,8 @@ export interface TokenStorage {
 }
 
 export class ApiError extends Error {
-  constructor(public readonly status: number, message: string, public readonly issues?: Array<{ path: string; message: string }>) {
+  /** `code` is a machine-readable reason some answers carry, e.g. "email_unverified". */
+  constructor(public readonly status: number, message: string, public readonly issues?: Array<{ path: string; message: string }>, public readonly code?: string) {
     super(message);
     this.name = "ApiError";
   }
@@ -73,8 +74,8 @@ export function createClient(opts: ClientOptions) {
 
   async function parse<T>(res: Response): Promise<T> {
     if (res.status === 204) return undefined as T;
-    const data = (await res.json().catch(() => ({}))) as { error?: string; issues?: Array<{ path: string; message: string }> };
-    if (!res.ok) throw new ApiError(res.status, data.error ?? "Terjadi kesalahan", data.issues);
+    const data = (await res.json().catch(() => ({}))) as { error?: string; issues?: Array<{ path: string; message: string }>; code?: string };
+    if (!res.ok) throw new ApiError(res.status, data.error ?? "Terjadi kesalahan", data.issues, data.code);
     return data as T;
   }
 
@@ -137,7 +138,22 @@ export function createClient(opts: ClientOptions) {
 
   return {
     hasSession: async () => (await load()) !== null,
-    register: (input: { name: string; email: string; password: string }) => authenticate("/auth/register", input),
+    /**
+     * With email verification on, registering sends a 6-digit code and signs nobody in: the answer is `verify` and the
+     * person continues with `verifyEmail`. Otherwise (verification off) they are signed in at once.
+     */
+    register: async (input: { name: string; email: string; password: string }): Promise<RegisterOutcome> => {
+      const res = await send("/auth/register", { method: "POST", body: input });
+      const data = await parse<{ user?: PublicUser; tokens?: Tokens; verificationRequired?: boolean; email?: string; resendInSeconds?: number }>(res);
+      if (data.verificationRequired) return { kind: "verify", email: data.email ?? input.email, resendInSeconds: data.resendInSeconds ?? 60 };
+      if (!data.tokens || !data.user) throw new ApiError(res.status, "Jawaban server tidak dikenali");
+      await setTokens(data.tokens);
+      return { kind: "signedIn", user: data.user };
+    },
+    /** Confirms the emailed code and signs in. */
+    verifyEmail: (email: string, code: string) => authenticate("/auth/verify", { email, code }),
+    /** Asks for a new code; always resolves the same way, whether or not the address is waiting for one. */
+    resendVerification: async (email: string): Promise<void> => { await parse<{ ok: boolean }>(await send("/auth/verify/resend", { method: "POST", body: { email } })); },
     login: (input: { email: string; password: string }) => authenticate("/auth/login", input),
     /** Always resolves the same way, whether or not the email has an account. */
     forgotPassword: async (email: string): Promise<void> => { await parse<{ ok: boolean }>(await send("/auth/forgot", { method: "POST", body: { email } })); },
@@ -195,5 +211,7 @@ export function createClient(opts: ClientOptions) {
     voidDebt: (id: string) => request<void>(`/debts/${id}/void`, { method: "POST", body: {} }),
   };
 }
+
+export type RegisterOutcome = { kind: "signedIn"; user: PublicUser } | { kind: "verify"; email: string; resendInSeconds: number };
 
 export type BandhaClient = ReturnType<typeof createClient>;

@@ -8,7 +8,11 @@ interface AuthCtx {
   status: Status;
   user: PublicUser | null;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (name: string, email: string, password: string) => Promise<void>;
+  /** Resolves with the address that now has to be confirmed with the emailed code, or null when the person was signed in at once. */
+  signUp: (name: string, email: string, password: string) => Promise<{ verifyEmail: string | null }>;
+  /** Confirms the 6-digit code from the registration email and signs in. */
+  verifyEmail: (email: string, code: string) => Promise<void>;
+  resendCode: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
   /** Saves the new name and shows it everywhere without a restart. */
   updateName: (name: string) => Promise<void>;
@@ -51,7 +55,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       status,
       user,
       signIn: async (email, password) => { setUser(await client.login({ email, password })); setStatus("authed"); },
-      signUp: async (name, email, password) => { setUser(await client.register({ name, email, password })); setStatus("authed"); },
+      signUp: async (name, email, password) => {
+        const r = await client.register({ name, email, password });
+        if (r.kind === "verify") return { verifyEmail: r.email };
+        setUser(r.user);
+        setStatus("authed");
+        return { verifyEmail: null };
+      },
+      verifyEmail: async (email, code) => { setUser(await client.verifyEmail(email, code)); setStatus("authed"); },
+      resendCode: (email) => client.resendVerification(email),
       signOut: async () => { await client.logout(); clear(); },
       updateName: async (name) => { setUser(await client.updateName(name)); },
       changePassword: async (currentPassword, newPassword) => {
