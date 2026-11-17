@@ -492,3 +492,38 @@ html:has(.lp){scroll-behavior:smooth}
   /* detail rekening: blok saldo ikut rata kiri saat turun ke baris baru */
   .accd-side{text-align:left !important;justify-items:start !important}
 }
+
+/* Portofolio: ringkasan padat + bar alokasi, lalu daftar aset */
+.pfsum{padding:18px 22px}
+.pfstats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 22px}
+.pfk .k{color:var(--muted);font-size:12.5px}
+.pfk .v{font-size:18px;font-weight:500;margin-top:3px;overflow-wrap:anywhere}
+.pfalloc{margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)}
+.pfalloc .k{color:var(--muted);font-size:12.5px;margin-bottom:8px}
+.allocbar{display:flex;height:12px;border-radius:99px;overflow:hidden;background:var(--mori)}
+.allocbar i{display:block;height:100%;min-width:3px}
+.allocbar i + i{box-shadow:-2px 0 0 var(--card)}
+.alloclegend{list-style:none;padding:0;margin:10px 0 0;display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px}
+.alloclegend li{display:inline-flex;align-items:center;gap:7px}
+.alloclegend b{width:10px;height:10px;border-radius:3px;flex:none}
+.alloclegend .pc{color:var(--muted);font:600 12px var(--font-mono),monospace}
+@media (max-width:820px){
+  .pfsum{padding:16px}
+  .pfstats{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 16px}
+  .pfk .v{font-size:15px}
+  /* daftar aset: tiap aset dua baris (aset + nilai, lalu jumlah + untung/rugi) */
+  table.pftable{display:block}
+  table.pftable thead{display:none}
+  table.pftable tbody{display:block}
+  table.pftable tr{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:12px;row-gap:3px;padding:12px 0;border-top:1px dashed var(--line)}
+  table.pftable tr:first-child{border-top:0;padding-top:2px}
+  table.pftable td{display:block;padding:0;border:0;min-width:0}
+  table.pftable td.hide-m{display:none}
+  table.pftable td.c-asset{grid-column:1;grid-row:1;min-width:0 !important}
+  table.pftable td.c-val{grid-column:2;grid-row:1;text-align:right;white-space:nowrap}
+  table.pftable td.c-qty{grid-column:1;grid-row:2;text-align:left;padding-left:48px;color:var(--muted);font-size:12.5px;white-space:nowrap}
+  table.pftable td.c-pnl{grid-column:2;grid-row:2;text-align:right;font-size:12.5px;white-space:nowrap}
+  table.pftable td.c-val small{display:none}
+  table.pftable td.c-pnl br{display:none}
+  table.pftable td.c-pnl small{margin-left:6px}
+}
