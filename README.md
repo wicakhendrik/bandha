@@ -147,6 +147,8 @@ pnpm dev:mobile     # Expo: pindai QR dengan Expo Go, atau tekan a / i
 
 Buka http://localhost:3000, daftar, lalu ikuti panduan **Mulai cepat** di Beranda.
 
+**Admin:** daftar dan verifikasi akunnya dulu, lalu jadikan admin lewat baris perintah (`pnpm db:make-admin email@contoh.com`, tambah `--revoke` untuk mencabut; di server produksi jalankan dengan `DATABASE_URL` produksi). Menu **Admin** (statistik, daftar pengguna dengan nonaktifkan/aktifkan, log audit) muncul untuk akun itu.
+
 > Untuk pengembangan, `MARKET_PROVIDER=fake` memakai harga tiruan tanpa internet. Untuk data nyata biarkan `coingecko`.
 
 ### Perintah

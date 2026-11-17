@@ -34,6 +34,9 @@ export interface AuthOptions {
   mailer: Mailer;
 }
 
+/** Sign-in, code verification and refresh all refuse a disabled account with this. */
+const disabledError = () => new HttpError(403, "Akun ini dinonaktifkan. Hubungi admin.", { code: "account_disabled" });
+
 export class AuthError extends Error {
   constructor(public readonly status: 401 | 409, message: string) {
     super(message);
@@ -114,6 +117,8 @@ export class AuthService {
     const [u] = await this.db.select().from(users).where(eq(users.email, input.email));
     const ok = await verifyPassword(input.password, u?.passwordHash ?? DUMMY_HASH);
     if (!u || !ok) throw new AuthError(401, "Email atau kata sandi salah");
+    // Only after the password is right, so a stranger cannot learn which accounts are disabled.
+    if (u.disabledAt) throw disabledError();
     if (this.opts.requireEmailOtp && !u.emailVerifiedAt) {
       // The password is right but the address was never confirmed: send a fresh code (within the limits) and say so.
       await this.sendCode(u.id, u.email).catch(() => undefined);
@@ -169,6 +174,7 @@ export class AuthService {
     const [u] = await this.db.select().from(users).where(eq(users.email, email));
     if (!u) throw wrong();
     if (u.emailVerifiedAt) throw new HttpError(409, "Email ini sudah terverifikasi. Silakan masuk");
+    if (u.disabledAt) throw disabledError();
 
     const [row] = await this.db.select().from(emailVerifications)
       .where(and(eq(emailVerifications.userId, u.id), isNull(emailVerifications.usedAt))).orderBy(desc(emailVerifications.createdAt)).limit(1);
@@ -218,6 +224,11 @@ export class AuthService {
       .returning({ id: sessions.id });
     if (claimed.length === 0) throw new AuthError(401, "Sesi tidak valid");
 
+    const [owner] = await this.db.select({ disabledAt: users.disabledAt }).from(users).where(eq(users.id, s.userId));
+    if (!owner || owner.disabledAt) {
+      await this.db.update(sessions).set({ revokedAt: new Date() }).where(and(eq(sessions.familyId, s.familyId), isNull(sessions.revokedAt)));
+      throw new AuthError(401, "Sesi tidak valid");
+    }
     const workspaceId = await this.workspaceIdOf(s.userId);
     return this.issue(s.userId, workspaceId, s.familyId, userAgent);
   }

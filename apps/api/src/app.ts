@@ -2,12 +2,14 @@ import { Hono, type Context, type MiddlewareHandler } from "hono";
 import { cors } from "hono/cors";
 import { secureHeaders } from "hono/secure-headers";
 import type { ZodType } from "zod";
-import type { Db } from "@bandha/db";
+import { eq } from "drizzle-orm";
+import { users, type Db } from "@bandha/db";
 import {
   addCryptoSchema, createAccountSchema, createDebtSchema, createTransactionSchema, loginSchema, refreshSchema, registerSchema, replaceTransactionSchema, forgotPasswordSchema, resetPasswordSchema,
   importCommitSchema, importPreviewSchema, settleDebtSchema, updateAccountSchema, updateDebtSchema, updateTransactionSchema, updateProfileSchema, changePasswordSchema, verifyEmailSchema,
 } from "@bandha/validation";
 import { AccountsService } from "./accounts.service";
+import { AdminService, type UserStatus } from "./admin.service";
 import { isAssetKind } from "./assets.service";
 import { AuthError, AuthService } from "./auth.service";
 import { createMailer, type Mailer } from "./mailer";
@@ -59,6 +61,7 @@ export function createApp(deps: { db: Db; config: Config; services: Services; ma
   const mailer = deps.mailer ?? createMailer(config);
   const auth = new AuthService(db, config.JWT_SECRET, { requireEmailOtp: config.REQUIRE_EMAIL_OTP, mailer });
   const accountsSvc = new AccountsService(db);
+  const adminSvc = new AdminService(db);
   const txSvc = new TransactionsService(db);
   const debtsSvc = new DebtsService(db);
   const importsSvc = new ImportsService(db);
@@ -130,8 +133,15 @@ export function createApp(deps: { db: Db; config: Config; services: Services; ma
     const token = h?.startsWith("Bearer ") ? h.slice(7) : null;
     const claims = token ? await verifyAccessToken(config.JWT_SECRET, token) : null;
     if (!claims) return c.json({ error: "Tidak terautentikasi" }, 401);
+    // The token is only proof of who this is. Whether the account may still be used, and what role it has, is read fresh
+    // from the database on every request, so disabling an account or removing admin rights takes effect immediately.
+    const [u] = await db.select({ role: users.role, disabledAt: users.disabledAt }).from(users).where(eq(users.id, claims.userId));
+    if (!u) return c.json({ error: "Tidak terautentikasi" }, 401);
+    // 401 (not 403) so the apps try a refresh, which is refused too, and sign the person out.
+    if (u.disabledAt) return c.json({ error: "Akun ini dinonaktifkan. Hubungi admin.", code: "account_disabled" }, 401);
     c.set("userId", claims.userId);
     c.set("workspaceId", claims.workspaceId);
+    c.set("role", u.role);
     await next();
   };
   const api = new Hono<Env>();
@@ -140,7 +150,7 @@ export function createApp(deps: { db: Db; config: Config; services: Services; ma
   api.get("/me", async (c) => {
     const user = await auth.me(c.get("userId"));
     if (!user) return c.json({ error: "Tidak terautentikasi" }, 401);
-    return c.json({ user, workspaceId: c.get("workspaceId") });
+    return c.json({ user, workspaceId: c.get("workspaceId"), role: c.get("role") });
   });
   api.patch("/me", async (c) => {
     const p = await parse(c, updateProfileSchema);
@@ -324,6 +334,47 @@ export function createApp(deps: { db: Db; config: Config; services: Services; ma
   api.post("/market-data/refresh", rateLimit(6, 60_000), async (c) =>
     c.json(await market.refreshIfStale(60_000)),
   );
+
+  /* ───── Admin (role "admin" only; the role is read from the database on every request) ───── */
+  const admin = new Hono<Env>();
+  admin.use("*", requireAuth);
+  admin.use("*", async (c, next) => {
+    if (c.get("role") !== "admin") return c.json({ error: "Hanya untuk admin" }, 403);
+    await next();
+  });
+  const actorOf = async (c: Context<Env>) => {
+    const me = await auth.me(c.get("userId"));
+    if (!me) throw new HttpError(401, "Tidak terautentikasi");
+    return { id: me.id, email: me.email };
+  };
+  const targetId = (c: Context<Env>) => {
+    const id = c.req.param("id") ?? "";
+    if (!UUID.test(id)) throw new HttpError(404, "Pengguna tidak ditemukan");
+    return id;
+  };
+  admin.get("/users", async (c) => {
+    const status = c.req.query("status");
+    return c.json(await adminSvc.listUsers({
+      q: c.req.query("q")?.slice(0, 100),
+      status: (["active", "disabled", "unverified"] as const).includes(status as never) ? (status as UserStatus) : "all",
+      limit: Math.max(1, intParam(c.req.query("limit"), 25, 100)),
+      offset: intParam(c.req.query("offset"), 0, 1_000_000),
+    }));
+  });
+  admin.get("/stats", async (c) => c.json(await adminSvc.stats()));
+  admin.get("/audit", async (c) => c.json(await adminSvc.audit({ limit: Math.max(1, intParam(c.req.query("limit"), 30, 100)), offset: intParam(c.req.query("offset"), 0, 1_000_000) })));
+  admin.post("/users/:id/disable", async (c) => {
+    const body = (await c.req.json().catch(() => ({}))) as { reason?: unknown };
+    const reason = typeof body.reason === "string" ? body.reason.slice(0, 200) : undefined;
+    await adminSvc.setDisabled(await actorOf(c), targetId(c), true, reason);
+    return c.body(null, 204);
+  });
+  admin.post("/users/:id/enable", async (c) => {
+    await adminSvc.setDisabled(await actorOf(c), targetId(c), false);
+    return c.body(null, 204);
+  });
+  admin.post("/users/:id/revoke-sessions", async (c) => c.json(await adminSvc.revokeSessions(await actorOf(c), targetId(c))));
+  app.route("/admin", admin);
 
   app.route("/", api);
 

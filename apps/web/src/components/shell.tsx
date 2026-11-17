@@ -57,6 +57,11 @@ export function Shell({ title, children }: { title?: string; children: React.Rea
               <Icon name={n.icon} />{t(n.label)}
             </Link>
           ))}
+          {me?.role === "admin" && (
+            <Link href="/admin" className={path.startsWith("/admin") ? "on" : ""} aria-current={path.startsWith("/admin") ? "page" : undefined}>
+              <Icon name="lock" />{t("admin.nav")}
+            </Link>
+          )}
         </nav>
         <div className="foot"><b>{t("shell.motto")}</b>{t("shell.mottoSub")}</div>
       </aside>

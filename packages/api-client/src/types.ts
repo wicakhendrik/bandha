@@ -80,7 +80,22 @@ export interface Dashboard {
 export interface CashflowMonth { month: string; income: string; expense: string; net: string }
 export interface HistoryPoint { day: string; netWorth: string; complete: boolean }
 export interface PublicUser { id: string; name: string; email: string }
-export interface Me { user: PublicUser; workspaceId: string }
+export interface Me { user: PublicUser; workspaceId: string; role: "user" | "admin" }
+
+/** The admin panel (role "admin" only). Counts only: admins never see anyone's balances or transactions. */
+export interface AdminUserRow {
+  id: string; name: string; email: string; role: "user" | "admin"; verified: boolean;
+  disabledAt: string | null; createdAt: string; lastActiveAt: string | null; accounts: number; transactions: number;
+}
+export interface AdminStats {
+  users: { total: number; verified: number; unverified: number; disabled: number; admins: number };
+  newUsers: { last7d: number; last30d: number };
+  active: { last24h: number; last7d: number; last30d: number };
+  signups: Array<{ day: string; count: number }>;
+  data: { accounts: number; transactions: number };
+  market: { quotes: number; lastQuoteAt: string | null };
+}
+export interface AdminAuditEntry { id: string; at: string; actor: string; action: string; target: string | null; detail: string | null }
 
 export interface CreateAccountBody {
   name: string;
