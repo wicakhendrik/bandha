@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import { useState } from "react";
 import { View } from "react-native";
 import { useAuth } from "../../src/auth";
@@ -62,6 +63,14 @@ export default function Settings() {
         <T v="small" muted style={{ marginTop: 10 }}>
           {t("Memengaruhi teks, angka, dan tanggal. Pesan kesalahan dari server masih berbahasa Indonesia.", "Affects text, numbers and dates. Error messages from the server are still in Indonesian.")}
         </T>
+      </Card>
+
+      <Card>
+        <T v="heading">{t("Dukung Bandha", "Support Bandha")}</T>
+        <T v="small" muted style={{ marginTop: 6, marginBottom: 12 }}>
+          {t("Bantu membayar biaya server, domain, dan email lewat QRIS atau kripto.", "Help cover the server, domain and email costs with QRIS or crypto.")}
+        </T>
+        <Btn label={t("Buka halaman donasi", "Open the donation page")} icon="heart" kind="ghost" onPress={() => router.push("/donate")} />
       </Card>
 
       <Card>

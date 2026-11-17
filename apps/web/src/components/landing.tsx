@@ -215,6 +215,7 @@ export function Landing() {
         <div className="lp-wrap lp-footin">
           <div className="lp-brand"><Logo size={28} /><b>Bandha</b></div>
           <span className="serif lp-motto">{t("land.footer")}</span>
+          <Link href="/donate" className="lp-textlink">{t("donate.link")}</Link>
           <small suppressHydrationWarning>{t("land.copy", { year: new Date().getFullYear() })}</small>
         </div>
       </footer>

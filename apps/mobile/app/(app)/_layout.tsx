@@ -11,6 +11,7 @@ export default function AppLayout() {
       <Stack.Screen name="add-transaction" options={{ presentation: "modal" }} />
       <Stack.Screen name="add-account" options={{ presentation: "modal" }} />
       <Stack.Screen name="settings" />
+      <Stack.Screen name="donate" />
       <Stack.Screen name="debts" />
       <Stack.Screen name="import-csv" />
       <Stack.Screen name="debt/[id]" />

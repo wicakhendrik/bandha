@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import useSWR, { mutate } from "swr";
+import Link from "next/link";
 import { api, errorText, fetcher } from "@/lib/api";
 import { initials } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
@@ -37,6 +38,7 @@ export function ProfileMenu({ onLogout }: { onLogout: () => void }) {
           <div className="pmhead"><b>{me.user.name}</b><small>{me.user.email}</small></div>
           <button type="button" role="menuitem" onClick={() => choose("name")}><Icon name="user" size={17} />{t("profile.rename")}</button>
           <button type="button" role="menuitem" onClick={() => choose("password")}><Icon name="lock" size={17} />{t("profile.changePassword")}</button>
+          <Link href="/donate" role="menuitem" onClick={() => setOpen(false)}><Icon name="heart" size={17} />{t("donate.link")}</Link>
           <button type="button" role="menuitem" className="danger" onClick={() => { setOpen(false); onLogout(); }}><Icon name="out" size={17} />{t("shell.logout")}</button>
         </div>
       )}
