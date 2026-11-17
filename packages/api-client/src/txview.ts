@@ -37,22 +37,32 @@ export function txView(t: Tx, accounts: Map<string, Account>, assets: Map<string
   }
 
   if (t.type === "buy" || t.type === "sell") {
-    const held = t.legs.find((l) => assets.get(l.assetId)?.symbol !== "IDR");
+    const buying = t.type === "buy";
+    const nonIdr = t.legs.filter((l) => assets.get(l.assetId)?.symbol !== "IDR");
     const cash = t.legs.filter((l) => assets.get(l.assetId)?.symbol === "IDR");
+    // The traded asset comes in on a buy and goes out on a sell; a second non-rupiah leg is what it was paid or received in.
+    const held = nonIdr.find((l) => l.quantity.startsWith("-") !== buying) ?? nonIdr[0];
+    const other = held ? nonIdr.find((l) => l !== held) : undefined;
     if (held) {
       const sym = assets.get(held.assetId)?.symbol ?? "";
-      const buying = t.type === "buy";
+      const otherSym = other ? (assets.get(other.assetId)?.symbol ?? "") : "";
       // A buy shows what it cost; a sell shows what it brought in (the asset leg is booked at cost, not at proceeds).
       const idrValue = buying
         ? held.functionalAmount.replace(/^-/, "")
-        : cash.filter((l) => !l.quantity.startsWith("-")).reduce((s, l) => s + Number(l.quantity), 0).toString();
-      const from = cash.find((l) => l.quantity.startsWith("-"))?.accountId;
-      const label = from && from !== held.accountId ? `${name(from)} → ${name(held.accountId)}` : name(held.accountId);
+        : other
+          ? other.functionalAmount.replace(/^-/, "")
+          : cash.filter((l) => !l.quantity.startsWith("-")).reduce((s, l) => s + Number(l.quantity), 0).toString();
+      // Money flows from the paying account into the asset's account on a buy, and from the asset's account to the receiving one on a sell.
+      const from = (other ?? cash.find((l) => l.quantity.startsWith("-")))?.accountId;
+      const label = buying
+        ? from && from !== held.accountId ? `${name(from)} → ${name(held.accountId)}` : name(held.accountId)
+        : other && other.accountId !== held.accountId ? `${name(held.accountId)} → ${name(other.accountId)}` : name(held.accountId);
       return {
         title: t.description || `${txTypeLabel(buying ? "buy" : "sell")} ${sym}`,
         accountLabel: label,
         amount: `${buying ? "+" : "−"}${qty(held.quantity.replace(/^-/, ""))} ${sym}`,
-        secondary: rp(idrValue),
+        // Asset-for-asset: also show what changed hands on the other side, e.g. "Rp 8.100.000 · −501 USDT".
+        secondary: other ? `${rp(idrValue)} · ${buying ? "−" : "+"}${qty(other.quantity.replace(/^-/, ""))} ${otherSym}` : rp(idrValue),
         tone: buying ? "pos" : "neg",
       };
     }

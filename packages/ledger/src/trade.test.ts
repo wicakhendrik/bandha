@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { applySell, balanceOf, buildBuy, buildSell, dec, roundMoney, sumFunctional, type Position } from "./index";
+import { applySell, balanceOf, buildBuy, buildBuyWithAsset, buildSell, buildSellForAsset, dec, roundMoney, sumFunctional, type Position } from "./index";
 
 const IDR = "idr";
 const BTC = "btc";
@@ -78,5 +78,48 @@ describe("roundMoney", () => {
     expect(roundMoney("100")).toBe("100");
     // 1/3 of 100 would otherwise carry 40 digits
     expect(roundMoney(dec("100").div(3).toFixed())).toBe("33.33333333");
+  });
+});
+
+describe("asset-for-asset trades", () => {
+  const USDT = "usdt";
+  const base = { assetAccountId: "ex", assetId: BTC, payAccountId: "ex", payAssetId: USDT, pnlAccountId: "pnl", functionalAssetId: IDR };
+
+  it("buy with an asset: bought asset at its value, paying asset out at its average cost, gain to P/L, balanced", () => {
+    // 500 USDT + 1 USDT fee leave; they cost 15.800 each (7.915.800) but were worth 8.100.000 + 16.200
+    const e = buildBuyWithAsset({ ...base, quantity: "0.005", value: "8100000", payQuantity: "500", disposedCost: "7915800", fee: { quantity: "1", value: "16200", expenseAccountId: "exp" } });
+    expect(balanceOf(e, "ex", BTC)).toBe("0.005");
+    expect(balanceOf(e, "ex", USDT)).toBe("-501");
+    expect(balanceOf(e, "exp", USDT)).toBe("1");
+    expect(e.find((x) => x.accountId === "ex" && x.assetId === BTC)?.functionalAmount).toBe("8100000"); // basis excludes the fee
+    expect(e.find((x) => x.accountId === "pnl")?.functionalAmount).toBe("-200400"); // gain = credit
+    expect(sumFunctional(e)).toBe("0");
+  });
+
+  it("buy with an asset: a loss is a debit, and no P/L row when it is exactly zero", () => {
+    const loss = buildBuyWithAsset({ ...base, quantity: "1", value: "900", payQuantity: "10", disposedCost: "1000" });
+    expect(loss.find((x) => x.accountId === "pnl")?.functionalAmount).toBe("100");
+    expect(sumFunctional(loss)).toBe("0");
+    const even = buildBuyWithAsset({ ...base, quantity: "1", value: "1000", payQuantity: "10", disposedCost: "1000" });
+    expect(even.some((x) => x.accountId === "pnl")).toBe(false);
+    expect(even).toHaveLength(2);
+  });
+
+  it("sell for an asset: sold asset out at cost, received asset in net of the fee, gain to P/L, balanced", () => {
+    const e = buildSellForAsset({
+      ...base, quantity: "0.004", soldCost: "3800000", value: "9720000", receiveAccountId: "ex", receiveAssetId: USDT, receiveQuantity: "600",
+      fee: { quantity: "1", value: "16200", expenseAccountId: "exp" },
+    });
+    expect(balanceOf(e, "ex", BTC)).toBe("-0.004");
+    expect(balanceOf(e, "ex", USDT)).toBe("599");
+    expect(e.find((x) => x.accountId === "ex" && x.assetId === USDT)?.functionalAmount).toBe("9703800");
+    expect(e.find((x) => x.accountId === "pnl")?.functionalAmount).toBe("-5920000");
+    expect(sumFunctional(e)).toBe("0");
+  });
+
+  it("rejects nonsense: same asset on both sides, non-positive amounts, a fee that eats everything received", () => {
+    expect(() => buildBuyWithAsset({ ...base, payAssetId: BTC, quantity: "1", value: "10", payQuantity: "1", disposedCost: "10" })).toThrow();
+    expect(() => buildBuyWithAsset({ ...base, quantity: "0", value: "10", payQuantity: "1", disposedCost: "10" })).toThrow();
+    expect(() => buildSellForAsset({ ...base, quantity: "1", soldCost: "5", value: "10", receiveAccountId: "ex", receiveAssetId: USDT, receiveQuantity: "5", fee: { quantity: "5", value: "10", expenseAccountId: "exp" } })).toThrow();
   });
 });

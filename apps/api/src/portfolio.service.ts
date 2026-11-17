@@ -138,7 +138,8 @@ export class PortfolioService {
 
   /**
    * Realised P/L per asset: the sum of entries on the hidden P/L account, attributed to the asset that was
-   * sold in the same journal. Credits (gains) are stored negative, so the sign is flipped. Void reversals
+   * disposed of in the same journal (the one that LEFT an account in the original journal; a void's reversal journal
+   * looks at the journal it reverses, so it nets back against the same asset even when two assets changed hands). Credits (gains) are stored negative, so the sign is flipped. Void reversals
    * are included, so a voided sale nets back to zero. Archived accounts still count.
    */
   private async realizedByAsset(workspaceId: string): Promise<Array<{ symbol: string; realized: string }>> {
@@ -146,7 +147,8 @@ export class PortfolioService {
       select s.symbol as symbol, (-sum(p.functional_amount))::text as realized
       from ledger_entries p
       join accounts pa on pa.id = p.account_id and pa.is_system and pa.kind = 'pnl'
-      join ledger_entries o on o.journal_id = p.journal_id and o.asset_id <> p.asset_id
+      join journals pj on pj.id = p.journal_id
+      join ledger_entries o on o.journal_id = coalesce(pj.reverses_journal_id, pj.id) and o.asset_id <> p.asset_id and o.quantity < 0
       join accounts oa on oa.id = o.account_id and not oa.is_system
       join assets s on s.id = o.asset_id
       where p.workspace_id = ${workspaceId}

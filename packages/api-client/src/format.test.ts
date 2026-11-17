@@ -111,6 +111,21 @@ describe("txView", () => {
     expect(v).toMatchObject({ title: "Jual BTC", amount: "−0,005 BTC", secondary: "Rp 8.000.000", tone: "neg" });
   });
 
+  it("an asset-for-asset trade shows both sides: BTC bought with USDT, and BTC sold for USDT", () => {
+    const pair = new Map(assets).set("usdt", { id: "usdt", symbol: "USDT", name: "Tether", kind: "crypto", decimals: 6 });
+    const buy: Tx = { ...base, id: "6", type: "buy", legs: [
+      { accountId: "a", assetId: "btc", quantity: "0.005", functionalAmount: "8100000" },
+      { accountId: "a", assetId: "usdt", quantity: "-501", functionalAmount: "-7915800" },
+    ] };
+    expect(txView(buy, accounts, pair)).toEqual({ title: "Beli BTC", accountLabel: "BCA", amount: "+0,005 BTC", secondary: "Rp 8.100.000 · −501 USDT", tone: "pos" });
+
+    const sell: Tx = { ...base, id: "7", type: "sell", legs: [
+      { accountId: "a", assetId: "btc", quantity: "-0.004", functionalAmount: "-3800000" },
+      { accountId: "b", assetId: "usdt", quantity: "599", functionalAmount: "9703800" },
+    ] };
+    expect(txView(sell, accounts, pair)).toEqual({ title: "Jual BTC", accountLabel: "BCA → GoPay", amount: "−0,004 BTC", secondary: "Rp 9.703.800 · +599 USDT", tone: "neg" });
+  });
+
   it("balanceText joins assets and falls back to zero", () => {
     expect(balanceText({ ...acc("x", "X"), balances: [{ assetId: "btc", symbol: "BTC", quantity: "0.01" }, { assetId: "idr", symbol: "IDR", quantity: "1000" }] })).toBe("0,01 BTC · Rp 1.000");
     expect(balanceText(acc("x", "X"))).toBe("Rp 0");

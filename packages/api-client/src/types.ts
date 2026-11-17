@@ -57,7 +57,14 @@ export interface EditableTx {
   functionalAmount?: string;
   totalCost?: string;
   proceeds?: string;
+  /** Rupiah by default; in the paying / received asset when `payAssetId` / `receiveAssetId` is set. */
   fee?: string;
+  /** Buy paid with another asset instead of rupiah (`totalCost` is then that payment's rupiah value). */
+  payAssetId?: string;
+  payQuantity?: string;
+  /** Sell for another asset instead of rupiah (`proceeds` is then that amount's rupiah value). */
+  receiveAssetId?: string;
+  receiveQuantity?: string;
 }
 export interface Holding {
   assetId: string; symbol: string; name: string; kind: string; quantity: string;

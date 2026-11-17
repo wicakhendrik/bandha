@@ -1,7 +1,7 @@
 import { and, desc, eq, inArray, ne, sql } from "drizzle-orm";
 import { accounts, debts, journals, ledgerEntries, transactions, type Db } from "@bandha/db";
 import {
-  applySell, applyTransfer, buildBuy, buildOpeningBalance, buildExpense, buildIncome, buildSell, buildTransfer, dec, reverseEntries, roundMoney, type Entry,
+  applySell, applyTransfer, buildBuy, buildBuyWithAsset, buildOpeningBalance, buildExpense, buildIncome, buildSell, buildSellForAsset, buildTransfer, dec, reverseEntries, roundMoney, type Entry,
 } from "@bandha/ledger";
 import type { CreateTransactionInput, ReplaceTransactionInput, UpdateTransactionInput } from "@bandha/validation";
 import { functionalAmountFor } from "./accounts.service";
@@ -83,6 +83,7 @@ export class TransactionsService {
         const funding = input.fundingAccountId ?? input.accountId;
         await this.assertUsableAccounts(tx, workspaceId, [input.accountId, funding]);
         const fn = await this.assertTradable(tx, workspaceId, input.assetId);
+        if (input.payAssetId && input.payAssetId !== fn.id) return this.buildAssetBuy(tx, workspaceId, input, funding, fn.id);
         return buildBuy({
           assetAccountId: input.accountId, assetId: input.assetId, quantity: input.quantity, cost: input.totalCost,
           cashAccountId: funding, cashAssetId: fn.id, fee: await fee(input.fee),
@@ -94,6 +95,7 @@ export class TransactionsService {
         await this.assertUsableAccounts(tx, workspaceId, [input.accountId, receiving]);
         const fn = await this.assertTradable(tx, workspaceId, input.assetId);
         await lockAccounts(tx, [input.accountId, receiving]);
+        const forAsset = input.receiveAssetId && input.receiveAssetId !== fn.id ? input.receiveAssetId : null;
 
         const pos = await positionOf(tx, workspaceId, input.accountId, input.assetId);
         if (dec(input.quantity).gt(dec(pos.quantity))) throw new HttpError(400, `Jumlah melebihi yang dimiliki (${pos.quantity})`);
@@ -101,6 +103,19 @@ export class TransactionsService {
         // Weighted-average cost: realised P/L = proceeds - average cost of the quantity sold.
         const sold = applySell(pos, input.quantity, input.proceeds);
         const soldCost = roundMoney(dec(pos.costBasis as string).minus(dec(sold.position.costBasis as string)).toFixed());
+        if (forAsset) {
+          if (forAsset === input.assetId) throw new HttpError(400, "Aset yang dijual dan aset yang diterima tidak boleh sama");
+          if (!input.receiveQuantity) throw new HttpError(400, "Isi jumlah aset yang diterima");
+          const feeQty = input.fee ? dec(input.fee) : dec("0");
+          if (feeQty.gte(dec(input.receiveQuantity))) throw new HttpError(400, "Biaya harus lebih kecil dari jumlah yang diterima");
+          const feeValue = feeQty.isZero() ? "0" : roundMoney(feeQty.times(dec(input.proceeds)).div(dec(input.receiveQuantity)).toFixed());
+          return buildSellForAsset({
+            assetAccountId: input.accountId, assetId: input.assetId, quantity: input.quantity, soldCost, value: input.proceeds,
+            receiveAccountId: receiving, receiveAssetId: forAsset, receiveQuantity: input.receiveQuantity,
+            fee: feeQty.isZero() ? undefined : { quantity: feeQty.toFixed(), value: feeValue, expenseAccountId: await systemAccountId(tx, workspaceId, "expense") },
+            pnlAccountId: await systemAccountId(tx, workspaceId, "pnl"), functionalAssetId: fn.id,
+          });
+        }
         return buildSell({
           assetAccountId: input.accountId, assetId: input.assetId, quantity: input.quantity, soldCost, proceeds: input.proceeds,
           cashAccountId: receiving, cashAssetId: fn.id, pnlAccountId: await systemAccountId(tx, workspaceId, "pnl"), fee: await fee(input.fee),
@@ -109,6 +124,15 @@ export class TransactionsService {
 
       default: {
         await this.assertUsableAccounts(tx, workspaceId, [input.accountId]);
+        if (input.type === "expense") {
+          // A held asset can never go negative (cash in rupiah may, e.g. an overdraft or a card).
+          const fn = await functionalAsset(tx, workspaceId);
+          if (input.assetId !== fn.id) {
+            await lockAccounts(tx, [input.accountId]);
+            const pos = await positionOf(tx, workspaceId, input.accountId, input.assetId);
+            if (dec(input.quantity).gt(dec(pos.quantity))) throw new HttpError(400, `Jumlah melebihi yang dimiliki (${pos.quantity})`);
+          }
+        }
         const functionalAmount = await functionalAmountFor(tx, workspaceId, input.assetId, input.quantity, input.functionalAmount);
         const cash = { accountId: input.accountId, assetId: input.assetId, quantity: input.quantity, functionalAmount };
         return input.type === "income"
@@ -116,6 +140,29 @@ export class TransactionsService {
           : buildExpense({ cash, expenseAccountId: await systemAccountId(tx, workspaceId, "expense"), expenseAssetId: input.assetId });
       }
     }
+  }
+
+  /** Buy paid with another held asset (e.g. BTC with USDT in one exchange account). */
+  private async buildAssetBuy(tx: Tx, workspaceId: string, input: Extract<CreateTransactionInput, { type: "buy" }>, funding: string, fnId: string): Promise<Entry[]> {
+    const payAssetId = input.payAssetId as string;
+    if (payAssetId === input.assetId) throw new HttpError(400, "Aset yang dibeli dan aset pembayarnya tidak boleh sama");
+    if (!input.payQuantity) throw new HttpError(400, "Isi jumlah aset yang dipakai membayar");
+    await lockAccounts(tx, [input.accountId, funding]);
+    const feeQty = input.fee ? dec(input.fee) : dec("0");
+    const totalOut = dec(input.payQuantity).plus(feeQty);
+    const pos = await positionOf(tx, workspaceId, funding, payAssetId);
+    if (totalOut.gt(dec(pos.quantity))) throw new HttpError(400, `Saldo aset pembayar tidak cukup (tersedia ${pos.quantity})`);
+    // What the paying asset is worth in rupiah: the value given for what was paid, plus the same unit value for the fee.
+    const feeValue = feeQty.isZero() ? "0" : roundMoney(feeQty.times(dec(input.totalCost)).div(dec(input.payQuantity)).toFixed());
+    const worth = dec(input.totalCost).plus(dec(feeValue)).toFixed();
+    const sold = applySell(pos, totalOut.toFixed(), worth);
+    const disposedCost = roundMoney(dec(pos.costBasis as string).minus(dec(sold.position.costBasis as string)).toFixed());
+    return buildBuyWithAsset({
+      assetAccountId: input.accountId, assetId: input.assetId, quantity: input.quantity, value: input.totalCost,
+      payAccountId: funding, payAssetId, payQuantity: input.payQuantity, disposedCost,
+      fee: feeQty.isZero() ? undefined : { quantity: feeQty.toFixed(), value: feeValue, expenseAccountId: await systemAccountId(tx, workspaceId, "expense") },
+      pnlAccountId: await systemAccountId(tx, workspaceId, "pnl"), functionalAssetId: fnId,
+    });
   }
 
   private async createInner(workspaceId: string, userId: string, input: CreateTransactionInput) {
@@ -309,9 +356,30 @@ export class TransactionsService {
         }
         case "buy":
         case "sell": {
-          const held = user.find((l) => l.assetId !== fn.id);
+          const nonFn = user.filter((l) => l.assetId !== fn.id);
+          // The traded asset comes IN on a buy and goes OUT on a sell; a second non-rupiah leg is the asset it was paid or received in.
+          const held = t.type === "buy" ? nonFn.find((l) => !neg(l.quantity)) : nonFn.find((l) => neg(l.quantity));
           if (!held) throw bad();
-          const fee = legs.filter((l) => l.isSystem && l.kind === "expense").reduce((a, l) => a.plus(dec(l.functionalAmount)), dec("0"));
+          const other = nonFn.find((l) => l !== held);
+          const feeLegs = legs.filter((l) => l.isSystem && l.kind === "expense");
+          if (other) {
+            // Asset-for-asset trade: the fee is booked in that asset (quantity on the expense leg).
+            const feeQty = feeLegs.reduce((a, l) => a.plus(dec(l.quantity)), dec("0"));
+            const feeVal = feeLegs.reduce((a, l) => a.plus(dec(l.functionalAmount)), dec("0"));
+            const feeField = feeQty.isZero() ? {} : { fee: feeQty.toFixed() };
+            const asset = { assetId: held.assetId, quantity: abs(held.quantity) };
+            if (t.type === "buy") {
+              return {
+                ...base, accountId: held.accountId, ...asset, fundingAccountId: other.accountId, totalCost: abs(held.functionalAmount),
+                payAssetId: other.assetId, payQuantity: dec(abs(other.quantity)).minus(feeQty).toFixed(), ...feeField,
+              };
+            }
+            return {
+              ...base, accountId: held.accountId, ...asset, receivingAccountId: other.accountId, proceeds: dec(other.functionalAmount).plus(feeVal).toFixed(),
+              receiveAssetId: other.assetId, receiveQuantity: dec(other.quantity).plus(feeQty).toFixed(), ...feeField,
+            };
+          }
+          const fee = feeLegs.reduce((a, l) => a.plus(dec(l.functionalAmount)), dec("0"));
           const cash = user.filter((l) => l.assetId === fn.id);
           const common = { ...base, accountId: held.accountId, assetId: held.assetId, quantity: abs(held.quantity), ...(fee.isZero() ? {} : { fee: fee.toFixed() }) };
           if (t.type === "buy") {

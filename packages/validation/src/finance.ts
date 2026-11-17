@@ -68,7 +68,11 @@ export const createTransactionSchema = z.discriminatedUnion("type", [
     functionalAmount: positiveDecimal.optional(),
     ...txMeta,
   }),
-  /** Buy an asset with the functional currency (IDR). `totalCost` excludes the fee, which is a separate expense. */
+  /**
+   * Buy an asset. By default it is paid with the functional currency (IDR) and `totalCost` is that amount. With `payAssetId`
+   * (and `payQuantity`) it is paid with another held asset instead (e.g. BTC with USDT): `totalCost` is then the IDR VALUE of
+   * what was paid, and `fee` is in the paying asset. The fee is a separate expense either way, never part of the cost.
+   */
   z.object({
     type: z.literal("buy"),
     accountId: z.uuid(),
@@ -76,10 +80,16 @@ export const createTransactionSchema = z.discriminatedUnion("type", [
     assetId: z.uuid(),
     quantity: positiveDecimal,
     totalCost: positiveDecimal,
+    payAssetId: z.uuid().optional(),
+    payQuantity: positiveDecimal.optional(),
     fee: nonNegativeDecimal.optional(),
     ...txMeta,
   }),
-  /** Sell an asset for the functional currency. Realised profit/loss is computed from the average cost. */
+  /**
+   * Sell an asset, by default for the functional currency. Realised profit/loss is computed from the average cost. With
+   * `receiveAssetId` (and `receiveQuantity`) the proceeds arrive as another asset (e.g. BTC for USDT): `proceeds` is then
+   * the IDR VALUE of what was received, and `fee` is in the received asset.
+   */
   z.object({
     type: z.literal("sell"),
     accountId: z.uuid(),
@@ -87,6 +97,8 @@ export const createTransactionSchema = z.discriminatedUnion("type", [
     assetId: z.uuid(),
     quantity: positiveDecimal,
     proceeds: positiveDecimal,
+    receiveAssetId: z.uuid().optional(),
+    receiveQuantity: positiveDecimal.optional(),
     fee: nonNegativeDecimal.optional(),
     ...txMeta,
   }),

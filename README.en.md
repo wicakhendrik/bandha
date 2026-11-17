@@ -134,8 +134,8 @@ Open http://localhost:3000, sign up, and follow the **Quick start** checklist on
 | Command | What it does |
 | --- | --- |
 | `pnpm typecheck` | Type-check every package |
-| `pnpm test` | Unit tests (164) |
-| `pnpm test:integration` | Integration tests (91, need PostgreSQL) |
+| `pnpm test` | Unit tests (169) |
+| `pnpm test:integration` | Integration tests (97, need PostgreSQL) |
 | `pnpm db:generate` | Generate a migration from schema changes |
 
 ## Deploy
@@ -144,7 +144,7 @@ Two environments from two branches (`development`, `main`), each its own Docker 
 
 ## Limitations
 
-- Foreign currencies are limited to the 30 ECB currencies; buy/sell is against IDR only; debts are IDR only with no automatic instalment schedule.
+- Foreign currencies are limited to the 30 ECB currencies; debts are IDR only with no automatic instalment schedule. Asset-for-asset buy/sell (e.g. BTC with USDT) is available on the web; the mobile app still trades against IDR only.
 - The mobile app is not yet packaged as an APK/IPA; it currently runs through Expo.
 
 ## License

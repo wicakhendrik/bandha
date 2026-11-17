@@ -495,7 +495,15 @@ html:has(.lp){scroll-behavior:smooth}
 
 /* Portofolio: ringkasan padat + bar alokasi, lalu daftar aset */
 .pfsum{padding:18px 22px}
-.pfstats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 22px}
+.pftop{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:18px;align-items:stretch}
+.pfstats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 22px;align-content:center;height:100%}
+/* desktop: pie chart di kartu sendiri; bar alokasi hanya untuk HP */
+.pfalloc{display:none}
+.pfpie{padding:18px 22px}
+.pfpie .k{color:var(--muted);font-size:12.5px;margin-bottom:10px}
+.pfpie .donut{width:124px;height:124px}
+.pfpie .donut::after{inset:22px}
+.pfpie .pie-wrap{gap:20px}
 .pfk .k{color:var(--muted);font-size:12.5px}
 .pfk .v{font-size:18px;font-weight:500;margin-top:3px;overflow-wrap:anywhere}
 .pfalloc{margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)}
@@ -508,6 +516,9 @@ html:has(.lp){scroll-behavior:smooth}
 .alloclegend b{width:10px;height:10px;border-radius:3px;flex:none}
 .alloclegend .pc{color:var(--muted);font:600 12px var(--font-mono),monospace}
 @media (max-width:820px){
+  .pftop{grid-template-columns:1fr}
+  .pfpie{display:none}
+  .pfalloc{display:block}
   .pfsum{padding:16px}
   .pfstats{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 16px}
   .pfk .v{font-size:15px}
@@ -527,3 +538,9 @@ html:has(.lp){scroll-behavior:smooth}
   table.pftable td.c-pnl br{display:none}
   table.pftable td.c-pnl small{margin-left:6px}
 }
+
+/* Form transaksi: isi cepat persen saldo + kategori siap pilih */
+.quickshare,.catchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.quickshare .fchip{padding:4px 11px;font-size:12.5px}
+.catchips{margin:2px 0 10px}
+.catchips .fchip{padding:5px 10px;font-size:12.5px}

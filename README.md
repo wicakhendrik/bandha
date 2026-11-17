@@ -154,8 +154,8 @@ Buka http://localhost:3000, daftar, lalu ikuti panduan **Mulai cepat** di Berand
 | Perintah | Fungsi |
 | --- | --- |
 | `pnpm typecheck` | Periksa tipe seluruh paket |
-| `pnpm test` | Tes unit (164 tes) |
-| `pnpm test:integration` | Tes integrasi (91 tes, butuh PostgreSQL) |
+| `pnpm test` | Tes unit (169 tes) |
+| `pnpm test:integration` | Tes integrasi (97 tes, butuh PostgreSQL) |
 | `pnpm db:generate` | Buat migrasi baru dari perubahan skema |
 | `pnpm db:up` / `pnpm db:down` | Nyalakan / matikan PostgreSQL lokal |
 
@@ -190,7 +190,7 @@ Menemukan celah? Mohon laporkan secara pribadi kepada pemilik repositori, jangan
 ## Batasan dan rencana
 
 - Mata uang asing terbatas pada 30 mata uang ECB (belum SAR, AED, VND, dll.).
-- Beli/jual baru terhadap IDR (belum aset lawan aset); utang/piutang hanya IDR dan belum punya jadwal cicilan/bunga otomatis.
+- Utang/piutang hanya IDR dan belum punya jadwal cicilan/bunga otomatis. Beli/jual aset lawan aset (mis. BTC dengan USDT) sudah ada di web; di aplikasi mobile baru lewat IDR.
 - Belum ada: harga emas dari sumber khusus, halaman detail aset, ikon dan splash final, build rilis mobile (EAS), serta tes UI web/mobile.
 - Aplikasi mobile belum dibangun menjadi APK/IPA; saat ini dijalankan lewat Expo.
 

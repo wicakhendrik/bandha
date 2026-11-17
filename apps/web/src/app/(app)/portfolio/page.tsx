@@ -4,7 +4,7 @@ import { useState } from "react";
 import useSWR from "swr";
 import { Icon } from "@/components/icons";
 import { CoinLogo } from "@/components/logos";
-import { PALETTE } from "@/components/pie";
+import { PALETTE, Pie } from "@/components/pie";
 import { Shell } from "@/components/shell";
 import { TransactionModal } from "@/components/transaction-modal";
 import { fetcher } from "@/lib/api";
@@ -42,7 +42,8 @@ export default function PortfolioPage() {
       {p && !p.complete && <div className="warn" role="status">{t("pf.unpriced", { list: p.unpriced.join(", ") })}</div>}
 
       <section className="grid">
-        <article className="card c12 pfsum">
+        <div className="c12 pftop">
+        <article className="card pfsum">
           <div className="pfstats">
             {([
               [t("pf.marketValue"), p && rp(p.totals.marketValue), ""],
@@ -70,6 +71,13 @@ export default function PortfolioPage() {
             </div>
           )}
         </article>
+        {p && slices.length > 0 && total > 0 && (
+          <article className="card pfpie">
+            <div className="k">{t("pf.allocation")}</div>
+            <Pie slices={slices} aria={t("pf.allocationAria")} center={<span>{slices.length}<small>{t("pf.valueShort")}</small></span>} />
+          </article>
+        )}
+        </div>
 
         <article className="card c12">
           <div className="head"><div><h3>{t("pf.positions")}</h3><div className="sub hide-m">{t("pf.positionsSub")}</div></div></div>
@@ -110,10 +118,10 @@ export default function PortfolioPage() {
           )}
         </article>
 
-        {p && p.realized.length > 0 && (
+        {p && p.realized.some((r) => Math.abs(Number(r.realized)) >= 0.5) && (
           <article className="card c12">
             <div className="head"><div><h3>{t("pf.realizedBy")}</h3><div className="sub">{t("pf.realizedBySub")}</div></div></div>
-            {p.realized.map((r) => (
+            {p.realized.filter((r) => Math.abs(Number(r.realized)) >= 0.5).map((r) => (
               <div className="row" key={r.symbol}>
                 <div className="t"><b>{r.symbol}</b></div>
                 <div className={`a num ${tone(r.realized)}`}>{signedRp(r.realized)}</div>

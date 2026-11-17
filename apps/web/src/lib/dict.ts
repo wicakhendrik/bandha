@@ -250,6 +250,24 @@ const id = {
   "land.finalBody": "Buat akun, tambah satu rekening, dan catat transaksi pertama. Panduan singkat akan menemani langkah awalnya.",
   "land.footer": "Gemi, nastiti, ngati-ati.",
   "land.copy": "© {year} Bandha. Bandha adalah alat pencatat; bukan nasihat keuangan atau investasi.",
+
+  // transaction form: balances, quick share, asset-for-asset trades
+  "txm.max": "Maks",
+  "txm.quickShare": "Isi cepat dari saldo",
+  "txm.available": "Tersedia: {qty} {symbol}",
+  "txm.availableShort": "Tersedia {qty}",
+  "txm.errExceeds": "Jumlah melebihi saldo tersedia ({qty} {symbol})",
+  "txm.noBalance": "Rekening ini belum punya saldo aset yang bisa dipakai. Pilih rekening lain atau catat pemasukan dulu.",
+  "txm.noPayAsset": "Rekening ini belum punya aset untuk membayar. Pilih rekening lain atau catat pemasukan dulu.",
+  "txm.assetBought": "Aset yang dibeli",
+  "txm.payWith": "Bayar dengan",
+  "txm.receiveAs": "Terima dalam",
+  "txm.payQty": "Jumlah dibayar ({symbol})",
+  "txm.recvQty": "Jumlah diterima ({symbol})",
+  "txm.feeIn": "Biaya transaksi ({symbol}, opsional)",
+  "txm.useEstimate": "Pakai perkiraan {value} (harga pasar)",
+  "txm.errOtherQty": "Isi jumlah {symbol} yang dipakai",
+  "txm.categoryQuick": "Pilih kategori cepat",
 };
 
 export type DictKey = keyof typeof id;
@@ -490,6 +508,24 @@ const en: Record<DictKey, string> = {
   "land.finalBody": "Create an account, add one account, and record your first transaction. A short guide walks you through the first steps.",
   "land.footer": "Gemi, nastiti, ngati-ati. (Thrifty, careful, prudent.)",
   "land.copy": "© {year} Bandha. Bandha is a bookkeeping tool, not financial or investment advice.",
+
+  // transaction form: balances, quick share, asset-for-asset trades
+  "txm.max": "Max",
+  "txm.quickShare": "Quick fill from balance",
+  "txm.available": "Available: {qty} {symbol}",
+  "txm.availableShort": "Available {qty}",
+  "txm.errExceeds": "Amount exceeds the available balance ({qty} {symbol})",
+  "txm.noBalance": "This account has no asset balance to use. Pick another account or record some income first.",
+  "txm.noPayAsset": "This account has no asset to pay with. Pick another account or record some income first.",
+  "txm.assetBought": "Asset to buy",
+  "txm.payWith": "Pay with",
+  "txm.receiveAs": "Receive as",
+  "txm.payQty": "Amount paid ({symbol})",
+  "txm.recvQty": "Amount received ({symbol})",
+  "txm.feeIn": "Transaction fee ({symbol}, optional)",
+  "txm.useEstimate": "Use the estimate {value} (market price)",
+  "txm.errOtherQty": "Enter the amount of {symbol} used",
+  "txm.categoryQuick": "Quick categories",
 };
 
 export const DICT = { id, en };
