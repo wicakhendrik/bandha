@@ -144,7 +144,7 @@ Two environments from two branches (`development`, `main`), each its own Docker 
 
 ## Limitations
 
-- Foreign currencies are limited to the 30 ECB currencies; debts are IDR only with no automatic instalment schedule. Asset-for-asset buy/sell (e.g. BTC with USDT) is available on the web; the mobile app still trades against IDR only.
+- Foreign currencies are limited to the 30 ECB currencies; debts are IDR only with no automatic instalment schedule. Asset-for-asset buy/sell (e.g. BTC with USDT) is available on the web and in the mobile app.
 - The mobile app is not yet packaged as an APK/IPA; it currently runs through Expo.
 
 ## License

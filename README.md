@@ -190,7 +190,7 @@ Menemukan celah? Mohon laporkan secara pribadi kepada pemilik repositori, jangan
 ## Batasan dan rencana
 
 - Mata uang asing terbatas pada 30 mata uang ECB (belum SAR, AED, VND, dll.).
-- Utang/piutang hanya IDR dan belum punya jadwal cicilan/bunga otomatis. Beli/jual aset lawan aset (mis. BTC dengan USDT) sudah ada di web; di aplikasi mobile baru lewat IDR.
+- Utang/piutang hanya IDR dan belum punya jadwal cicilan/bunga otomatis. Beli/jual aset lawan aset (mis. BTC dengan USDT) sudah ada di web dan di aplikasi mobile.
 - Belum ada: harga emas dari sumber khusus, halaman detail aset, ikon dan splash final, build rilis mobile (EAS), serta tes UI web/mobile.
 - Aplikasi mobile belum dibangun menjadi APK/IPA; saat ini dijalankan lewat Expo.
 

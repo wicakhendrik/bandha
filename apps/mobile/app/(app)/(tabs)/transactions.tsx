@@ -58,24 +58,26 @@ export default function Transactions() {
               return (
                 <Row key={tx.id} style={{ alignItems: "flex-start" }}>
                   <View style={{ flex: 1, gap: 2 }}>
-                    <T numberOfLines={1}>{v.title}</T>
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "baseline", gap: 10 }}>
+                      <View style={{ flex: 1 }}><T numberOfLines={1}>{v.title}</T></View>
+                      <T v="mono" style={{ fontSize: 13, flexShrink: 0 }} color={v.tone === "pos" ? c.pos : v.tone === "neg" ? c.neg : c.ink}>{v.amount}</T>
+                    </View>
                     <T v="small" muted numberOfLines={1}>{dateShort(tx.occurredAt)} · {txTypeLabel(tx.type)} · {v.accountLabel}</T>
                     {rowErr?.id === tx.id ? <View style={{ marginTop: 6 }}><Banner tone="err">{rowErr.text}</Banner></View> : null}
-                    {confirm === tx.id ? (
-                      <View style={{ flexDirection: "row", gap: 8, marginTop: 6 }}>
-                        <Btn label={t("Batalkan transaksi", "Void transaction")} kind="danger" small onPress={() => voidTx(tx.id)} />
-                        <Btn label={t("Tidak", "No")} kind="ghost" small onPress={() => setConfirm(null)} />
-                      </View>
-                    ) : (
-                      <View style={{ flexDirection: "row", marginTop: 4, gap: 8 }}>
-                        {tx.editable ? <Btn label={t("Edit", "Edit")} icon="edit" kind="ghost" small onPress={() => router.push({ pathname: "/add-transaction", params: { edit: tx.id } })} accessibilityLabel={t(`Edit transaksi ${v.title}`, `Edit transaction ${v.title}`)} /> : null}
-                        <Btn label="Void" kind="ghost" small onPress={() => setConfirm(tx.id)} accessibilityLabel={t(`Batalkan transaksi ${v.title}`, `Void transaction ${v.title}`)} />
-                      </View>
-                    )}
-                  </View>
-                  <View style={{ alignItems: "flex-end" }}>
-                    <T v="mono" style={{ fontSize: 13 }} color={v.tone === "pos" ? c.pos : v.tone === "neg" ? c.neg : c.ink}>{v.amount}</T>
-                    {v.secondary ? <T v="small" muted>{v.secondary}</T> : null}
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 10, marginTop: 4 }}>
+                      {confirm === tx.id ? (
+                        <View style={{ flexDirection: "row", gap: 8 }}>
+                          <Btn label={t("Batalkan transaksi", "Void transaction")} kind="danger" small onPress={() => voidTx(tx.id)} />
+                          <Btn label={t("Tidak", "No")} kind="ghost" small onPress={() => setConfirm(null)} />
+                        </View>
+                      ) : (
+                        <View style={{ flexDirection: "row", gap: 8 }}>
+                          {tx.editable ? <Btn label={t("Edit", "Edit")} icon="edit" kind="ghost" small onPress={() => router.push({ pathname: "/add-transaction", params: { edit: tx.id } })} accessibilityLabel={t(`Edit transaksi ${v.title}`, `Edit transaction ${v.title}`)} /> : null}
+                          <Btn label="Void" kind="ghost" small onPress={() => setConfirm(tx.id)} accessibilityLabel={t(`Batalkan transaksi ${v.title}`, `Void transaction ${v.title}`)} />
+                        </View>
+                      )}
+                      {v.secondary && confirm !== tx.id ? <View style={{ flex: 1 }}><T v="small" muted style={{ textAlign: "right" }}>{v.secondary}</T></View> : null}
+                    </View>
                   </View>
                 </Row>
               );

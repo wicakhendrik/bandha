@@ -44,7 +44,7 @@ export default function Home() {
           <T v="small" muted>{dateLong(new Date())}</T>
           <T v="title" accessibilityRole="header">{greeting()}{user ? `, ${user.name.split(" ")[0]}` : ""}</T>
         </View>
-        <Pressable onPress={() => router.push("/settings")} accessibilityRole="button" accessibilityLabel={t("Pengaturan", "Settings")} hitSlop={8}>
+        <Pressable onPress={() => router.push("/settings")} accessibilityRole="button" accessibilityLabel={t("Profil dan pengaturan", "Profile and settings")} hitSlop={8}>
           <Avatar label={user ? user.name.split(/\s+/).slice(0, 2).map((w) => w[0]).join("").toUpperCase() : ""} />
         </Pressable>
       </View>
@@ -147,8 +147,10 @@ export default function Home() {
         ) : accs.data.accounts.slice(0, 4).map((a) => (
           <Row key={a.id}>
             <AccountLogo account={a} size={36} />
-            <View style={{ flex: 1 }}><T numberOfLines={1}>{a.name}</T></View>
-            <T v="mono" style={{ fontSize: 13 }}>{m(balanceText(a))}</T>
+            <View style={{ flex: 1 }}>
+              <T numberOfLines={1}>{a.name}</T>
+              <T v="mono" style={{ fontSize: 13 }}>{m(balanceText(a))}</T>
+            </View>
           </Row>
         ))}
       </Card>

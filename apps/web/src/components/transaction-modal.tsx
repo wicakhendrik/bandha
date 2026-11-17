@@ -1,7 +1,7 @@
 "use client";
 import { useMemo, useRef, useState } from "react";
 import useSWR, { mutate } from "swr";
-import { PRIORITY_COINS, type EditableTx } from "@bandha/api-client";
+import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, QUICK_PCT, assetGroup, availableQty, decimalsOf, share, type EditableTx } from "@bandha/api-client";
 import { api, errorText, fetcher } from "@/lib/api";
 import { isAmount, isAmountOrZero, qty, rp } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
@@ -13,39 +13,6 @@ import { Select, type Option } from "./select";
 type Kind = "expense" | "income" | "transfer" | "buy" | "sell";
 const TABS: Kind[] = ["expense", "income", "transfer", "buy", "sell"];
 const jakartaDate = (iso: string) => new Date(iso).toLocaleDateString("en-CA", { timeZone: "Asia/Jakarta" });
-
-/** Ready-made categories, the same ones FinMap offers. The Indonesian name is what gets stored. */
-const EXPENSE_CATEGORIES = [
-  { id: "Makanan & Minuman", icon: "🍔", en: "Food & Drink" },
-  { id: "Belanja & Kebutuhan", icon: "🛒", en: "Shopping & Essentials" },
-  { id: "Transportasi", icon: "🚗", en: "Transport" },
-  { id: "Tagihan & Utilitas", icon: "⚡", en: "Bills & Utilities" },
-  { id: "Hiburan & Rekreasi", icon: "🍿", en: "Entertainment & Leisure" },
-  { id: "Kesehatan", icon: "🏥", en: "Health" },
-  { id: "Pendidikan & Kerja", icon: "💼", en: "Education & Work" },
-  { id: "Biaya Admin & Fee", icon: "💸", en: "Admin & Fees" },
-  { id: "Lainnya", icon: "🏷️", en: "Other" },
-];
-const INCOME_CATEGORIES = [
-  { id: "Gaji Pokok", icon: "💼", en: "Salary" },
-  { id: "Investasi & Profit", icon: "📈", en: "Investment & Profit" },
-  { id: "Bonus & THR", icon: "🎁", en: "Bonus & Holiday pay" },
-  { id: "Penjualan / Bisnis", icon: "🏪", en: "Sales / Business" },
-  { id: "Cashback & Hadiah", icon: "✨", en: "Cashback & Gifts" },
-  { id: "Pengembalian (Refund)", icon: "🔄", en: "Refund" },
-  { id: "Lainnya", icon: "🏷️", en: "Other" },
-];
-
-const QUICK_PCT = [25, 50, 75, 100];
-const trimZeros = (s: string) => (s.includes(".") ? s.replace(/0+$/, "").replace(/\.$/, "") : s);
-
-/** `pct` percent of `available`, rounded DOWN so it can never exceed what is held. 100% returns the exact balance. */
-function share(available: string, pct: number, decimals: number): string {
-  if (pct >= 100) return trimZeros(available);
-  const f = 10 ** decimals;
-  const v = Math.floor((Number(available) * pct / 100) * f + 1e-9) / f;
-  return trimZeros(v.toFixed(decimals));
-}
 
 /** Loads a posted transaction in form shape, then opens the form on it. */
 export function EditTransactionModal({ id, onClose }: { id: string; onClose: () => void }) {
@@ -108,20 +75,7 @@ export function TransactionModal({ onClose, initialType = "expense", edit }: { o
   const idr = allAssets.find((a) => a.symbol === "IDR");
 
   /** What an account holds of an asset right now, plus (when editing) what the edited transaction itself had taken from it. */
-  const available = (accountIdArg: string, assetIdArg: string): string => {
-    const bal = accounts.find((a) => a.id === accountIdArg)?.balances.find((b) => b.assetId === assetIdArg)?.quantity ?? "0";
-    let back = 0;
-    if (edit && assetIdArg) {
-      if ((edit.type === "expense" || edit.type === "sell") && edit.accountId === accountIdArg && edit.assetId === assetIdArg) back = Number(edit.quantity);
-      if (edit.type === "transfer" && edit.fromAccountId === accountIdArg && edit.assetId === assetIdArg) back = Number(edit.quantity);
-      if (edit.type === "buy" && edit.fundingAccountId === accountIdArg) {
-        if (edit.payAssetId === assetIdArg) back = Number(edit.payQuantity ?? 0) + Number(edit.fee ?? 0);
-        else if (!edit.payAssetId && assetIdArg === idr?.id) back = Number(edit.totalCost ?? 0) + Number(edit.fee ?? 0);
-      }
-    }
-    const sum = Number(bal) + back;
-    return sum > 0 ? trimZeros(String(Number(sum.toFixed(12)))) : "0";
-  };
+  const available = (accountIdArg: string, assetIdArg: string): string => availableQty(accounts, edit, idr?.id, accountIdArg, assetIdArg);
   /** Assets an account actually holds (quantity above zero). */
   const heldIn = (accountIdArg: string): Asset[] => allAssets.filter((a) => Number(available(accountIdArg, a.id)) > 0);
 
@@ -155,7 +109,6 @@ export function TransactionModal({ onClose, initialType = "expense", edit }: { o
   const availPay = buy && toAccount && effOther ? available(toAccount, effOther) : "0";
   const needsFx = !trade && type !== "transfer" && !!asset && asset.symbol !== "IDR";
   const editedAccount = accounts.find((a) => a.id === edit?.accountId);
-  const decimalsOf = (a?: Asset) => (!a || a.symbol === "IDR" ? 0 : Math.min(a.decimals ?? 8, 8));
 
   // Rupiah estimate for the other side of an asset-for-asset trade, from today's price.
   const otherPrice = other && !otherIsIdr ? Number(other.price ?? 0) : 0;
@@ -163,9 +116,10 @@ export function TransactionModal({ onClose, initialType = "expense", edit }: { o
 
   const currencyNames = useMemo(() => { try { return new Intl.DisplayNames([lang], { type: "currency" }); } catch { return null; } }, [lang]);
   const accountOpt = (a: Account): Option => ({ value: a.id, label: a.name, icon: <AccountLogo account={a} size={26} />, keywords: a.kind });
-  const groupOf = (a: Asset) => (a.kind === "fiat" ? t("accm.currencies") : a.kind === "gold" ? t("accm.goldAsset")
-    : a.kind === "stock" ? (a.providerRef?.endsWith(".JK") ? t("accm.stocksId") : t("accm.stocksUs"))
-    : PRIORITY_COINS.includes(a.symbol) ? t("accm.mainCoins") : t("accm.otherCoins"));
+  const groupOf = (a: Asset) => ({
+    fiat: t("accm.currencies"), gold: t("accm.goldAsset"), stockId: t("accm.stocksId"), stockUs: t("accm.stocksUs"),
+    mainCoins: t("accm.mainCoins"), otherCoins: t("accm.otherCoins"),
+  })[assetGroup(a)];
   const assetOpt = (a: Asset, holder?: string): Option => {
     const have = holder ? available(holder, a.id) : "0";
     return {

@@ -191,6 +191,17 @@ export function Chips<K extends string>({ options, value, onChange, label }: { o
   );
 }
 
+/** A small tappable chip (quick-fill share, ready-made category). `on` marks it as chosen. */
+export function Pill({ label, onPress, on, accessibilityLabel }: { label: string; onPress: () => void; on?: boolean; accessibilityLabel?: string }) {
+  const c = useTheme();
+  return (
+    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={accessibilityLabel ?? label} accessibilityState={{ selected: !!on }}
+      style={{ paddingHorizontal: 12, paddingVertical: 7, borderRadius: 99, borderWidth: 1, borderColor: on ? c.gold : c.line, backgroundColor: on ? c.goldSoft : c.card }}>
+      <Text style={{ color: on ? c.ink : c.muted, fontFamily: font.sansSemi, fontSize: 13 }}>{label}</Text>
+    </Pressable>
+  );
+}
+
 export function Segmented<K extends string>({ options, value, onChange }: { options: Array<{ key: K; label: string }>; value: K; onChange: (k: K) => void }) {
   const c = useTheme();
   return (

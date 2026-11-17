@@ -10,6 +10,13 @@ interface AuthCtx {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (name: string, email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  /** Saves the new name and shows it everywhere without a restart. */
+  updateName: (name: string) => Promise<void>;
+  /**
+   * Changes the password. The server then signs every session out, this device included, so it signs in again with the
+   * new password; false means that sign-in failed and the user has been sent to the login screen.
+   */
+  changePassword: (currentPassword: string, newPassword: string) => Promise<boolean>;
 }
 
 const Ctx = createContext<AuthCtx | null>(null);
@@ -46,6 +53,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signIn: async (email, password) => { setUser(await client.login({ email, password })); setStatus("authed"); },
       signUp: async (name, email, password) => { setUser(await client.register({ name, email, password })); setStatus("authed"); },
       signOut: async () => { await client.logout(); clear(); },
+      updateName: async (name) => { setUser(await client.updateName(name)); },
+      changePassword: async (currentPassword, newPassword) => {
+        await client.changePassword(currentPassword, newPassword);
+        const email = user?.email;
+        try {
+          if (!email) throw new Error("no email");
+          setUser(await client.login({ email, password: newPassword }));
+          return true;
+        } catch {
+          await client.logout().catch(() => undefined);
+          clear();
+          return false;
+        }
+      },
     }),
     [status, user, clear],
   );

@@ -149,6 +149,9 @@ export function createClient(opts: ClientOptions) {
     },
     request,
     me: () => request<Me>("/me"),
+    updateName: (name: string) => request<{ user: PublicUser }>("/me", { method: "PATCH", body: { name } }).then((r) => r.user),
+    /** A wrong current password is a 400. On success the server revokes every session, so sign in again afterwards. */
+    changePassword: (currentPassword: string, newPassword: string) => request<void>("/me/password", { method: "POST", body: { currentPassword, newPassword } }),
     assets: () => request<{ assets: Asset[] }>("/assets").then((r) => r.assets),
     dashboard: () => request<Dashboard>("/dashboard"),
     cashflow: (months = 6) => request<{ months: CashflowMonth[] }>(`/dashboard/cashflow?months=${months}`).then((r) => r.months),

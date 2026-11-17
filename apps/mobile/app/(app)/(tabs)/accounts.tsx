@@ -90,28 +90,29 @@ export default function Accounts() {
         ) : shown.length === 0 ? (
           <Empty title={t("Tidak ada rekening yang cocok", "No matching accounts")} text={t("Ubah filter jenis atau kata pencarian.", "Change the type filter or search text.")} />
         ) : shown.map((a) => (
-          <Row key={a.id}>
-            <AccountLogo account={a} size={40} />
-            <Pressable style={{ flex: 1 }} onPress={() => router.push(`/account/${a.id}`)} accessibilityRole="button" accessibilityLabel={t(`Lihat transaksi ${a.name}`, `View transactions of ${a.name}`)}>
-              <View style={{ flexDirection: "row", alignItems: "center", gap: 2 }}>
-                <View style={{ flexShrink: 1 }}><T numberOfLines={1}>{a.name}</T></View>
-                <Icon name="chevronRight" size={16} color={c.muted} />
-              </View>
-              <T v="small" muted>{accountKindLabel(a.kind)}{a.includeInNetWorth ? "" : t(" · tidak dihitung", " · not counted")}</T>
-              <T v="mono" style={{ fontSize: 13, marginTop: 2 }}>{balanceText(a)}</T>
-            </Pressable>
-            <Pressable onPress={() => router.push({ pathname: "/add-account", params: { id: a.id } })} accessibilityRole="button" accessibilityLabel={t(`Edit ${a.name}`, `Edit ${a.name}`)} hitSlop={8}
-              style={{ width: 36, height: 36, borderRadius: 10, borderWidth: 1, borderColor: c.line, alignItems: "center", justifyContent: "center" }}>
-              <Icon name="edit" size={16} color={c.ink} />
-            </Pressable>
+          <Row key={a.id} style={{ flexDirection: "column", alignItems: "stretch", gap: 8 }}>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+              <AccountLogo account={a} size={40} />
+              <Pressable style={{ flex: 1 }} onPress={() => router.push(`/account/${a.id}`)} accessibilityRole="button" accessibilityLabel={t(`Lihat transaksi ${a.name}`, `View transactions of ${a.name}`)}>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 2 }}>
+                  <View style={{ flexShrink: 1 }}><T numberOfLines={1}>{a.name}</T></View>
+                  <Icon name="chevronRight" size={16} color={c.muted} />
+                </View>
+                <T v="small" muted numberOfLines={1}>{accountKindLabel(a.kind)}{a.includeInNetWorth ? "" : t(" · tidak dihitung", " · not counted")}</T>
+              </Pressable>
+              <Pressable onPress={() => router.push({ pathname: "/add-account", params: { id: a.id } })} accessibilityRole="button" accessibilityLabel={t(`Edit ${a.name}`, `Edit ${a.name}`)} hitSlop={8}
+                style={{ width: 36, height: 36, borderRadius: 10, borderWidth: 1, borderColor: c.line, alignItems: "center", justifyContent: "center" }}>
+                <Icon name="edit" size={16} color={c.ink} />
+              </Pressable>
+              {confirm !== a.id ? <Btn label={t("Arsip", "Archive")} kind="ghost" small onPress={() => setConfirm(a.id)} accessibilityLabel={t(`Arsipkan ${a.name}`, `Archive ${a.name}`)} /> : null}
+            </View>
             {confirm === a.id ? (
-              <View style={{ gap: 6 }}>
+              <View style={{ flexDirection: "row", gap: 8, justifyContent: "flex-end" }}>
                 <Btn label={t("Arsipkan", "Archive")} kind="danger" small onPress={() => archive(a.id)} />
                 <Btn label={t("Batal", "Cancel")} kind="ghost" small onPress={() => setConfirm(null)} />
               </View>
-            ) : (
-              <Btn label={t("Arsip", "Archive")} kind="ghost" small onPress={() => setConfirm(a.id)} accessibilityLabel={t(`Arsipkan ${a.name}`, `Archive ${a.name}`)} />
-            )}
+            ) : null}
+            <T v="mono" style={{ fontSize: 13 }}>{balanceText(a)}</T>
           </Row>
         ))}
       </Card>

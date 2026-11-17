@@ -2,7 +2,6 @@ import { router } from "expo-router";
 import { Pressable, View } from "react-native";
 import useSWR from "swr";
 import { pct, qty, rp, signedRp, type Portfolio } from "@bandha/api-client";
-import { Donut } from "../../../src/charts";
 import { useT } from "../../../src/i18n";
 import { useRefresh } from "../../../src/data";
 import { CoinLogo } from "../../../src/logos";
@@ -22,6 +21,8 @@ export default function PortfolioScreen() {
     ...valued.slice(0, 6).map((x) => ({ key: x.assetId, label: x.symbol, value: Number(x.marketValue), percent: (Number(x.marketValue) / sum) * 100 })),
     ...(restValue > 0 ? [{ key: "others", label: t("Lainnya", "Others"), value: restValue, percent: (restValue / sum) * 100 }] : []),
   ];
+  // Sub-rupiah leftovers from rounding are not worth a row.
+  const realizedShown = (p?.realized ?? []).filter((r) => Math.abs(Number(r.realized)) >= 0.5);
   const toneColor = (v: string | null) => (v === null ? c.ink : Number(v) > 0 ? c.pos : Number(v) < 0 ? c.neg : c.ink);
   const open = (type: "buy" | "sell") => router.push({ pathname: "/add-transaction", params: { type } });
 
@@ -39,50 +40,47 @@ export default function PortfolioScreen() {
       {p && !p.complete ? <Banner tone="warn">{t(`Aset ${p.unpriced.join(", ")} belum punya harga pasar: modalnya tampil, tetapi nilai dan untung/ruginya belum dihitung.`, `${p.unpriced.join(", ")} has no market price yet: its cost is shown, but value and profit/loss are not calculated.`)}</Banner> : null}
       {error ? <Card><Empty title={t("Gagal memuat portofolio", "Failed to load portfolio")} action={<Btn label={t("Coba lagi", "Try again")} kind="ghost" small onPress={refresh} />} /></Card> : null}
 
-      <View style={{ flexDirection: "row", gap: 12 }}>
-        <Card style={{ flex: 1 }}>
-          <T v="small" muted>{t("Nilai pasar (dengan kas)", "Market value (incl. cash)")}</T>
-          {p ? <T v="mono" style={{ marginTop: 4 }}>{rp(p.totals.marketValue)}</T> : <Skeleton h={20} />}
-        </Card>
-        <Card style={{ flex: 1 }}>
-          <T v="small" muted>{t("Modal aset (tanpa kas)", "Asset cost (excl. cash)")}</T>
-          {p ? <T v="mono" style={{ marginTop: 4 }}>{rp(p.totals.costBasis)}</T> : <Skeleton h={20} />}
-        </Card>
-      </View>
-      <View style={{ flexDirection: "row", gap: 12 }}>
-        <Card style={{ flex: 1 }}>
-          <T v="small" muted>{t("Belum terealisasi", "Unrealised")}</T>
-          {p ? (
-            <>
-              <T v="mono" color={toneColor(p.totals.unrealizedPnl)} style={{ marginTop: 4 }}>{signedRp(p.totals.unrealizedPnl)}</T>
-              {p.totals.unrealizedPct ? <T v="small" color={toneColor(p.totals.unrealizedPnl)}>{pct(p.totals.unrealizedPct)}</T> : null}
-            </>
-          ) : <Skeleton h={20} />}
-        </Card>
-        <Card style={{ flex: 1 }}>
-          <T v="small" muted>{t("Terealisasi", "Realised")}</T>
-          {p ? <T v="mono" color={toneColor(p.totals.realizedPnl)} style={{ marginTop: 4 }}>{signedRp(p.totals.realizedPnl)}</T> : <Skeleton h={20} />}
-        </Card>
-      </View>
-
       <Card>
-        <T v="heading">{t("Alokasi aset", "Asset allocation")}</T>
-        <T v="small" muted style={{ marginBottom: 10 }}>{t("Berdasarkan nilai pasar, termasuk kas", "By market value, including cash")}</T>
-        {!p ? <Skeleton h={150} /> : slices.length === 0 ? <Empty title={t("Belum ada nilai pasar", "No market value yet")} /> : (
-          <View style={{ gap: 16 }}>
-            <View style={{ alignItems: "center" }}><Donut slices={slices.map((s) => ({ percent: s.percent }))} size={150} /></View>
-            <View style={{ gap: 9 }}>
+        <View style={{ flexDirection: "row", flexWrap: "wrap", rowGap: 14 }}>
+          <View style={{ width: "50%", paddingRight: 8 }}>
+            <T v="small" muted>{t("Nilai pasar (dengan kas)", "Market value (incl. cash)")}</T>
+            {p ? <T v="mono" style={{ marginTop: 2 }}>{rp(p.totals.marketValue)}</T> : <Skeleton h={20} />}
+          </View>
+          <View style={{ width: "50%", paddingLeft: 8 }}>
+            <T v="small" muted>{t("Modal aset (tanpa kas)", "Asset cost (excl. cash)")}</T>
+            {p ? <T v="mono" style={{ marginTop: 2 }}>{rp(p.totals.costBasis)}</T> : <Skeleton h={20} />}
+          </View>
+          <View style={{ width: "50%", paddingRight: 8 }}>
+            <T v="small" muted>{t("Belum terealisasi", "Unrealised")}</T>
+            {p ? (
+              <>
+                <T v="mono" color={toneColor(p.totals.unrealizedPnl)} style={{ marginTop: 2 }}>{signedRp(p.totals.unrealizedPnl)}</T>
+                {p.totals.unrealizedPct ? <T v="small" color={toneColor(p.totals.unrealizedPnl)}>{pct(p.totals.unrealizedPct)}</T> : null}
+              </>
+            ) : <Skeleton h={20} />}
+          </View>
+          <View style={{ width: "50%", paddingLeft: 8 }}>
+            <T v="small" muted>{t("Terealisasi", "Realised")}</T>
+            {p ? <T v="mono" color={toneColor(p.totals.realizedPnl)} style={{ marginTop: 2 }}>{signedRp(p.totals.realizedPnl)}</T> : <Skeleton h={20} />}
+          </View>
+        </View>
+
+        {p && slices.length > 0 ? (
+          <View style={{ marginTop: 16, gap: 10 }}>
+            <T v="small" muted>{t("Alokasi aset (nilai pasar, termasuk kas)", "Asset allocation (market value, incl. cash)")}</T>
+            <View accessibilityRole="image" accessibilityLabel={t("Alokasi aset menurut nilai pasar", "Asset allocation by market value")} style={{ flexDirection: "row", height: 12, borderRadius: 6, overflow: "hidden", backgroundColor: c.mori }}>
+              {slices.map((s, i) => <View key={s.key} style={{ width: `${s.percent}%`, backgroundColor: SLICE[i % SLICE.length] }} />)}
+            </View>
+            <View style={{ flexDirection: "row", flexWrap: "wrap", columnGap: 14, rowGap: 4 }}>
               {slices.map((s, i) => (
-                <View key={s.key} style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-                  <View style={{ width: 10, height: 10, borderRadius: 3, backgroundColor: SLICE[i % SLICE.length] }} />
-                  <View style={{ flex: 1 }}><T numberOfLines={1}>{s.label}</T></View>
-                  <T v="mono" style={{ fontSize: 12.5 }}>{rp(String(s.value))}</T>
-                  <T v="small" muted style={{ width: 46, textAlign: "right" }}>{s.percent.toFixed(1)}%</T>
+                <View key={s.key} style={{ flexDirection: "row", alignItems: "center", gap: 5 }}>
+                  <View style={{ width: 9, height: 9, borderRadius: 3, backgroundColor: SLICE[i % SLICE.length] }} />
+                  <T v="small">{s.label} <T v="small" muted>{s.percent.toFixed(1)}%</T></T>
                 </View>
               ))}
             </View>
           </View>
-        )}
+        ) : null}
       </Card>
 
       <Card>
@@ -92,36 +90,28 @@ export default function PortfolioScreen() {
         ) : p.positions.map((x) => (
           <Pressable key={x.assetId} onPress={() => router.push(`/asset/${x.assetId}`)} accessibilityRole="button"
             accessibilityLabel={t(`Lihat rekening yang menyimpan ${x.symbol}`, `See accounts holding ${x.symbol}`)} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
-            <Row style={{ alignItems: "flex-start" }}>
-              <CoinLogo symbol={x.symbol} size={36} />
+            <Row>
+              <CoinLogo symbol={x.symbol} size={34} />
               <View style={{ flex: 1, gap: 2 }}>
-                <T>{x.symbol} <T v="small" muted>{x.name}</T></T>
-                {x.cash ? (
-                  <T v="small" muted>{t("Kas", "Cash")}{x.accounts.length > 1 ? t(` · ${x.accounts.length} rekening`, ` · ${x.accounts.length} accounts`) : ""}</T>
-                ) : (
-                  <>
-                    <T v="small" muted>{qty(x.quantity)} · {t("rata-rata", "average")} {rp(x.avgCost)}</T>
-                    <T v="small" muted>{t("modal", "cost")} {rp(x.costBasis)}{x.accounts.length > 1 ? t(` · ${x.accounts.length} rekening`, ` · ${x.accounts.length} accounts`) : ""}</T>
-                  </>
-                )}
+                <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
+                  <View style={{ flexShrink: 1 }}><T numberOfLines={1}>{x.symbol}{x.cash ? <T v="small" muted>{` · ${t("Kas", "Cash")}`}</T> : null}</T></View>
+                  <T v="mono" style={{ fontSize: 13 }}>{x.marketValue === null ? t("Belum ada harga", "No price yet") : rp(x.marketValue)}</T>
+                </View>
+                <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
+                  <View style={{ flexShrink: 1 }}><T v="small" muted numberOfLines={1}>{qty(x.quantity)}{x.cash ? "" : ` ${x.symbol}`}{x.accounts.length > 1 ? t(` · ${x.accounts.length} rekening`, ` · ${x.accounts.length} accounts`) : ""}{x.stale ? ` · ${t("harga lama", "stale price")}` : ""}</T></View>
+                  {x.cash || x.unrealizedPnl === null ? null : <T v="small" color={toneColor(x.unrealizedPnl)}>{signedRp(x.unrealizedPnl)}{x.unrealizedPct ? ` · ${pct(x.unrealizedPct)}` : ""}</T>}
+                </View>
               </View>
-              <View style={{ alignItems: "flex-end" }}>
-                <T v="mono" style={{ fontSize: 13 }}>{x.marketValue === null ? t("Belum ada harga", "No price yet") : rp(x.marketValue)}</T>
-                {x.cash ? <T v="small" muted>{qty(x.quantity)} {x.symbol}</T> : x.unrealizedPnl !== null ? (
-                  <T v="small" color={toneColor(x.unrealizedPnl)}>{signedRp(x.unrealizedPnl)}{x.unrealizedPct ? ` · ${pct(x.unrealizedPct)}` : ""}</T>
-                ) : null}
-                {x.stale ? <T v="small" muted>{t("harga lama", "stale price")}</T> : null}
-              </View>
-              <Icon name="chevronRight" size={18} color={c.muted} />
+              <Icon name="chevronRight" size={16} color={c.muted} />
             </Row>
           </Pressable>
         ))}
       </Card>
 
-      {p && p.realized.length > 0 ? (
+      {p && realizedShown.length > 0 ? (
         <Card>
           <T v="heading">{t("Terealisasi per aset", "Realised per asset")}</T>
-          {p.realized.map((r) => (
+          {realizedShown.map((r) => (
             <Row key={r.symbol}>
               <View style={{ flex: 1 }}><T>{r.symbol}</T></View>
               <T v="mono" style={{ fontSize: 13 }} color={toneColor(r.realized)}>{signedRp(r.realized)}</T>

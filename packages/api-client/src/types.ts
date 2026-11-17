@@ -92,8 +92,8 @@ export interface CreateAccountBody {
 
 export type CreateTransactionBody =
   | { type: "income" | "expense"; accountId: string; assetId: string; quantity: string; functionalAmount?: string; category?: string; description?: string; occurredAt?: string; idempotencyKey?: string }
-  | { type: "buy"; accountId: string; fundingAccountId?: string; assetId: string; quantity: string; totalCost: string; fee?: string; description?: string; occurredAt?: string; idempotencyKey?: string }
-  | { type: "sell"; accountId: string; receivingAccountId?: string; assetId: string; quantity: string; proceeds: string; fee?: string; description?: string; occurredAt?: string; idempotencyKey?: string }
+  | { type: "buy"; accountId: string; fundingAccountId?: string; assetId: string; quantity: string; totalCost: string; payAssetId?: string; payQuantity?: string; fee?: string; description?: string; occurredAt?: string; idempotencyKey?: string }
+  | { type: "sell"; accountId: string; receivingAccountId?: string; assetId: string; quantity: string; proceeds: string; receiveAssetId?: string; receiveQuantity?: string; fee?: string; description?: string; occurredAt?: string; idempotencyKey?: string }
   | { type: "transfer"; fromAccountId: string; toAccountId: string; assetId: string; quantity: string; functionalAmount?: string; description?: string; occurredAt?: string; idempotencyKey?: string };
 
 export interface PortfolioPosition {
