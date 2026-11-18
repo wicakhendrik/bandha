@@ -10,7 +10,8 @@
     "test": "echo no tests",
     "generate": "drizzle-kit generate",
     "migrate": "tsx src/migrate.ts",
-    "seed": "tsx src/run-seed.ts"
+    "seed": "tsx src/run-seed.ts",
+    "make-admin": "tsx src/make-admin.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.4",

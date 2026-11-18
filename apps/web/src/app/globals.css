@@ -520,7 +520,7 @@ html:has(.lp){scroll-behavior:smooth}
   .pfpie{display:none}
   .pfalloc{display:block}
   .pfsum{padding:16px}
-  .pfstats{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 16px}
+  .pfstats{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 16px;height:auto;align-content:start}
   .pfk .v{font-size:15px}
   /* daftar aset: tiap aset dua baris (aset + nilai, lalu jumlah + untung/rugi) */
   table.pftable{display:block}
@@ -607,3 +607,26 @@ html[data-hide-money] .sens{filter:blur(9px);user-select:none;-webkit-user-selec
 .dn-note{color:var(--muted);font-size:13.5px;margin:0}
 .dn-thanks{font-size:20px;margin:0;color:var(--sogan)}
 [data-theme=dark] .dn-thanks{color:var(--gold)}
+
+/* Admin panel */
+.admtabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.admtabs a{text-decoration:none}
+.admstats{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+.admstats .card{padding:14px 16px}
+.admstats .k{color:var(--muted);font-size:12.5px}
+.admstats .v{font-size:22px;font-weight:500;margin-top:4px}
+.admstats .v.sm{font-size:14px;margin-top:8px}
+.admbars{display:flex;align-items:flex-end;gap:3px;height:130px;margin-top:14px}
+.admbars i{flex:1;min-width:2px;background:var(--gold);border-radius:3px 3px 0 0}
+.admbars i.z{background:var(--line)}
+.admaxis{display:flex;justify-content:space-between;color:var(--muted);margin-top:6px}
+.admrow{display:flex;flex-direction:column;gap:3px;padding:14px 0;border-bottom:1px dashed var(--line);min-width:0}
+.admrow:last-child{border-bottom:0;padding-bottom:0}
+.admrow .admtop{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}
+.admrow .admtop b{font-size:14.5px;overflow-wrap:anywhere}
+.admwho{font-size:13px;overflow-wrap:anywhere}
+.admdetail{color:var(--ink);overflow-wrap:anywhere}
+.admrow .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;align-items:center}
+.admconfirm{margin-top:8px;display:flex;flex-direction:column;gap:8px}
+.admconfirm p{font-size:13px}
+.tag.bad{background:rgba(168,71,45,.14);color:var(--neg)}

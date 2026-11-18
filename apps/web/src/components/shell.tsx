@@ -27,6 +27,8 @@ export function Shell({ title, children }: { title?: string; children: React.Rea
   const router = useRouter();
   const { data: me } = useSWR<Me>("/me", fetcher);
   const [txOpen, setTxOpen] = useState(false);
+  // On an account page ("/accounts/<id>") the new transaction starts on that account.
+  const openAccountId = /^\/accounts\/([^/]+)\/?$/.exec(path)?.[1];
   // Date text is computed on the client only, so the server render never disagrees with the browser.
   const [today, setToday] = useState("");
   useEffect(() => { setToday(dateLong(new Date())); }, [lang]);
@@ -55,6 +57,11 @@ export function Shell({ title, children }: { title?: string; children: React.Rea
               <Icon name={n.icon} />{t(n.label)}
             </Link>
           ))}
+          {me?.role === "admin" && (
+            <Link href="/admin" className={path.startsWith("/admin") ? "on" : ""} aria-current={path.startsWith("/admin") ? "page" : undefined}>
+              <Icon name="lock" />{t("admin.nav")}
+            </Link>
+          )}
         </nav>
         <div className="foot"><b>{t("shell.motto")}</b>{t("shell.mottoSub")}</div>
       </aside>
@@ -85,7 +92,7 @@ export function Shell({ title, children }: { title?: string; children: React.Rea
       </nav>
       <button className="fab" onClick={() => setTxOpen(true)} aria-label={t("shell.addTx")}><Icon name="plus" size={26} /></button>
 
-      {txOpen && <TransactionModal onClose={() => setTxOpen(false)} />}
+      {txOpen && <TransactionModal initialAccountId={openAccountId} onClose={() => setTxOpen(false)} />}
     </div>
   );
 }

@@ -16,6 +16,7 @@
     "db:generate": "pnpm --filter @bandha/db generate",
     "db:migrate": "pnpm --filter @bandha/db migrate",
     "db:seed": "pnpm --filter @bandha/db seed",
+    "db:make-admin": "pnpm --filter @bandha/db make-admin",
     "db:up": "docker compose up -d db",
     "db:down": "docker compose down"
   },

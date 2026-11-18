@@ -21,7 +21,7 @@ const jakartaDay = (iso: string) => new Date(iso).toLocaleDateString("en-CA", { 
 
 export default function AddTransaction() {
   const t = useT();
-  const params = useLocalSearchParams<{ type?: string; edit?: string }>();
+  const params = useLocalSearchParams<{ type?: string; edit?: string; account?: string }>();
   const loaded = useSWR<{ transaction: EditableTx }>(params.edit ? `/transactions/${params.edit}` : null, { revalidateOnFocus: false, shouldRetryOnError: false });
 
   if (params.edit && !loaded.data) {
@@ -35,7 +35,7 @@ export default function AddTransaction() {
       </Screen>
     );
   }
-  return <TransactionForm key={loaded.data?.transaction.id ?? "new"} edit={loaded.data?.transaction} initialType={KINDS.includes(params.type as Kind) ? (params.type as Kind) : "expense"} />;
+  return <TransactionForm key={loaded.data?.transaction.id ?? "new"} edit={loaded.data?.transaction} initialAccountId={params.account} initialType={KINDS.includes(params.type as Kind) ? (params.type as Kind) : "expense"} />;
 }
 
 /** Quick-fill chips: a share of what is available (25%, 50%, 75%, all). */
@@ -49,7 +49,7 @@ function QuickShare({ available, decimals, onPick }: { available: string; decima
   );
 }
 
-function TransactionForm({ edit, initialType }: { edit?: EditableTx; initialType: Kind }) {
+function TransactionForm({ edit, initialType, initialAccountId }: { edit?: EditableTx; initialType: Kind; /** Account to start on, e.g. the one whose screen is open. */ initialAccountId?: string }) {
   const c = useTheme();
   const t = useT();
   const { lang } = useLang();
@@ -57,7 +57,7 @@ function TransactionForm({ edit, initialType }: { edit?: EditableTx; initialType
   const ast = useSWR<{ assets: Asset[] }>("/assets");
   const pf = useSWR<Portfolio>("/portfolio");
   const [type, setType] = useState<Kind | "opening">(edit?.type ?? initialType);
-  const [accountId, setAccountId] = useState(edit?.accountId ?? edit?.fromAccountId ?? "");
+  const [accountId, setAccountId] = useState(edit?.accountId ?? edit?.fromAccountId ?? initialAccountId ?? "");
   const [toId, setToId] = useState(edit?.toAccountId ?? edit?.fundingAccountId ?? edit?.receivingAccountId ?? "");
   const [assetId, setAssetId] = useState(edit?.assetId ?? "");
   // The other side of a buy or sell: the asset it is paid with / received in. Empty = rupiah.

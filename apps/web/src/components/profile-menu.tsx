@@ -39,6 +39,7 @@ export function ProfileMenu({ onLogout }: { onLogout: () => void }) {
           <button type="button" role="menuitem" onClick={() => choose("name")}><Icon name="user" size={17} />{t("profile.rename")}</button>
           <button type="button" role="menuitem" onClick={() => choose("password")}><Icon name="lock" size={17} />{t("profile.changePassword")}</button>
           <Link href="/donate" role="menuitem" onClick={() => setOpen(false)}><Icon name="heart" size={17} />{t("donate.link")}</Link>
+          {me.role === "admin" && <Link href="/admin" role="menuitem" onClick={() => setOpen(false)}><Icon name="lock" size={17} />{t("admin.title")}</Link>}
           <button type="button" role="menuitem" className="danger" onClick={() => { setOpen(false); onLogout(); }}><Icon name="out" size={17} />{t("shell.logout")}</button>
         </div>
       )}

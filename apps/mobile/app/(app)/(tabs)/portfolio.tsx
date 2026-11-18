@@ -98,8 +98,8 @@ export default function PortfolioScreen() {
                   <T v="mono" style={{ fontSize: 13 }}>{x.marketValue === null ? t("Belum ada harga", "No price yet") : rp(x.marketValue)}</T>
                 </View>
                 <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
-                  <View style={{ flexShrink: 1 }}><T v="small" muted numberOfLines={1}>{qty(x.quantity)}{x.cash ? "" : ` ${x.symbol}`}{x.accounts.length > 1 ? t(` · ${x.accounts.length} rekening`, ` · ${x.accounts.length} accounts`) : ""}{x.stale ? ` · ${t("harga lama", "stale price")}` : ""}</T></View>
-                  {x.cash || x.unrealizedPnl === null ? null : <T v="small" color={toneColor(x.unrealizedPnl)}>{signedRp(x.unrealizedPnl)}{x.unrealizedPct ? ` · ${pct(x.unrealizedPct)}` : ""}</T>}
+                  <View style={{ flexShrink: 0 }}><T v="small" muted>{qty(x.quantity)}{x.cash ? "" : ` ${x.symbol}`}{x.accounts.length > 1 ? t(` · ${x.accounts.length} rekening`, ` · ${x.accounts.length} accounts`) : ""}{x.stale ? ` · ${t("harga lama", "stale price")}` : ""}</T></View>
+                  {x.cash || x.unrealizedPnl === null ? null : <View style={{ flex: 1 }}><T v="small" color={toneColor(x.unrealizedPnl)} style={{ textAlign: "right" }}>{signedRp(x.unrealizedPnl)}{x.unrealizedPct ? ` · ${pct(x.unrealizedPct)}` : ""}</T></View>}
                 </View>
               </View>
               <Icon name="chevronRight" size={16} color={c.muted} />

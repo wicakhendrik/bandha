@@ -23,6 +23,7 @@ export const txType = pgEnum("tx_type", [
 ]);
 export const debtDirection = pgEnum("debt_direction", ["payable", "receivable"]);
 export const txStatus = pgEnum("tx_status", ["draft", "scheduled", "posted", "void"]);
+export const userRole = pgEnum("user_role", ["user", "admin"]);
 
 /* ───────── Identity ───────── */
 
@@ -34,12 +35,36 @@ export const users = pgTable(
     name: text("name").notNull(),
     passwordHash: text("password_hash").notNull(),
     emailVerifiedAt: timestamp("email_verified_at", { withTimezone: true }),
+    /** "admin" may use the /admin API (user list, disable accounts, statistics). Only ever set from the command line, never through the API. */
+    role: userRole("role").notNull().default("user"),
+    /** Set while an admin has disabled the account: no sign-in, no refresh, and every request with an existing access token is refused. */
+    disabledAt: timestamp("disabled_at", { withTimezone: true }),
     /** Set when the person closes the "getting started" guide. Whether setup is done is derived from their data, never stored. */
     onboardingDismissedAt: timestamp("onboarding_dismissed_at", { withTimezone: true }),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
   (t) => [uniqueIndex("users_email_unique").on(sql`lower(${t.email})`)],
+);
+
+/**
+ * What admins did (and when someone was made or removed as admin from the command line). Emails are copied in so the
+ * log stays readable after an account is deleted.
+ */
+export const adminAudit = pgTable(
+  "admin_audit",
+  {
+    id: id(),
+    /** Null for actions taken from the command line. */
+    actorUserId: uuid("actor_user_id").references(() => users.id, { onDelete: "set null" }),
+    actorEmail: text("actor_email").notNull(),
+    action: text("action").notNull(),
+    targetUserId: uuid("target_user_id").references(() => users.id, { onDelete: "set null" }),
+    targetEmail: text("target_email"),
+    detail: text("detail"),
+    createdAt: createdAt(),
+  },
+  (t) => [index("admin_audit_created_idx").on(t.createdAt)],
 );
 
 /** Refresh-token sessions with rotation. A reused token revokes its whole family. */

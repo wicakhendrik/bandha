@@ -3,7 +3,7 @@ import type { Db } from "@bandha/db";
 /** A Drizzle transaction handle. */
 export type Tx = Parameters<Parameters<Db["transaction"]>[0]>[0];
 
-export type Env = { Variables: { userId: string; workspaceId: string } };
+export type Env = { Variables: { userId: string; workspaceId: string; role: "user" | "admin" } };
 
 /** Drizzle wraps driver errors, so the Postgres code can be on err or err.cause. */
 export function isUniqueViolation(err: unknown): boolean {

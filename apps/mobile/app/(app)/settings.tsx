@@ -1,10 +1,11 @@
 import { router } from "expo-router";
 import { useState } from "react";
+import useSWR from "swr";
 import { View } from "react-native";
 import { useAuth } from "../../src/auth";
 import { goBack } from "../../src/nav";
 import { useLang, useT } from "../../src/i18n";
-import { ApiError } from "@bandha/api-client";
+import { ApiError, type Me } from "@bandha/api-client";
 import { Banner, Btn, Card, Chips, Field, Screen, T } from "../../src/ui";
 import type { Lang } from "@bandha/api-client";
 
@@ -12,6 +13,8 @@ export default function Settings() {
   const t = useT();
   const { lang, setLang } = useLang();
   const { user, signOut, updateName, changePassword } = useAuth();
+  // Only admins see the admin panel entry; the API enforces it as well.
+  const isAdmin = useSWR<Me>("/me").data?.role === "admin";
   const [confirm, setConfirm] = useState(false);
   const [panel, setPanel] = useState<"name" | "password" | null>(null);
   const [name, setName] = useState(user?.name ?? "");
@@ -64,6 +67,16 @@ export default function Settings() {
           {t("Memengaruhi teks, angka, dan tanggal. Pesan kesalahan dari server masih berbahasa Indonesia.", "Affects text, numbers and dates. Error messages from the server are still in Indonesian.")}
         </T>
       </Card>
+
+      {isAdmin ? (
+        <Card>
+          <T v="heading">{t("Panel admin", "Admin panel")}</T>
+          <T v="small" muted style={{ marginTop: 6, marginBottom: 12 }}>
+            {t("Statistik, daftar pengguna (nonaktifkan atau aktifkan akun), dan log audit.", "Statistics, the user list (disable or enable accounts) and the audit log.")}
+          </T>
+          <Btn label={t("Buka panel admin", "Open the admin panel")} icon="chevronRight" kind="ghost" onPress={() => router.push("/admin")} />
+        </Card>
+      ) : null}
 
       <Card>
         <T v="heading">{t("Dukung Bandha", "Support Bandha")}</T>

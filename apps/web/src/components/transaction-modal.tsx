@@ -40,13 +40,13 @@ function QuickShare({ available, decimals, onPick, label }: { available: string;
   );
 }
 
-export function TransactionModal({ onClose, initialType = "expense", edit }: { onClose: () => void; initialType?: Kind; edit?: EditableTx }) {
+export function TransactionModal({ onClose, initialType = "expense", initialAccountId, edit }: { onClose: () => void; initialType?: Kind; /** Account to preselect, e.g. the one whose page is open. */ initialAccountId?: string; edit?: EditableTx }) {
   const { t, lang } = useI18n();
   const { data: acc } = useSWR<{ accounts: Account[] }>("/accounts", fetcher);
   const { data: ast } = useSWR<{ assets: Asset[] }>("/assets", fetcher);
   const { data: pf } = useSWR<Portfolio>("/portfolio", fetcher);
   const [type, setType] = useState<Kind | "opening">(edit?.type ?? initialType);
-  const [accountId, setAccountId] = useState(edit?.accountId ?? edit?.fromAccountId ?? "");
+  const [accountId, setAccountId] = useState(edit?.accountId ?? edit?.fromAccountId ?? initialAccountId ?? "");
   const [toId, setToId] = useState(edit?.toAccountId ?? edit?.fundingAccountId ?? edit?.receivingAccountId ?? "");
   const [assetId, setAssetId] = useState(edit?.assetId ?? "");
   // The other side of a buy or sell: the asset it is paid with / received in. Empty = rupiah.
