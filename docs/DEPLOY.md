@@ -218,9 +218,15 @@ per lingkungan di Docker) lebih sederhana dan lebih terisolasi, jadi itu yang di
 - [ ] Production environment di GitHub memakai Required reviewers.
 
 ## F. Aplikasi mobile (nanti)
-Web tidak butuh API terbuka, tapi aplikasi Android/iOS bicara langsung ke API. Saat rilis mobile: aktifkan blok `api-bandha.grezly.app`
-yang sudah disiapkan (dikomentari) di `deploy/nginx/bandha.conf`, buat sertifikatnya, dan bangun aplikasi dengan
-`EXPO_PUBLIC_API_URL=https://api-bandha.grezly.app`. Build rilis wajib HTTPS.
+Web tidak butuh API terbuka, tapi aplikasi Android/iOS bicara langsung ke API, jadi tiap lingkungan perlu alamat API yang bisa dijangkau HP:
+`api-bandha-dev.grezly.app` (development, port 4100) dan `api-bandha.grezly.app` (produksi, port 4000). Langkahnya ada di komentar
+`deploy/nginx/bandha-api.conf` (record DNS A, salin file, `nginx -t`, `certbot --nginx -d ...`, cek `/api/health`). Build rilis wajib HTTPS.
+
+**APK Android** dibuat oleh workflow GitHub Actions **Build Android APK** (`.github/workflows/build-apk.yml`): jalankan dari tab Actions
+(Run workflow) atau jalankan ulang run sebelumnya, lalu unduh artifact `bandha-apk`. Alamat API dimasukkan saat build, jadi isi variabel
+repository `APK_API_URL` (Settings > Secrets and variables > Actions > Variables), misalnya `https://api-bandha-dev.grezly.app` untuk
+development. Tanpa variabel itu build memakai `https://api-bandha.grezly.app`. APK ditandatangani dengan kunci debug (cukup untuk uji
+coba; Play Store butuh keystore rilis). Ikon dan splash ada di `apps/mobile/assets/` (diatur di `app.json`).
 
 ## G. Masalah umum
 - **Deploy "did not become healthy"**: log 60 baris terakhir tercetak otomatis; versi lama dipulihkan. Penyebab paling sering:
