@@ -218,11 +218,43 @@ per lingkungan di Docker) lebih sederhana dan lebih terisolasi, jadi itu yang di
 - [ ] Production environment di GitHub memakai Required reviewers.
 
 ## F. Aplikasi mobile (nanti)
-Web tidak butuh API terbuka, tapi aplikasi Android/iOS bicara langsung ke API. Saat rilis mobile: aktifkan blok `api-bandha.grezly.app`
-yang sudah disiapkan (dikomentari) di `deploy/nginx/bandha.conf`, buat sertifikatnya, dan bangun aplikasi dengan
-`EXPO_PUBLIC_API_URL=https://api-bandha.grezly.app`. Build rilis wajib HTTPS.
+Web tidak butuh API terbuka, tapi aplikasi Android/iOS bicara langsung ke API, jadi tiap lingkungan perlu alamat API yang bisa dijangkau HP:
+`api-bandha-dev.grezly.app` (development, port 4100) dan `api-bandha.grezly.app` (produksi, port 4000). Langkahnya ada di komentar
+`deploy/nginx/bandha-api.conf` (record DNS A, salin file, `nginx -t`, `certbot --nginx -d ...`, cek `/api/health`). Build rilis wajib HTTPS.
 
-## G. Masalah umum
+**APK Android** dibuat oleh workflow GitHub Actions **Build Android APK** (`.github/workflows/build-apk.yml`): jalankan dari tab Actions
+(Run workflow) atau jalankan ulang run sebelumnya, lalu unduh artifact `bandha-apk`. Alamat API dimasukkan saat build, jadi isi variabel
+repository `APK_API_URL` (Settings > Secrets and variables > Actions > Variables), misalnya `https://api-bandha-dev.grezly.app` untuk
+development. Tanpa variabel itu build memakai `https://api-bandha.grezly.app`. APK ditandatangani dengan kunci debug (cukup untuk uji
+coba; Play Store butuh keystore rilis). Ikon dan splash ada di `apps/mobile/assets/` (diatur di `app.json`).
+
+## G. API untuk aplikasi mobile, dan membuat admin (langkah di VPS)
+Sekali per lingkungan (contoh development; produksi sama dengan `api-bandha` dan `/srv/bandha`):
+1. **DNS** (di penyedia domain): record A `api-bandha-dev.grezly.app` ke IP VPS yang sama dengan `bandha-dev.grezly.app`. Tunggu sampai
+   `nslookup api-bandha-dev.grezly.app` menjawab IP itu.
+2. **nginx** (port 80 saja; certbot menambah HTTPS sendiri). Pakai **hanya blok development** dari `deploy/nginx/bandha-api.conf`
+   selama produksi belum disiapkan. **Port di file itu (4100/4000) hanyalah contoh**: samakan `proxy_pass` dengan `API_PORT` di
+   `deploy/.env` server Anda (`grep API_PORT /srv/bandha-dev/deploy/.env`; di beberapa server nilainya 4200):
+   ```bash
+   sudo cp /srv/bandha-dev/deploy/nginx/bandha-api.conf /etc/nginx/sites-available/bandha-api.conf
+   # hapus blok "api-bandha.grezly.app" (produksi) dari salinan itu bila DNS-nya belum dibuat
+   sudo ln -s /etc/nginx/sites-available/bandha-api.conf /etc/nginx/sites-enabled/
+   sudo nginx -t && sudo systemctl reload nginx
+   sudo certbot --nginx -d api-bandha-dev.grezly.app
+   ```
+3. **Cek**: `curl -s https://api-bandha-dev.grezly.app/api/health` harus `{"status":"ok"}`; `ss -ltnp` menunjukkan port API/web Bandha
+   hanya di `127.0.0.1`, dan container database Bandha tidak mempublikasikan port (Postgres lain milik host di 127.0.0.1:5432 boleh ada).
+   Port 80 dan 443 terbuka di firewall.
+4. **GitHub**: variabel repository `APK_API_URL` = `https://api-bandha-dev.grezly.app`, lalu jalankan ulang workflow Build Android APK.
+5. **Admin pertama**: daftar dulu lewat web (kode verifikasi ada di `docker compose ... logs api` bila `MAIL_TRANSPORT=console`), lalu:
+   ```bash
+   cd /srv/bandha-dev
+   sudo -u deploy docker compose --env-file deploy/.env -f deploy/compose.yml run --rm migrate \
+     pnpm --filter @bandha/db run make-admin email@contoh.com        # tambah --revoke untuk mencabut
+   ```
+   Keluar lalu masuk lagi; menu Admin muncul. Migrasi `0010` sudah dijalankan otomatis oleh `deploy.sh`.
+
+## H. Masalah umum
 - **Deploy "did not become healthy"**: log 60 baris terakhir tercetak otomatis; versi lama dipulihkan. Penyebab paling sering:
   `deploy/.env` salah/kurang (compose berhenti dengan pesan variabel mana), atau migrasi gagal (lihat `logs migrate`).
 - **`APP_ENV=production needs MAIL_TRANSPORT=smtp`**: sengaja; isi `SMTP_URL` atau, hanya untuk development, set `APP_ENV=development`.

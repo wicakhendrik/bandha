@@ -1,0 +1,70 @@
+name: Build Android APK
+
+# Builds an installable Android APK of the Expo app, with no Expo account and nothing installed on a laptop.
+# It is signed with the debug key, which is fine for installing and testing on a phone (a Play Store release needs your own keystore).
+#
+# Run it from the Actions tab ("Run workflow", once this file is on the default branch), or re-run an earlier run.
+# The app talks to the API directly, so the address is baked into the APK at build time. Order of precedence:
+#   1. the "api_url" box when running by hand
+#   2. the repository variable APK_API_URL (Settings > Secrets and variables > Actions > Variables)
+#   3. https://api-bandha.grezly.app
+# A push to `development` that touches the mobile app (or the code it shares) builds a fresh APK by itself, so no clicks are needed;
+# "Re-run" of an old run would rebuild the OLD commit, so use a new push or "Run workflow" for new changes.
+on:
+  workflow_dispatch:
+    inputs:
+      api_url:
+        description: "API address baked into the app (must be reachable from the phone, https)"
+        required: false
+        default: ""
+  push:
+    branches: [development]
+    paths: [".github/workflows/build-apk.yml", "apps/mobile/**", "packages/api-client/**", "pnpm-lock.yaml"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-apk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    name: Build APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      EXPO_PUBLIC_API_URL: ${{ inputs.api_url || vars.APK_API_URL || 'https://api-bandha.grezly.app' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - run: pnpm install --frozen-lockfile
+
+      - name: Generate the Android project
+        working-directory: apps/mobile
+        run: pnpm exec expo prebuild --platform android --no-install
+
+      - name: Build the APK (arm64 phones)
+        working-directory: apps/mobile/android
+        run: ./gradlew assembleRelease --no-daemon -PreactNativeArchitectures=arm64-v8a -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxMetaspaceSize=1g"
+
+      - name: Name the file
+        run: |
+          mkdir -p out
+          cp apps/mobile/android/app/build/outputs/apk/release/app-release.apk "out/bandha-${GITHUB_SHA::7}.apk"
+          echo "API address in this build: $EXPO_PUBLIC_API_URL" >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bandha-apk
+          path: out/*.apk
+          retention-days: 14
+          if-no-files-found: error
