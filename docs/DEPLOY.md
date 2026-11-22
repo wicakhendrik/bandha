@@ -233,7 +233,8 @@ Sekali per lingkungan (contoh development; produksi sama dengan `api-bandha` dan
 1. **DNS** (di penyedia domain): record A `api-bandha-dev.grezly.app` ke IP VPS yang sama dengan `bandha-dev.grezly.app`. Tunggu sampai
    `nslookup api-bandha-dev.grezly.app` menjawab IP itu.
 2. **nginx** (port 80 saja; certbot menambah HTTPS sendiri). Pakai **hanya blok development** dari `deploy/nginx/bandha-api.conf`
-   selama produksi belum disiapkan:
+   selama produksi belum disiapkan. **Port di file itu (4100/4000) hanyalah contoh**: samakan `proxy_pass` dengan `API_PORT` di
+   `deploy/.env` server Anda (`grep API_PORT /srv/bandha-dev/deploy/.env`; di beberapa server nilainya 4200):
    ```bash
    sudo cp /srv/bandha-dev/deploy/nginx/bandha-api.conf /etc/nginx/sites-available/bandha-api.conf
    # hapus blok "api-bandha.grezly.app" (produksi) dari salinan itu bila DNS-nya belum dibuat
@@ -241,14 +242,15 @@ Sekali per lingkungan (contoh development; produksi sama dengan `api-bandha` dan
    sudo nginx -t && sudo systemctl reload nginx
    sudo certbot --nginx -d api-bandha-dev.grezly.app
    ```
-3. **Cek**: `curl -s https://api-bandha-dev.grezly.app/api/health` harus `{"status":"ok"}`; `ss -ltnp | grep -E ':(4100|5432)\b'` tetap hanya
-   127.0.0.1 untuk 4100 dan 5432 tidak muncul. Port 80 dan 443 terbuka di firewall.
+3. **Cek**: `curl -s https://api-bandha-dev.grezly.app/api/health` harus `{"status":"ok"}`; `ss -ltnp` menunjukkan port API/web Bandha
+   hanya di `127.0.0.1`, dan container database Bandha tidak mempublikasikan port (Postgres lain milik host di 127.0.0.1:5432 boleh ada).
+   Port 80 dan 443 terbuka di firewall.
 4. **GitHub**: variabel repository `APK_API_URL` = `https://api-bandha-dev.grezly.app`, lalu jalankan ulang workflow Build Android APK.
 5. **Admin pertama**: daftar dulu lewat web (kode verifikasi ada di `docker compose ... logs api` bila `MAIL_TRANSPORT=console`), lalu:
    ```bash
    cd /srv/bandha-dev
    sudo -u deploy docker compose --env-file deploy/.env -f deploy/compose.yml run --rm migrate \
-     pnpm --filter @bandha/db make-admin email@contoh.com        # tambah --revoke untuk mencabut
+     pnpm --filter @bandha/db run make-admin email@contoh.com        # tambah --revoke untuk mencabut
    ```
    Keluar lalu masuk lagi; menu Admin muncul. Migrasi `0010` sudah dijalankan otomatis oleh `deploy.sh`.
 
