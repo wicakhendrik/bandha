@@ -34,12 +34,14 @@ async function handle(req: NextRequest, ctx: Ctx): Promise<Response> {
 
   try {
     // Verifying the emailed code signs the person in, exactly like login does. (Registration answers 202 without tokens until then.)
-    if (sub === "auth/login" || sub === "auth/register" || sub === "auth/verify") {
+    // Google sign-in is the same: the API checks the ID token and answers with tokens, which become cookies here. `created`
+    // (a first-time sign-up) is passed on so the page can open the welcome step.
+    if (sub === "auth/login" || sub === "auth/register" || sub === "auth/verify" || sub === "auth/google") {
       const res = await upstream(sub, "", method, body, null, who);
-      const data = (await res.json().catch(() => ({}))) as { user?: unknown; tokens?: Tokens; error?: string };
+      const data = (await res.json().catch(() => ({}))) as { user?: unknown; tokens?: Tokens; created?: boolean; error?: string };
       if (!res.ok || !data.tokens) return json(data, res.status);
       await setSession(data.tokens);
-      return json({ user: data.user }, res.status);
+      return json({ user: data.user, ...(data.created !== undefined ? { created: data.created } : {}) }, res.status);
     }
 
     if (sub === "auth/logout") {

@@ -142,6 +142,9 @@ td.num{white-space:nowrap}
 .auth .box{width:100%;max-width:380px}
 .auth .box h1{font-family:var(--font-serif),serif;font-size:30px;margin-bottom:6px;font-weight:600}
 .auth .box .sub{color:var(--muted);margin-bottom:22px;font-size:14px}
+.auth .gbtn{min-height:44px;display:flex;justify-content:center;margin-bottom:4px}
+.auth .or{display:flex;align-items:center;gap:12px;margin:14px 0 18px;color:var(--muted);font-size:13px}
+.auth .or::before,.auth .or::after{content:"";flex:1;height:1px;background:var(--line)}
 .auth .alt{margin-top:18px;font-size:14px;color:var(--muted)}
 .auth .alt a{color:var(--sogan);font-weight:700}
 [data-theme=dark] .auth .alt a{color:var(--gold)}

@@ -18,6 +18,11 @@ const schema = z.object({
   MAIL_FROM: z.string().default("Bandha <no-reply@bandha.grezly.app>"),
   /** Registration needs a 6-digit code sent by email. Turn it off ("false") only as an emergency switch when email cannot be sent. */
   REQUIRE_EMAIL_OTP: z.string().default("true").transform((v) => !["false", "0", "off", "no"].includes(v.trim().toLowerCase())),
+  /**
+   * OAuth client id(s) of the Google Cloud project, comma separated. The web button and the phone app both ask Google for an
+   * ID token for the same Web client id, and the API only accepts tokens issued for one of these. Empty = Google sign-in is off.
+   */
+  GOOGLE_CLIENT_ID: z.string().default("").transform((v) => v.split(",").map((s) => s.trim()).filter(Boolean)),
   NODE_ENV: z.string().optional(),
 }).superRefine((v, ctx) => {
   if (v.MAIL_TRANSPORT === "smtp" && !v.SMTP_URL) ctx.addIssue({ code: "custom", path: ["SMTP_URL"], message: "SMTP_URL is required when MAIL_TRANSPORT=smtp" });

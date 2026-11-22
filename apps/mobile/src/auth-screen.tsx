@@ -4,6 +4,7 @@ import { KeyboardAvoidingView, Platform, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ApiError } from "@bandha/api-client";
 import { useAuth } from "./auth";
+import { googleAvailable, googleIdToken } from "./google";
 import { LangToggle, useT } from "./i18n";
 import { useTheme } from "./theme";
 import { BatikBackground, Banner, Btn, Field, Logo, T } from "./ui";
@@ -20,7 +21,9 @@ export function AuthScreen({ mode }: { mode: "login" | "register" }) {
   const c = useTheme();
   const t = useT();
   const insets = useSafeAreaInsets();
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, signInWithGoogle } = useAuth();
+  // Decided once: it needs the native module and a configured Web client id, so it is absent in Expo Go and the browser preview.
+  const [canGoogle] = useState(googleAvailable);
   const reg = mode === "register";
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -48,6 +51,20 @@ export function AuthScreen({ mode }: { mode: "login" | "register" }) {
     }
   }
 
+  // The same button signs in and signs up. Closing Google's sheet is not an error; the server's refusals (e.g. a disabled account) are shown.
+  async function google() {
+    setError("");
+    setBusy(true);
+    try {
+      const idToken = await googleIdToken();
+      if (idToken) await signInWithGoogle(idToken);
+    } catch (e) {
+      setError(message(e, t("Login Google gagal. Coba lagi.", "Google sign-in failed. Try again.")));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: c.bg }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
@@ -67,6 +84,16 @@ export function AuthScreen({ mode }: { mode: "login" | "register" }) {
         <View style={{ padding: 24, gap: 14 }}>
           <T v="title" accessibilityRole="header">{reg ? t("Buat akun", "Create account") : t("Selamat datang kembali", "Welcome back")}</T>
           {error ? <Banner tone="err">{error}</Banner> : null}
+          {canGoogle ? (
+            <>
+              <Btn kind="ghost" label={t("Lanjutkan dengan Google", "Continue with Google")} onPress={google} busy={busy} />
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+                <View style={{ flex: 1, height: 1, backgroundColor: c.line }} />
+                <T v="small" muted>{t("atau", "or")}</T>
+                <View style={{ flex: 1, height: 1, backgroundColor: c.line }} />
+              </View>
+            </>
+          ) : null}
           {reg && <Field label={t("Nama", "Name")} value={name} onChangeText={setName} autoComplete="name" textContentType="name" returnKeyType="next" />}
           <Field label="Email" value={email} onChangeText={setEmail} autoCapitalize="none" autoCorrect={false} keyboardType="email-address" autoComplete="email" textContentType="emailAddress" returnKeyType="next" />
           <Field label={t("Kata sandi", "Password")} value={password} onChangeText={setPassword} secureTextEntry autoComplete={reg ? "new-password" : "current-password"} textContentType={reg ? "newPassword" : "password"} hint={reg ? t("Minimal 10 karakter.", "At least 10 characters.") : undefined} returnKeyType="go" onSubmitEditing={submit} />

@@ -56,6 +56,7 @@ services:
       SMTP_URL: ${SMTP_URL:-}
       MAIL_FROM: ${MAIL_FROM:-Bandha <no-reply@bandha.grezly.app>}
       REQUIRE_EMAIL_OTP: ${REQUIRE_EMAIL_OTP:-true}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
     ports:
       # Only needed when the mobile app must reach the API (put an nginx api.* host in front of this port).
       - "127.0.0.1:${API_PORT:-4000}:4000"
@@ -77,6 +78,7 @@ services:
     restart: unless-stopped
     environment:
       API_URL: http://api:4000
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
     ports:
       - "127.0.0.1:${WEB_PORT:-3000}:3000"
     depends_on:

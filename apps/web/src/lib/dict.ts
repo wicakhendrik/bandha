@@ -20,7 +20,7 @@ const id = {
   "auth.registerTitle": "Buat akun", "auth.registerSub": "Mulai catat keuangan Anda.",
   "auth.name": "Nama", "auth.email": "Email", "auth.password": "Kata sandi", "auth.passwordHint": "Minimal 10 karakter.",
   "auth.login": "Masuk", "auth.register": "Daftar", "auth.processing": "Memproses…",
-  "auth.noAccount": "Belum punya akun?", "auth.hasAccount": "Sudah punya akun?",
+  "auth.noAccount": "Belum punya akun?", "auth.hasAccount": "Sudah punya akun?", "auth.or": "atau",
   "auth.artTitle": "Harta tertata, hati tenang.", "auth.artBody": "Catat rekening, arus kas, dan aset kripto dalam satu tempat. Setiap angka bisa ditelusuri sampai ke catatan aslinya.",
   "auth.errName": "Nama wajib diisi", "auth.errEmail": "Format email tidak valid", "auth.errPassword": "Kata sandi minimal 10 karakter",
 
@@ -394,7 +394,7 @@ const en: Record<DictKey, string> = {
   "auth.registerTitle": "Create account", "auth.registerSub": "Start tracking your finances.",
   "auth.name": "Name", "auth.email": "Email", "auth.password": "Password", "auth.passwordHint": "At least 10 characters.",
   "auth.login": "Sign in", "auth.register": "Sign up", "auth.processing": "Working…",
-  "auth.noAccount": "No account yet?", "auth.hasAccount": "Already have an account?",
+  "auth.noAccount": "No account yet?", "auth.hasAccount": "Already have an account?", "auth.or": "or",
   "auth.artTitle": "Wealth in order, mind at ease.", "auth.artBody": "Keep accounts, cash flow and crypto in one place. Every number can be traced back to the record behind it.",
   "auth.errName": "Name is required", "auth.errEmail": "Invalid email format", "auth.errPassword": "Password must be at least 10 characters",
 

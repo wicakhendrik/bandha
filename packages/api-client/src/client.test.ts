@@ -32,6 +32,19 @@ describe("auth", () => {
     expect(calls.at(-1)?.auth).toBe("Bearer at1");
   });
 
+  it("google sign-in sends only the ID token, stores the tokens and reports whether the account is new", async () => {
+    const { client, storage, calls } = setup(null, () => res({ user: { id: "u", name: "A", email: "a@b.c" }, tokens: tok(7), created: true }));
+    expect(await client.google("id-token-123")).toEqual({ user: { id: "u", name: "A", email: "a@b.c" }, created: true });
+    expect(calls[0]).toMatchObject({ path: "/auth/google", auth: null, body: { idToken: "id-token-123" } });
+    expect(storage.value).toEqual(tok(7));
+  });
+
+  it("a refused google sign-in stores nothing and carries the reason code", async () => {
+    const { client, storage } = setup(null, () => res({ error: "Akun ini dinonaktifkan. Hubungi admin.", code: "account_disabled" }, 403));
+    await expect(client.google("id-token-123")).rejects.toMatchObject({ status: 403, code: "account_disabled" });
+    expect(storage.value).toBeNull();
+  });
+
   it("request without a session fails with 401 and never hits the network", async () => {
     const { client, calls } = setup(null, () => res({}));
     await expect(client.request("/me")).rejects.toMatchObject({ status: 401 });

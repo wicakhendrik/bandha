@@ -155,6 +155,15 @@ export function createClient(opts: ClientOptions) {
     /** Asks for a new code; always resolves the same way, whether or not the address is waiting for one. */
     resendVerification: async (email: string): Promise<void> => { await parse<{ ok: boolean }>(await send("/auth/verify/resend", { method: "POST", body: { email } })); },
     login: (input: { email: string; password: string }) => authenticate("/auth/login", input),
+    /**
+     * Signs in, or signs up, with the ID token Google gave the app. One call for both: `created` is true when this was the
+     * person's first time (so the app can show the welcome step). The server checks the token; nothing here trusts it.
+     */
+    google: async (idToken: string): Promise<{ user: PublicUser; created: boolean }> => {
+      const data = await parse<{ user: PublicUser; tokens: Tokens; created: boolean }>(await send("/auth/google", { method: "POST", body: { idToken } }));
+      await setTokens(data.tokens);
+      return { user: data.user, created: data.created };
+    },
     /** Always resolves the same way, whether or not the email has an account. */
     forgotPassword: async (email: string): Promise<void> => { await parse<{ ok: boolean }>(await send("/auth/forgot", { method: "POST", body: { email } })); },
     resetPassword: async (token: string, password: string): Promise<void> => { await parse<{ ok: boolean }>(await send("/auth/reset", { method: "POST", body: { token, password } })); },

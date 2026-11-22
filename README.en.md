@@ -26,7 +26,7 @@ Web · Android · iOS &nbsp;|&nbsp; Indonesian & English &nbsp;|&nbsp; Light & d
 - **CSV bank-statement import.** Paste or upload, review row by row before saving (all-or-nothing), and undo a whole import if it was wrong.
 - **Guided start.** A first-run checklist that adapts to your data.
 - **Bilingual, two themes.** Indonesian and English on web and mobile; light and dark in the *Batik Sogan* palette.
-- **Secure accounts.** Sign-up confirmed with a 6-digit emailed code, password reset by email ([SMTP guide](docs/EMAIL.md), Indonesian); tokens live in `httpOnly` cookies (web) and SecureStore (mobile).
+- **Secure accounts.** Sign-up confirmed with a 6-digit emailed code, or one-click sign-in/sign-up with Google ([setup guide](docs/GOOGLE-LOGIN.md), Indonesian), password reset by email ([SMTP guide](docs/EMAIL.md), Indonesian); tokens live in `httpOnly` cookies (web) and SecureStore (mobile).
 - **Move from FinMap.** A one-person-per-run migration script with dry-run and balance reconciliation ([guide](docs/MIGRASI-FINMAP.md), Indonesian).
 
 ## Screenshots

@@ -2,12 +2,15 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import { mutate } from "swr";
 import type { PublicUser } from "@bandha/api-client";
 import { client, setSignedOutHandler } from "./api";
+import { googleSignOut } from "./google";
 
 type Status = "loading" | "authed" | "anon";
 interface AuthCtx {
   status: Status;
   user: PublicUser | null;
   signIn: (email: string, password: string) => Promise<void>;
+  /** Signs in, or signs up, with the ID token Google gave the app (one call for both). */
+  signInWithGoogle: (idToken: string) => Promise<void>;
   /** Resolves with the address that now has to be confirmed with the emailed code, or null when the person was signed in at once. */
   signUp: (name: string, email: string, password: string) => Promise<{ verifyEmail: string | null }>;
   /** Confirms the 6-digit code from the registration email and signs in. */
@@ -55,6 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       status,
       user,
       signIn: async (email, password) => { setUser(await client.login({ email, password })); setStatus("authed"); },
+      signInWithGoogle: async (idToken) => { setUser((await client.google(idToken)).user); setStatus("authed"); },
       signUp: async (name, email, password) => {
         const r = await client.register({ name, email, password });
         if (r.kind === "verify") return { verifyEmail: r.email };
@@ -64,7 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
       verifyEmail: async (email, code) => { setUser(await client.verifyEmail(email, code)); setStatus("authed"); },
       resendCode: (email) => client.resendVerification(email),
-      signOut: async () => { await client.logout(); clear(); },
+      signOut: async () => { await client.logout(); void googleSignOut(); clear(); },
       updateName: async (name) => { setUser(await client.updateName(name)); },
       changePassword: async (currentPassword, newPassword) => {
         await client.changePassword(currentPassword, newPassword);

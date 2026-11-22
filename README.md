@@ -26,7 +26,7 @@ Web · Android · iOS &nbsp;|&nbsp; Indonesia & English &nbsp;|&nbsp; Terang & g
 - **Impor CSV mutasi bank.** Tempel atau unggah CSV, tinjau baris demi baris sebelum disimpan (semua-atau-tidak-sama-sekali), dan batalkan seluruh impor bila salah.
 - **Mulai cepat.** Panduan awal yang menyesuaikan dengan data Anda: tambah rekening, saldo awal, transaksi pertama.
 - **Dwibahasa dan dua tema.** Indonesia dan English di web dan mobile; tema terang dan gelap bergaya *Batik Sogan*.
-- **Akun yang aman.** Pendaftaran dikonfirmasi dengan kode 6 angka lewat email, lupa kata sandi lewat email ([panduan SMTP](docs/EMAIL.md)), token disimpan di cookie `httpOnly` (web) dan SecureStore (mobile).
+- **Akun yang aman.** Pendaftaran dikonfirmasi dengan kode 6 angka lewat email, atau masuk/daftar sekali klik dengan Google ([panduan Google](docs/GOOGLE-LOGIN.md)), lupa kata sandi lewat email ([panduan SMTP](docs/EMAIL.md)), token disimpan di cookie `httpOnly` (web) dan SecureStore (mobile).
 - **Pindah dari FinMap.** Skrip migrasi satu-orang-per-jalan dengan dry-run dan rekonsiliasi saldo ([panduan](docs/MIGRASI-FINMAP.md)).
 
 ## Tampilan
@@ -172,6 +172,7 @@ Salin `.env.example` ke `.env`. Yang paling penting:
 | `WEB_ORIGIN` | Alamat web (boleh beberapa, dipisah koma) untuk CORS |
 | `MARKET_PROVIDER` | `coingecko` untuk harga nyata, `fake` hanya untuk dev/tes |
 | `MAIL_TRANSPORT` / `SMTP_URL` | Email "lupa kata sandi": `console` untuk dev, **`smtp` wajib di produksi** |
+| `GOOGLE_CLIENT_ID` | Masuk/daftar dengan Google: Client ID "Web application" Google Cloud, kosong = mati ([panduan](docs/GOOGLE-LOGIN.md)) |
 | `EXPO_PUBLIC_API_URL` | Alamat API untuk mobile (IP LAN di perangkat fisik; rilis wajib HTTPS) |
 
 ## Deploy

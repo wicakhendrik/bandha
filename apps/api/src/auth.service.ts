@@ -7,7 +7,11 @@ import {
 } from "./security";
 import { HttpError } from "./errors";
 import { resetPasswordEmail, verificationEmail, type Mailer } from "./mailer";
+import type { GoogleProfile } from "./google";
 import { isUniqueViolation } from "./types";
+
+/** Stored as the password hash of an account that signed up with Google. It is not a valid hash, so no password ever matches it. */
+export const NO_PASSWORD = "!google";
 
 export const RESET_TTL_MINUTES = 30;
 /** At most this many reset emails per account per hour; more requests are silently ignored. */
@@ -131,6 +135,61 @@ export class AuthService {
     const workspaceId = await this.workspaceIdOf(u.id);
     const tokens = await this.issue(u.id, workspaceId, crypto.randomUUID(), userAgent);
     return { user: { id: u.id, name: u.name, email: u.email }, tokens };
+  }
+
+  /**
+   * Sign in or sign up with a Google account whose ID token has already been verified (see google.ts). One call does both:
+   *  - the Google id (`sub`) is known: sign that account in;
+   *  - the address already has an account: link Google to it and sign in. Google confirmed the person owns the address, which
+   *    is the same proof the emailed code gives. If that account never confirmed its address, the password it was registered
+   *    with is thrown away, because whoever typed it was never shown to own the address (the person who just proved it is);
+   *  - otherwise a new, already verified account (and its ledger) is created, with no password until "forgot password" sets one.
+   * `created` tells the client whether to show the welcome page.
+   */
+  async googleSignIn(verified: GoogleProfile, userAgent: string | null): Promise<{ user: PublicUser; tokens: AuthTokens; created: boolean }> {
+    // Addresses are matched and stored in lower case (the unique index is on lower(email)), whatever the caller passed in.
+    const profile = { ...verified, email: verified.email.trim().toLowerCase() };
+    // Two first-time sign-ins racing each other collide on the unique index; the loser simply finds the winner's row on the retry.
+    const run = () => this.db.transaction(async (tx) => {
+      let [u] = await tx.select().from(users).where(eq(users.googleSub, profile.sub)).for("update");
+      if (!u) {
+        [u] = await tx.select().from(users).where(sql`lower(${users.email}) = ${profile.email}`).for("update");
+        // The address belongs to an account linked to a different Google account: never merge two Google identities.
+        if (u?.googleSub && u.googleSub !== profile.sub) throw new HttpError(409, "Email ini sudah terhubung dengan akun Google lain.", { code: "google_conflict" });
+      }
+      if (u) {
+        if (u.disabledAt) throw disabledError();
+        const now = new Date();
+        if (!u.googleSub || !u.emailVerifiedAt) {
+          const [linked] = await tx.update(users).set({
+            googleSub: profile.sub,
+            emailVerifiedAt: u.emailVerifiedAt ?? now,
+            ...(u.emailVerifiedAt ? {} : { passwordHash: NO_PASSWORD }),
+            updatedAt: now,
+          }).where(eq(users.id, u.id)).returning();
+          if (!u.emailVerifiedAt) {
+            await tx.update(emailVerifications).set({ usedAt: now }).where(and(eq(emailVerifications.userId, u.id), isNull(emailVerifications.usedAt)));
+          }
+          u = linked ?? u;
+        }
+        const [w] = await tx.select({ id: workspaces.id }).from(workspaces).where(eq(workspaces.ownerUserId, u.id));
+        if (!w) throw new AuthError(401, "Workspace not found");
+        return { user: u, workspaceId: w.id, created: false };
+      }
+      const [row] = await tx.insert(users).values({
+        email: profile.email, name: profile.name, passwordHash: NO_PASSWORD, googleSub: profile.sub, emailVerifiedAt: new Date(),
+      }).returning();
+      if (!row) throw new Error("User insert failed");
+      const [w] = await tx.insert(workspaces).values({ ownerUserId: row.id }).returning({ id: workspaces.id });
+      if (!w) throw new Error("Workspace insert failed");
+      return { user: row, workspaceId: w.id, created: true };
+    });
+    const r = await run().catch((err) => {
+      if (isUniqueViolation(err)) return run();
+      throw err;
+    });
+    const tokens = await this.issue(r.user.id, r.workspaceId, crypto.randomUUID(), userAgent);
+    return { user: { id: r.user.id, name: r.user.name, email: r.user.email }, tokens, created: r.created };
   }
 
   /**

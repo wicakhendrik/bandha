@@ -6,8 +6,9 @@ import { mutate } from "swr";
 import { ApiError, api, errorText } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
 import { AuthShell } from "./auth-shell";
+import { GoogleButton } from "./google-button";
 
-export function AuthForm({ mode }: { mode: "login" | "register" }) {
+export function AuthForm({ mode, googleClientId }: { mode: "login" | "register"; googleClientId: string | null }) {
   const { t } = useI18n();
   const router = useRouter();
   const reg = mode === "register";
@@ -38,12 +39,33 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
     }
   }
 
+  // Google signs in and signs up with the same button: a first-time person lands on the welcome step, anyone else on the dashboard.
+  async function google(idToken: string) {
+    if (busy) return;
+    setError("");
+    setBusy(true);
+    try {
+      const res = await api<{ created?: boolean } | undefined>("/auth/google", { method: "POST", body: { idToken } });
+      await mutate(() => true, undefined, { revalidate: false });
+      router.replace(res?.created ? "/welcome" : "/dashboard");
+    } catch (err) {
+      setError(errorText(err));
+      setBusy(false);
+    }
+  }
+
   return (
     <AuthShell>
       <form className="box" onSubmit={submit} noValidate>
         <h1>{reg ? t("auth.registerTitle") : t("auth.loginTitle")}</h1>
         <p className="sub">{reg ? t("auth.registerSub") : t("auth.loginSub")}</p>
         {error && <div className="err" role="alert">{error}</div>}
+        {googleClientId && (
+          <>
+            <GoogleButton clientId={googleClientId} onToken={google} />
+            <div className="or"><span>{t("auth.or")}</span></div>
+          </>
+        )}
         {reg && (
           <div className="field"><label htmlFor="n">{t("auth.name")}</label>
             <input id="n" className="input" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} /></div>

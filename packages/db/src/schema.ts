@@ -33,7 +33,10 @@ export const users = pgTable(
     id: id(),
     email: text("email").notNull(),
     name: text("name").notNull(),
+    /** For an account that only ever signed in with Google this is a marker that matches no password, so a password cannot be used until one is set through "forgot password". */
     passwordHash: text("password_hash").notNull(),
+    /** Google's stable account id ("sub"). Set the first time the person signs in with Google; the email alone is never used to recognise a returning Google user. */
+    googleSub: text("google_sub"),
     emailVerifiedAt: timestamp("email_verified_at", { withTimezone: true }),
     /** "admin" may use the /admin API (user list, disable accounts, statistics). Only ever set from the command line, never through the API. */
     role: userRole("role").notNull().default("user"),
@@ -44,7 +47,7 @@ export const users = pgTable(
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
-  (t) => [uniqueIndex("users_email_unique").on(sql`lower(${t.email})`)],
+  (t) => [uniqueIndex("users_email_unique").on(sql`lower(${t.email})`), uniqueIndex("users_google_sub_unique").on(t.googleSub)],
 );
 
 /**

@@ -35,6 +35,8 @@ jobs:
     timeout-minutes: 60
     env:
       EXPO_PUBLIC_API_URL: ${{ inputs.api_url || vars.APK_API_URL || 'https://api-bandha.grezly.app' }}
+      # "Continue with Google" in the app: the Google Cloud *Web application* client id (see docs/GOOGLE-LOGIN.md). Empty = no Google button.
+      EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID: ${{ vars.GOOGLE_WEB_CLIENT_ID }}
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4

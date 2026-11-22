@@ -6,12 +6,13 @@ import { eq } from "drizzle-orm";
 import { users, type Db } from "@bandha/db";
 import {
   addCryptoSchema, createAccountSchema, createDebtSchema, createTransactionSchema, loginSchema, refreshSchema, registerSchema, replaceTransactionSchema, forgotPasswordSchema, resetPasswordSchema,
-  importCommitSchema, importPreviewSchema, settleDebtSchema, updateAccountSchema, updateDebtSchema, updateTransactionSchema, updateProfileSchema, changePasswordSchema, verifyEmailSchema,
+  importCommitSchema, importPreviewSchema, settleDebtSchema, updateAccountSchema, updateDebtSchema, updateTransactionSchema, updateProfileSchema, changePasswordSchema, verifyEmailSchema, googleLoginSchema,
 } from "@bandha/validation";
 import { AccountsService } from "./accounts.service";
 import { AdminService, type UserStatus } from "./admin.service";
 import { isAssetKind } from "./assets.service";
 import { AuthError, AuthService } from "./auth.service";
+import { createGoogleVerifier, type GoogleVerifier } from "./google";
 import { createMailer, type Mailer } from "./mailer";
 import { appUrl, type Config } from "./config";
 import { HttpError } from "./errors";
@@ -55,10 +56,12 @@ const intParam = (v: string | undefined, def: number, max: number) => {
   return Number.isInteger(n) && n >= 0 ? Math.min(n, max) : def;
 };
 
-export function createApp(deps: { db: Db; config: Config; services: Services; mailer?: Mailer }) {
+export function createApp(deps: { db: Db; config: Config; services: Services; mailer?: Mailer; googleVerifier?: GoogleVerifier }) {
   const { db, config } = deps;
   const { market, dashboard, portfolio, holdings, assetCatalog } = deps.services;
   const mailer = deps.mailer ?? createMailer(config);
+  // Google sign-in is off until GOOGLE_CLIENT_ID is set.
+  const googleVerifier = deps.googleVerifier ?? (config.GOOGLE_CLIENT_ID.length > 0 ? createGoogleVerifier(config.GOOGLE_CLIENT_ID) : null);
   const auth = new AuthService(db, config.JWT_SECRET, { requireEmailOtp: config.REQUIRE_EMAIL_OTP, mailer });
   const accountsSvc = new AccountsService(db);
   const adminSvc = new AdminService(db);
@@ -99,6 +102,13 @@ export function createApp(deps: { db: Db; config: Config; services: Services; ma
     const p = await parse(c, loginSchema);
     if (!p.ok) return p.res;
     return c.json(await auth.login(p.data, ua(c)));
+  });
+  // Google sign-in and sign-up in one: the client sends the ID token Google gave it, the API checks it and signs the person in.
+  app.post("/auth/google", limiter, async (c) => {
+    if (!googleVerifier) return c.json({ error: "Login Google belum diaktifkan.", code: "google_disabled" }, 404);
+    const p = await parse(c, googleLoginSchema);
+    if (!p.ok) return p.res;
+    return c.json(await auth.googleSignIn(await googleVerifier.verify(p.data.idToken), ua(c)));
   });
   app.post("/auth/refresh", limiter, async (c) => {
     const p = await parse(c, refreshSchema);

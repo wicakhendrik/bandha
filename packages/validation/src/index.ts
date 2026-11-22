@@ -16,6 +16,10 @@ export const loginSchema = z.object({
 });
 export type LoginInput = z.infer<typeof loginSchema>;
 
+/** The signed ID token ("credential") Google hands the web button or the phone's Google sign-in. The API verifies it itself. */
+export const googleLoginSchema = z.object({ idToken: z.string().min(20).max(4096) });
+export type GoogleLoginInput = z.infer<typeof googleLoginSchema>;
+
 export const forgotPasswordSchema = z.object({ email: emailSchema });
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 
