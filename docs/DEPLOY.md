@@ -241,13 +241,13 @@ Sekali per lingkungan (contoh development; produksi sama dengan `api-bandha` dan
    sudo nginx -t && sudo systemctl reload nginx
    sudo certbot --nginx -d api-bandha-dev.grezly.app
    ```
-3. **Cek**: `curl -s https://api-bandha-dev.grezly.app/api/health` harus `{"status":"ok"}`; `ss -ltnp | grep -E ':(4100|5432)'` tetap hanya
+3. **Cek**: `curl -s https://api-bandha-dev.grezly.app/api/health` harus `{"status":"ok"}`; `ss -ltnp | grep -E ':(4100|5432)\b'` tetap hanya
    127.0.0.1 untuk 4100 dan 5432 tidak muncul. Port 80 dan 443 terbuka di firewall.
 4. **GitHub**: variabel repository `APK_API_URL` = `https://api-bandha-dev.grezly.app`, lalu jalankan ulang workflow Build Android APK.
 5. **Admin pertama**: daftar dulu lewat web (kode verifikasi ada di `docker compose ... logs api` bila `MAIL_TRANSPORT=console`), lalu:
    ```bash
    cd /srv/bandha-dev
-   sudo -u deploy docker compose --env-file deploy/.env -f deploy/compose.yml run --rm migrate      pnpm --filter @bandha/db make-admin email@contoh.com        # tambah --revoke untuk mencabut
+   sudo -u deploy docker compose --env-file deploy/.env -f deploy/compose.yml run --rm migrate \n     pnpm --filter @bandha/db make-admin email@contoh.com        # tambah --revoke untuk mencabut
    ```
    Keluar lalu masuk lagi; menu Admin muncul. Migrasi `0010` sudah dijalankan otomatis oleh `deploy.sh`.
 
