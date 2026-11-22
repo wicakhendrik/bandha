@@ -247,7 +247,8 @@ Sekali per lingkungan (contoh development; produksi sama dengan `api-bandha` dan
 5. **Admin pertama**: daftar dulu lewat web (kode verifikasi ada di `docker compose ... logs api` bila `MAIL_TRANSPORT=console`), lalu:
    ```bash
    cd /srv/bandha-dev
-   sudo -u deploy docker compose --env-file deploy/.env -f deploy/compose.yml run --rm migrate \n     pnpm --filter @bandha/db make-admin email@contoh.com        # tambah --revoke untuk mencabut
+   sudo -u deploy docker compose --env-file deploy/.env -f deploy/compose.yml run --rm migrate \
+     pnpm --filter @bandha/db make-admin email@contoh.com        # tambah --revoke untuk mencabut
    ```
    Keluar lalu masuk lagi; menu Admin muncul. Migrasi `0010` sudah dijalankan otomatis oleh `deploy.sh`.
 
