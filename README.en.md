@@ -131,7 +131,7 @@ pnpm dev:mobile     # Expo: scan the QR with Expo Go, or press a / i
 
 Open http://localhost:3000, sign up, and follow the **Quick start** checklist on the dashboard. For offline development set `MARKET_PROVIDER=fake`.
 
-**Admin:** sign up and verify the account first, then make it an admin from the command line (`pnpm db:make-admin you@example.com`, add `--revoke` to remove it; on the production server run it with the production `DATABASE_URL`). An **Admin** menu (statistics, user list with disable/enable, audit log) then appears for that account.
+**Admin:** sign up and verify the account first, then make it an admin from the command line (`pnpm db:make-admin you@example.com` on a dev machine, add `--revoke` to remove it; on the server use `docker compose ... run --rm migrate pnpm --filter @bandha/db make-admin you@example.com`, see docs/DEPLOY.md section G). An **Admin** menu (statistics, user list with disable/enable, audit log) then appears for that account.
 
 | Command | What it does |
 | --- | --- |

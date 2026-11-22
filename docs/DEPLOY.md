@@ -228,7 +228,30 @@ repository `APK_API_URL` (Settings > Secrets and variables > Actions > Variables
 development. Tanpa variabel itu build memakai `https://api-bandha.grezly.app`. APK ditandatangani dengan kunci debug (cukup untuk uji
 coba; Play Store butuh keystore rilis). Ikon dan splash ada di `apps/mobile/assets/` (diatur di `app.json`).
 
-## G. Masalah umum
+## G. API untuk aplikasi mobile, dan membuat admin (langkah di VPS)
+Sekali per lingkungan (contoh development; produksi sama dengan `api-bandha` dan `/srv/bandha`):
+1. **DNS** (di penyedia domain): record A `api-bandha-dev.grezly.app` ke IP VPS yang sama dengan `bandha-dev.grezly.app`. Tunggu sampai
+   `nslookup api-bandha-dev.grezly.app` menjawab IP itu.
+2. **nginx** (port 80 saja; certbot menambah HTTPS sendiri). Pakai **hanya blok development** dari `deploy/nginx/bandha-api.conf`
+   selama produksi belum disiapkan:
+   ```bash
+   sudo cp /srv/bandha-dev/deploy/nginx/bandha-api.conf /etc/nginx/sites-available/bandha-api.conf
+   # hapus blok "api-bandha.grezly.app" (produksi) dari salinan itu bila DNS-nya belum dibuat
+   sudo ln -s /etc/nginx/sites-available/bandha-api.conf /etc/nginx/sites-enabled/
+   sudo nginx -t && sudo systemctl reload nginx
+   sudo certbot --nginx -d api-bandha-dev.grezly.app
+   ```
+3. **Cek**: `curl -s https://api-bandha-dev.grezly.app/api/health` harus `{"status":"ok"}`; `ss -ltnp | grep -E ':(4100|5432)'` tetap hanya
+   127.0.0.1 untuk 4100 dan 5432 tidak muncul. Port 80 dan 443 terbuka di firewall.
+4. **GitHub**: variabel repository `APK_API_URL` = `https://api-bandha-dev.grezly.app`, lalu jalankan ulang workflow Build Android APK.
+5. **Admin pertama**: daftar dulu lewat web (kode verifikasi ada di `docker compose ... logs api` bila `MAIL_TRANSPORT=console`), lalu:
+   ```bash
+   cd /srv/bandha-dev
+   sudo -u deploy docker compose --env-file deploy/.env -f deploy/compose.yml run --rm migrate      pnpm --filter @bandha/db make-admin email@contoh.com        # tambah --revoke untuk mencabut
+   ```
+   Keluar lalu masuk lagi; menu Admin muncul. Migrasi `0010` sudah dijalankan otomatis oleh `deploy.sh`.
+
+## H. Masalah umum
 - **Deploy "did not become healthy"**: log 60 baris terakhir tercetak otomatis; versi lama dipulihkan. Penyebab paling sering:
   `deploy/.env` salah/kurang (compose berhenti dengan pesan variabel mana), atau migrasi gagal (lihat `logs migrate`).
 - **`APP_ENV=production needs MAIL_TRANSPORT=smtp`**: sengaja; isi `SMTP_URL` atau, hanya untuk development, set `APP_ENV=development`.
